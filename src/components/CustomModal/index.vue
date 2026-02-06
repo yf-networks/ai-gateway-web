@@ -1,18 +1,10 @@
-/**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http: //www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/** * Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. * * Licensed under the Apache
+License, Version 2.0 (the "License"); * you may not use this file except in compliance with the
+License. * You may obtain a copy of the License at * * http: //www.apache.org/licenses/LICENSE-2.0 *
+* Unless required by applicable law or agreed to in writing, software * distributed under the
+License is distributed on an "AS IS" BASIS, * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied. * See the License for the specific language governing permissions and *
+limitations under the License. */
 <template>
     <div>
         <Modal v-model="modal" :closable="false" :mask-closable="false" :width="width">
@@ -25,10 +17,12 @@
             <p style="white-space: pre-line;">{{ content }}</p>
             <slot />
             <div slot="footer" v-if="oneButton" class="df justify-center">
-                <Button type="primary" @click="confirm">{{ okText ? okText : $t('com.confirm') }}</Button>
+                <Button type="primary" @click="confirm">{{
+                    okText ? okText : $t('com.confirm')
+                }}</Button>
             </div>
             <div slot="footer" v-else>
-                <Button @click="cancel" :disabled="disableCancel">{{ cancelText }}</Button>
+                <Button @click="cancel" :disabled="disableCancel">{{ myCancelText }}</Button>
                 <Button
                     type="primary"
                     :loading="loading"
@@ -70,7 +64,7 @@ export default {
         },
         cancelText: {
             type: String,
-            default: this.$t('com.cancel')
+            default: ''
         },
         width: {
             type: String,
@@ -86,7 +80,14 @@ export default {
         }
     },
     data() {
-        return {};
+        return {
+            myCancelText: this.cancelText || this.$t('com.cancel')
+        };
+    },
+    watch: {
+        cancelText(newVal) {
+            this.myCancelText = newVal;
+        }
     },
     methods: {
         confirm() {
