@@ -51,12 +51,12 @@ cp version.txt noahv/
 cp -r docs noahv/
 cp -r README.md noahv/
 mkdir output
-mv noahv "bfe_dashboard_${version}"
-mv "bfe_dashboard_${version}" output/
+mv noahv "ai-gateway-web_${version}"
+mv "ai-gateway-web_${version}" output/
 cd output
-tar -czvf "bfe_dashboard_${version}.tar.gz" "bfe_dashboard_${version}"
-shasum -a 256 "bfe_dashboard_${version}.tar.gz" > "bfe_dashboard_${version}_checksums.txt"
-rm -rf "bfe_dashboard_${version}"
+tar -czvf "ai-gateway-web_${version}.tar.gz" "ai-gateway-web_${version}"
+shasum -a 256 "ai-gateway-web_${version}.tar.gz" > "ai-gateway-web_${version}_checksums.txt"
+rm -rf "ai-gateway-web_${version}"
 echo "pack success"
 
 echo "build success"
