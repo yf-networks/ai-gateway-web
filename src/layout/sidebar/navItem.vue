@@ -58,6 +58,7 @@ export default {
                 'AIPool.list': 'iconfont icon-instancePool',
                 'Domain.list': 'iconfont icon-common',
                 'gslb.list': 'iconfont icon-gslb',
+                'SubCluster.list': 'iconfont icon-cluster',
 
                 'APIKey.list': 'ivu-icon-ios-key',
                 'ai_route.list.admin': 'iconfont icon-zhuanfa',

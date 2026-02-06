@@ -1,33 +1,33 @@
 /**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http: //www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http: //www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**
-* Copyright (c) 2021 The BFE Authors.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2021 The BFE Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // eslint-disable
 module.exports = {
     com: {
@@ -117,6 +117,7 @@ module.exports = {
         Cluster: '集群',
         BFECluster: 'BFE集群',
         SubClusterLB: '子集群负载',
+        SubClusterManage: '子集群管理',
         Route: '路由',
         Domain: '域名',
         ForwardRule: '转发规则',
@@ -161,6 +162,11 @@ module.exports = {
         tipUrlIllegal: '当前url非法',
         tipSelectProductLine: '请先选择产品线',
         tip404: '啊嘞，找不到路了~'
+    },
+    subCluster: {
+        name: '子集群',
+
+        tipNameRule: '集群名称只能包含字母、数字以及短横线-、下划线、点，且长度大于1'
     },
     user: {
         relationX: '关联{obj}',

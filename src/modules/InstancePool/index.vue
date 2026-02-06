@@ -147,8 +147,7 @@ export default {
                     params.row.name +
                     '?',
                 onOk: () => {
-                    this.currentName = params.row.name;
-                    this.onDeleteSubCluster(`subcluster-${params.row.name}-aiyf`);
+                    this.onDelInstancePool(params.row.name);
                 },
                 onCancel: () => {
                     this.$Message.info({ content: this.$t('com.tipCancelDel') });
@@ -217,29 +216,9 @@ export default {
                     });
                     this.isVisible = false;
                     this.getPoolList();
-                    this.onAddSubCluster(tmpData);
                 }
             });
         },
-        onAddSubCluster(data) {
-            this.$request({
-                url: this.$urlFormat('products/{product_name}/sub-clusters'),
-                method: 'post',
-                data: {
-                    name: `subcluster-${data.name}-aiyf`,
-                    instance_pool: data.name,
-                    idc: 'aiyf',
-                    description: `subcluster-${data.name}-aiyf`
-                },
-                openapi: true
-            }).then(data => {
-                if (data.status === 200) {
-                } else {
-                    console.error('子集群添加失败');
-                }
-            });
-        },
-
         onUpdatetInstancePool(data) {
             let tmpName = this.currentData.name.split('.')[1];
             this.$request({
@@ -281,24 +260,6 @@ export default {
                 .finally(() => {
                     this.loading = false;
                 });
-        },
-        onDeleteSubCluster(name) {
-            this.$request({
-                url: this.$urlFormat('products/{product_name}/sub-clusters/{sub_cluster_name}', {
-                    sub_cluster_name: name
-                }),
-                method: 'delete',
-                openapi: true
-            }).then(data => {
-                if (data.status === 200) {
-                    this.onDelInstancePool(this.currentName);
-                } else {
-                    console.error('子集群删除失败');
-                    this.$Message.error({
-                        content: this.$t('com.tipDelError')
-                    });
-                }
-            });
         }
     }
 };

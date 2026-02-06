@@ -119,6 +119,16 @@ export default [
                 component: r => require.ensure([], () => r(require('../modules/APIKey')), 'APIKey'),
                 path: 'api-key',
                 name: 'APIKey.list'
+            },
+            {
+                component: r =>
+                    require.ensure(
+                        [],
+                        () => r(require('../modules/SubClusters')),
+                        'SubCluster.list'
+                    ),
+                path: 'subcluster',
+                name: 'SubCluster.list'
             }
         ]
     },
