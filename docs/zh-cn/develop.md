@@ -1,6 +1,7 @@
-# 本文描述如何快速开发。
+# 本文描述如何快速开发
 
 ## 目录结构说明
+
 ```
 .
 ├── build.sh                // 打包脚本
@@ -17,6 +18,8 @@
     ├── router              // 路由设置
     │   └── router.js
     ├── modules             // 业务模块
+    │   ├── AIRouteRules
+    │   ├── APIKey
     │   ├── BfeClusters
     │   ├── BfeInstancePool
     │   ├── Cert
@@ -25,10 +28,7 @@
     │   ├── GslbConfigs
     │   ├── InstancePool
     │   ├── Login
-    │   ├── Product
-    │   ├── ProductUser
     │   ├── Routes
-    │   ├── SubClusters
     │   └── User
     ├── layout              // 布局逻辑
     │   ├── 404.vue
@@ -43,16 +43,19 @@
     │   ├── en.js
     │   └── zh.js
     ├── components          // 通用组件
+    │   ├── CustomModal
     │   ├── Expression
     │   └── table
     └── utils               // 公共工具
 ```
 
 ## 二次开发步骤
+
 二次开发步骤包括：
+
 - 基础开发环境搭建：nodejs 开发环境搭建本文不展开描述
 - noahv 开发工具获取: 项目基于[noahv](https://github.com/baidu/noahv)，获取步骤见noahv项目
 - 启动项目：修改 configs配置后执行 `noahv start` 即可启动项目
-    - API Server 必须先启动
-    - API Server 端口号配置在 configs/devProxy.js 的 `proxy.option.target`
-    - 开发端口号配置在 configs/config.js 的 `dev.ports`
+  - API Server 必须先启动
+  - API Server 端口号配置在 configs/devProxy.js 的 `proxy.option.target`
+  - 开发端口号配置在 configs/config.js 的 `dev.ports`

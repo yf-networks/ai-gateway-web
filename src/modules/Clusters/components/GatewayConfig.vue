@@ -29,6 +29,13 @@
                 <FormItem :label="$t('gatewayConfig.group')" prop="group">
                     <Input v-model="formData.group" />
                 </FormItem>
+                <FormItem :label="$t('gatewayConfig.modelServiceProvider')" prop="provider_type">
+                    <Select v-model="formData.provider_type">
+                        <Option v-for="item in providers" :value="item.id" :key="item.id">
+                            {{ item.name }}
+                        </Option>
+                    </Select>
+                </FormItem>
                 <FormItem :label="$t('gatewayConfig.modelListEndpoint')" prop="model_endpoint">
                     <div class="flex">
                         <Select class="item" v-model="formData.model_endpoint.schema">
@@ -82,7 +89,7 @@
                     </el-select>
                     <Button
                         type="primary"
-                        :disabled="!ipStr"
+                        :disabled="!ipStr || !formData.provider_type"
                         :loading="btnLoading"
                         @click="queryModels"
                         >{{ $t('gatewayConfig.get') }}
@@ -145,7 +152,7 @@
 </template>
 
 <script>
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { CommonNameCheck } from '@/utils/const';
 export default {
     components: {},
@@ -197,8 +204,12 @@ export default {
         };
 
         const validEndpoint = (rule, value, callback) => {
-            if (!value.schema || !value.uri) {
-                callback(new Error(this.$t('gatewayConfig.endpointRequired')));
+            if (!value.schema ) {
+                callback(new Error(this.$t('gatewayConfig.schemaRequired')));
+                return;
+            }
+            if (!value.uri) {
+                callback(new Error(this.$t('gatewayConfig.uriRequired')));
                 return;
             }
 
@@ -260,6 +271,14 @@ export default {
                         validator: validServiceName
                     }
                 ],
+                provider_type: [
+                    {
+                        required: true,
+                        message: this.$t('com.tipSelectX', {
+                            obj: this.$t('gatewayConfig.modelServiceProvider')
+                        })
+                    }
+                ],
                 model_endpoint: [
                     {
                         required: true,
@@ -308,6 +327,7 @@ export default {
             },
             headerList: [],
             modelsList: [],
+            providers: [],
 
             btnLoading: false
         };
@@ -398,7 +418,7 @@ export default {
                 const endpoint = this.formData && this.formData.model_endpoint;
                 const hasEndpoint = endpoint && endpoint.schema && endpoint.uri;
 
-                if (hasEndpoint && (this.protocol === 'https' ? val === 6 : val === 5)) {
+                if (hasEndpoint && val === 4) {
                     this.getProviders();
                     if (this.formData.provider_type) {
                         this.getModels();

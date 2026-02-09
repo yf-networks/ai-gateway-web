@@ -409,13 +409,13 @@ module.exports = {
         serviceAuthKey: '服务鉴权Key',
         get: '获取',
         add: '+添加',
+        modelServiceProvider: '模型服务商',
         originalModelName: '原请求的模型名称',
         backendModelName: '转发的后端模型名称',
         enterOriginalModelName: '请输入原模型名称',
         selectTargetModel: '请选择目标模型',
         serviceNameRequired: '请输入服务名称',
         formatInvalid: '长度必须在 20 到 200 之间',
-        endpointRequired: '请输入模型列表接口',
         uriMustStartWithSlash: 'URI必须以"/"开头',
         uriContainsIllegalChars: 'URI包含非法字符',
         uriCannotConsecutiveSlash: 'URI不能包含连续的斜杠',
@@ -425,7 +425,9 @@ module.exports = {
         modelListFormatAbnormal: '获取模型列表格式异常',
         parseModelListFailed: '解析模型列表数据失败',
         getModelListFailed: '获取模型列表异常: {message}',
-        getModelListSucc: '获取模型列表成功'
+        getModelListSucc: '获取模型列表成功',
+        schemaRequired: '请选择模型列表接口的协议',
+        uriRequired: '请输入模型列表接口的uri'
     },
     aiRouteRules: {
         rulesList: '规则列表'

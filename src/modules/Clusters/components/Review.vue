@@ -161,6 +161,20 @@
                         <li class="value">{{ llmConfigData.group }}</li>
                     </ul>
                     <ul class="clearFloat">
+                        <li class="title">{{ $t('gatewayConfig.modelServiceProvider') }}:</li>
+                        <li class="value">{{ llmConfigData.provider_type }}</li>
+                    </ul>
+                    <ul class="clearFloat">
+                        <li class="title">{{ $t('gatewayConfig.modelListEndpoint') }}:</li>
+                        <li class="value">
+                            <p>
+                                {{ llmConfigData.model_endpoint.schema }}://{{ ipStr
+                                }}{{ llmConfigData.model_endpoint.uri }}
+                            </p>
+                            <p>header: {{ llmConfigData.model_endpoint.headers }}</p>
+                        </li>
+                    </ul>
+                    <ul class="clearFloat">
                         <li class="title">{{ $t('llmConfig.modelRedirect') }}:</li>
                         <li class="value">
                             <table>
@@ -208,6 +222,7 @@
                     <template v-for="(subClusters, bfeCluster) in scheduler">
                         <tr
                             v-for="(subCluster, index) in Object.keys(subClusters)"
+                            :key="index"
                             :class="[
                                 queryTotalRate(subClusters) !== 100 ? 'errorColor' : '',
                                 'td-padding'
@@ -297,6 +312,25 @@ export default {
                             item => this.subClustersUsed.indexOf(item.name) !== -1
                         );
                     }
+
+                    this.ipStr = '';
+
+                    const filteredClusters = this.subClusterProductList.filter(cluster =>
+                        v.includes(cluster.name)
+                    );
+
+                    const ipPortList = [];
+                    filteredClusters.forEach(cluster => {
+                        if (cluster.instances && Array.isArray(cluster.instances)) {
+                            cluster.instances.forEach(instance => {
+                                ipPortList.push(`${instance.Addr}:${instance.Port}`);
+                            });
+                        }
+                    });
+
+                    const uniqueIpPortList = [...new Set(ipPortList)];
+
+                    this.ipStr = uniqueIpPortList.join('\n');
                 }
             },
             immediate: true,
@@ -313,6 +347,7 @@ export default {
             subClustersUsed: [],
             spinShow: false,
             productName: '',
+            ipStr: '',
             columns: [
                 {
                     title: this.$t('subCluster.name'),

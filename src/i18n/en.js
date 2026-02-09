@@ -412,13 +412,13 @@ module.exports = {
         serviceAuthKey: 'Service Auth Key',
         get: 'Get',
         add: '+Add',
+        modelServiceProvider: 'Model Service Provider',
         originalModelName: 'Original Request Model Name',
         backendModelName: 'Backend Model Name to Forward',
         enterOriginalModelName: 'Please enter original model name',
         selectTargetModel: 'Please select target model',
         serviceNameRequired: 'Please enter service name',
         formatInvalid: 'The length must be between 20 and 200',
-        endpointRequired: 'Please enter model list endpoint',
         uriMustStartWithSlash: 'URI must start with "/"',
         uriContainsIllegalChars: 'URI contains illegal characters',
         uriCannotConsecutiveSlash: 'URI cannot contain consecutive slashes',
@@ -428,7 +428,9 @@ module.exports = {
         modelListFormatAbnormal: 'Model list format abnormal',
         parseModelListFailed: 'Failed to parse model list data',
         getModelListFailed: 'Failed to get model list: {message}',
-        getModelListSucc: 'Successfully obtained the model list'
+        getModelListSucc: 'Successfully obtained the model list',
+        schemaRequired: 'Please select the protocol for the model list interface',
+        uriRequired: 'Please enter the URI for the model list interface'
     },
     aiRouteRules: {
         rulesList: 'Rules List'
