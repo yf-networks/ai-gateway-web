@@ -1,4 +1,19 @@
 /**
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http: //www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Copyright (c) 2021 The BFE Authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +35,12 @@
         </FormItem>
         <FormItem :label="$t('cluster.clusterDescription')" prop="description">
             <Input v-model="formData.description" />
+        </FormItem>
+        <FormItem :label="$t('cluster.protocol')" prop="protocol">
+            <Select v-model="formData.protocol">
+                <Option value="http">http</Option>
+                <Option value="https">https</Option>
+            </Select>
         </FormItem>
         <FormItem
             v-if="formData.connection"
@@ -217,6 +238,13 @@ export default {
                         validator: validateName
                     }
                 ],
+                protocol: [
+                     {
+                        required: true,
+                        trigger: 'blur',
+                        message: this.$t('com.tipSelectX', { obj: this.$t('cluster.protocol') })
+                    }
+                ],
                 'connection.max_idle_conn_per_rs': [
                     {
                         required: true,
@@ -267,6 +295,7 @@ export default {
             formData: {
                 name: '',
                 description: '',
+                protocol: 'http',
                 connection: {
                     max_idle_conn_per_rs: 0,
                     cancel_on_client_close: 'false'

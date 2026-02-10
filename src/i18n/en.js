@@ -156,6 +156,7 @@ module.exports = {
         verificationCode: 'Verification Code',
         changeOne: 'Change',
         name: 'Login',
+        gateway: 'AI Gateway',
 
         tipConfirmLogout: 'Confirm logout？',
         tipCodeError: 'Wrong verification code',
@@ -263,25 +264,12 @@ module.exports = {
         prefixMatch: 'Prefix Match',
         suffixMatch: 'Suffix Match'
     },
-    cert: {
-        name: 'Certificates',
-        certName: 'Certificate Name',
-        expiredDate: 'Expiration Date',
-        certFile: 'Certificate File',
-        file: 'File',
-        selectFile: 'Select File',
-        privateKeyFile: 'PrivateKey File',
-        globalDefaultCert: 'Global Default Certificate',
-
-        tipCertNameRule: 'Special characters are not allowed in certificate file name',
-        tipSumitCertFile: 'Config the certificate ',
-        tipCofigDefault: ' as Global Default Certificate'
-    },
     cluster: {
         name: 'Cluster',
         BFE: 'BFE Cluster',
         modelConfig: 'large model configuration',
         clusterDescription: 'Description',
+        protocol: 'Protocol',
         maxIdleConnPerRs: 'Max idle connections per backend instance',
         hashStrategy: 'Hash Strategy',
         hashHeader: 'Hash Header',

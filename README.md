@@ -1,2 +1,3 @@
 # ai-gateway-web
-Web GUI for BFE AI Gateway
+
+Web GUI for AI Gateway

@@ -297,6 +297,7 @@ export default {
                 name: this.baseConfigData.name,
                 description: this.baseConfigData.description,
                 basic: {
+                    protocol: this.baseConfigData.protocol,
                     connection: this.baseConfigData.connection,
                     retries: this.baseConfigData.retries,
                     buffers: this.baseConfigData.buffers,
@@ -362,6 +363,7 @@ export default {
             this.baseConfigData = {
                 name: tmpData.name,
                 description: tmpData.description,
+                protocol: tmpData.basic.protocol,
                 connection: tmpData.basic.connection,
                 buffers: tmpData.basic.buffers,
                 retries: tmpData.basic.retries,

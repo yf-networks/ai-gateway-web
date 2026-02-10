@@ -42,7 +42,7 @@
                     "
                     class="nameInput"
                 >
-                    <span v-if="!isProductManager" slot="prepend">BFE.</span>
+                    <span v-if="!isProductManager" slot="prepend">AI_product.</span>
                 </Input>
             </FormItem>
             <FormItem :label="$t('instancePool.list')" style="width: 100%;" prop="instances">

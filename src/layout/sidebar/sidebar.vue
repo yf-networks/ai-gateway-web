@@ -31,7 +31,7 @@
 <template>
     <div class="bfe-sidebar">
         <div class="header">
-            <p class="text">AI网关</p>
+            <p class="text">{{ $t('login.gateway') }}</p>
         </div>
 
         <div class="Menu">

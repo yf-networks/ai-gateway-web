@@ -155,6 +155,7 @@ module.exports = {
         verificationCode: '验证码',
         changeOne: '换一张',
         name: '登录',
+        gateway: 'AI网关',
 
         tipConfirmLogout: '确认注销？',
         tipCodeError: '验证码输入错误',
@@ -264,25 +265,12 @@ module.exports = {
         prefixMatch: '前缀匹配',
         suffixMatch: '后缀匹配'
     },
-    cert: {
-        name: '证书',
-        certName: '证书名称',
-        expiredDate: '过期时间',
-        certFile: '证书文件',
-        file: '文件',
-        selectFile: '选择文件',
-        privateKeyFile: '私钥文件',
-        globalDefaultCert: '全局缺省证书',
-
-        tipCertNameRule: '证书名称不可以包含特殊字符，请重新输入',
-        tipSumitCertFile: '是否将证书',
-        tipCofigDefault: '设置为默认'
-    },
     cluster: {
         name: '集群',
         BFE: 'BFE集群',
         modelConfig: '大模型配置',
         clusterDescription: '集群说明',
+        protocol: '协议',
         maxIdleConnPerRs: '单个后端最大空闲连接数',
         hashStrategy: '哈希策略',
         hashHeader: '哈希头部',

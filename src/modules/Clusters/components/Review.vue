@@ -43,6 +43,10 @@
                     <li class="title">{{ $t('cluster.clusterDescription') }}:</li>
                     <li class="value">{{ baseConfigData['description'] }}</li>
                 </ul>
+                <ul class="clearFloat">
+                    <li class="title">{{ $t('cluster.protocol') }}:</li>
+                    <li class="value">{{ baseConfigData['protocol'] }}</li>
+                </ul>
                 <ul v-if="baseConfigData.connection" class="clearFloat">
                     <li class="title">{{ $t('cluster.maxIdleConnPerRs') }}:</li>
                     <li class="value">{{ baseConfigData.connection['max_idle_conn_per_rs'] }}</li>

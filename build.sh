@@ -14,11 +14,13 @@
 # limitations under the License.
 #/
 #!/bin/sh
-
+now=`date "+%Y%m%d%H%M%S"`
 version=`cat version.txt`
+build_version=${version}@${now}
 echo 'version: ' $version
-sed -i "s/_VERSION_/$version/g" index.html
-sed -i "s/_VERSION_/$version/g" src/main.js
+sed -i "" "s/_VERSION_/$build_version/g" index.html
+sed -i "" "s/_VERSION_/$build_version/g" src/main.js
+
 
 CUR_DIR=$(cd `dirname $0`; pwd)
 

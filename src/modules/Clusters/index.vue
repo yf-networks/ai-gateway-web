@@ -237,6 +237,7 @@ export default {
             (this.baseConfigData = {
                 name: tmpData.name,
                 description: tmpData.description,
+                protocol: tmpData.basic.protocol,
                 connection: tmpData.basic.connection,
                 buffers: tmpData.basic.buffers,
                 retries: tmpData.basic.retries,

@@ -89,7 +89,13 @@ export default {
                     title: that.$t('route.pathMatch'),
                     searchable: true,
                     render(h, params) {
-                        return <div>{JSON.stringify(params.row.basic.path_filter)}</div>;
+                        return (
+                            <div>
+                                {params.row.basic.path_filter
+                                    ? JSON.stringify(params.row.basic.path_filter)
+                                    : ''}
+                            </div>
+                        );
                     }
                 },
                 {
@@ -103,13 +109,25 @@ export default {
                     title: that.$t('route.headerMatch'),
                     searchable: true,
                     render(h, params) {
-                        return <div>{JSON.stringify(params.row.basic.header_filters)}</div>;
+                        return (
+                            <div>
+                                {params.row.basic.header_filters
+                                    ? JSON.stringify(params.row.basic.header_filters)
+                                    : ''}
+                            </div>
+                        );
                     }
                 },
                 {
                     title: that.$t('route.modelMatch'),
                     render(h, params) {
-                        return <div>{JSON.stringify(params.row.basic.model_filter)}</div>;
+                        return (
+                            <div>
+                                {params.row.basic.model_filter
+                                    ? JSON.stringify(params.row.basic.model_filter)
+                                    : ''}
+                            </div>
+                        );
                     }
                 },
                 {
