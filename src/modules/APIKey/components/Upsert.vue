@@ -68,7 +68,7 @@
                 ></InputNumber>
                 {{ $t('apiForm.quotaRange') }}
             </FormItem>
-            <FormItem :label="$t('cert.expiredDate')" prop="expired_time">
+            <FormItem :label="$t('com.expiredDate')" prop="expired_time">
                 <DatePicker
                     :placeholder="$t('apiForm.selectTime')"
                     style="width: 432px;"

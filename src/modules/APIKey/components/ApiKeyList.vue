@@ -248,7 +248,7 @@ export default {
                     searchable: true
                 },
                 {
-                    title: that.$t('cert.expiredDate'),
+                    title: that.$t('com.expiredDate'),
                     key: 'expired_time',
                     minWidth: 160,
                     sortable: 'custom',

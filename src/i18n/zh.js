@@ -81,6 +81,7 @@ module.exports = {
         productView: '租户视图',
         currentVersion: '当前版本号 ',
         welcome: '欢迎您',
+        expiredDate: '过期时间',
 
         tipError: '错误',
         tipNetworkFail: '网络异常',

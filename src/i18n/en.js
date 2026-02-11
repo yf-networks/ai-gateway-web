@@ -81,6 +81,7 @@ module.exports = {
         productView: 'Tenant View',
         currentVersion: 'Current Version Number ',
         welcome: 'welcome',
+        expiredDate: 'expiration time',
 
         tipError: 'Error',
         tipNetworkFail: 'Network Error',
