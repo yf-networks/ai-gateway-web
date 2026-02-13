@@ -1,0 +1,50 @@
+/**
+* Copyright (c) 2021 The BFE Authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+@import '../custom.less';
+.ivu-tabs-bar {
+    border-bottom: 1px solid rgba(231, 233, 240, 0.9);
+}
+
+.ivu-tabs-nav .ivu-tabs-tab {
+    padding: @noahv-tabs-padding;
+    font-size: @noahv-tabs-title-font-size;
+}
+
+.ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-nav-container {
+    height: @noahv-tabs-card-height;
+}
+.ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+    height: @noahv-tabs-card-height;
+    padding: @noahv-tabs-padding;
+    margin-right: @noahv-tabs-margin-right;
+    border: @noahv-tabs-border;
+    border-radius: @noahv-tabs-border-radius;
+    background: @noahv-tabs-card-bg;
+}
+
+.ivu-tabs-nav-container:focus .ivu-tabs-tab-focused {
+    border-color: @noahv-tabs-border-color;
+}
+.ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+    height: @noahv-tabs-card-active-height;
+    border-color: @noahv-tabs-border-color;
+    color: @noahv-font-text-color;
+    background: @noahv-tabs-card-active-bg;
+}
+
+.ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab .ivu-icon-ios-close-empty {
+    margin-right: @noahv-tabs-close-icon-margin-right;
+}

@@ -1,0 +1,62 @@
+/**
+* Copyright (c) 2021 The BFE Authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+@import '../custom.less';
+.ivu-table-wrapper {
+    border: @noahv-table-outer-border;
+    border-bottom: 0;
+	border-right: 0;
+	overflow: auto;
+}
+
+.ivu-table:after {
+    width: @noahv-table-outer-border-after;
+    background-color: @noahv-table-outer-border-bg;
+}
+.ivu-table::before {
+    height: @noahv-table-outer-border-before;
+    background-color: @noahv-table-outer-border-bg;
+}
+.ivu-table {
+    a {
+        color: @noahv-font-link-color;
+        margin-right: @noahv-table-link-margin;
+    }
+
+    th {
+        height: @noahv-table-height-base;
+        background-color: @noahv-table-header-bg;
+        border-bottom: @noahv-table-inner-border;
+        border-right: @noahv-table-inner-border-right;
+    }
+    td {
+        height: @noahv-table-height-base;
+        border-bottom: @noahv-table-inner-border;
+    }
+
+    .ivu-table-cell {
+        padding: @noahv-table-td-padding;
+        font-size: 14px;
+        color: #000000a6;
+    }
+}
+
+.ivu-table tr.ivu-table-row-hover td{
+    background-color: @noahv-table-row-hover-bg;
+}
+
+.ivu-table-border th, .ivu-table-border td {
+    border-right: @noahv-table-inner-border-right;
+}

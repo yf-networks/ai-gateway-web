@@ -1,0 +1,56 @@
+/**
+* Copyright (c) 2021 The BFE Authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+@import '../custom.less';
+
+.ivu-switch {
+    height: @noahv-switch-height;
+    width: @noahv-switch-width;
+    border: @noahv-switch-border;
+    background-color: @noahv-switch-bg;
+    .ivu-switch-inner {
+        color: @noahv-switch-inner-color;
+        font-size: @noahv-switch-font-size;
+        left: @noahv-switch-inner-left;
+    }
+}
+
+.ivu-switch:focus {
+    box-shadow: @noahv-switch-box-shadow;
+}
+
+.ivu-switch:after {
+    width: @noahv-switch-circle-size;
+    height: @noahv-switch-circle-size;
+    background-color: @noahv-switch-circle-bg;
+}
+
+.ivu-switch-checked {
+    border-color: @noahv-switch-checked-border-color;
+    background-color: @noahv-switch-checked-bg ;
+    .ivu-switch-inner {
+        left: @noahv-switch-inner-checked-left;
+        font-size: @noahv-switch-font-size;
+        color: @noahv-switch-inner-color;
+    }
+}
+
+.ivu-switch-checked:after {
+    left: @noahv-switch-circle-left;
+}
+
+.ivu-switch-disabled {
+    background: @noahv-switch-disabled-bg;
+}
