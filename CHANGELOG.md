@@ -43,5 +43,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Initial released version
+- Resource management: gateway domains, instance pools, clusters; LLM resources (instance pool/sub-cluster/cluster)
+- Routing management: URL/Path/Header match, model name based routing, default rule
+- Consumer management: API Key lifecycle with model allowlist, token quota, expiry, IP whitelist
+- User & access: system/tenant views, user management, token management
 
 [v0.0.1]: https://github.com/yf-networks/ai-gateway-web/releases/tag/v0.0.1
