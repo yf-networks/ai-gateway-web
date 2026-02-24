@@ -425,7 +425,7 @@ export default {
                 return;
             }
 
-            const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([az.]{2,6})( ?:\/[^\s?# ]*)*\/?$/;
+            const urlPattern = /^https?:\/\/[a-zA-Z0-9][a-zA-Z0-9-]*\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
             if (!urlPattern.test(value)) {
                 callback(new Error(this.$t('com.tipFormatError')));
                 return;
