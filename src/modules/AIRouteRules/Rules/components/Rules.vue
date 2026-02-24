@@ -231,6 +231,12 @@ export default {
             default() {
                 return [];
             }
+        },
+        ruleNames: {
+            type: Array,
+            default() {
+                return [];
+            }
         }
     },
     watch: {
@@ -351,6 +357,17 @@ export default {
                 callback(new Error(this.$t('com.tipNameRule')));
                 return;
             }
+
+            const currentName = this.isAdd ? '' : this.basic.name;
+            const isDuplicate = this.ruleNames.some(name => name === value && name !== currentName);
+
+            if (isDuplicate) {
+                callback(new Error(this.$t('com.tipAlreadyExistsX', {
+                    obj: this.$t('com.nameX', { obj: this.$t('route.ruleName') })
+                })));
+                return;
+            }
+
             callback();
         },
         validateDomain(rule, value, callback) {
@@ -408,7 +425,7 @@ export default {
                 return;
             }
 
-            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+            const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([az.]{2,6})( ?:\/[^\s?# ]*)*\/?$/;
             if (!urlPattern.test(value)) {
                 callback(new Error(this.$t('com.tipFormatError')));
                 return;
