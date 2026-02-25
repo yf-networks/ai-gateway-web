@@ -17,15 +17,14 @@
  * @author: v-zhaoweijie01
  */
 module.exports = {
-    presets: ['@vue/app'],
-    plugins: [
-        [
-            'import',
-            {
-                libraryName: 'ant-design-vue',
-                libraryDirectory: 'es',
-                style: 'css'
-            }
-        ]
-    ]
+  presets: [
+    ['@babel/preset-env', {
+      targets: {
+        browsers: ['last 2 versions', 'ie >= 11']
+      }
+    }]
+  ],
+  plugins: [
+    '@babel/plugin-transform-runtime'
+  ]
 };
