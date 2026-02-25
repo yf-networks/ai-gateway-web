@@ -13,7 +13,6 @@
     "babel-runtime": "^6.26.0",
     "codemirror": "5.45.0",
     "downloadjs": "^1.4.7",
-    "echarts": "^4.9.0",
     "element-ui": "^2.13.2",
     "email-addresses": "^3.1.0",
     "ipaddr.js": "^1.9.1",
@@ -92,7 +91,7 @@
     "sinon": "^4.5.0",
     "sinon-chai": "^2.14.0",
     "terser-webpack-plugin": "^4.2.3",
-    "uglifyjs-webpack-plugin": "2.1.2",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "url-loader": "^1.1.2",
     "validator-js": "^0.2.1",
     "vue-loader": "^15.7.0 ",
@@ -103,5 +102,10 @@
     "webpack-dev-middleware": "^3.6.2",
     "webpack-hot-middleware": "^2.24.3",
     "webpack-merge": "^4.2.1"
+  },
+  "overrides": {
+    "tar": "7.5.8",
+    "postcss": "8.4.31",
+    "minimist": "1.2.6"
   }
 }
