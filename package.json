@@ -90,7 +90,7 @@
     "prettier": "^2.0.5",
     "sinon": "^4.5.0",
     "sinon-chai": "^2.14.0",
-    "terser-webpack-plugin": "^4.2.3",
+    "terser-webpack-plugin": "^5.4.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "url-loader": "^1.1.2",
     "validator-js": "^0.2.1",
