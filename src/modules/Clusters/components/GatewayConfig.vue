@@ -252,6 +252,21 @@ export default {
                 return;
             }
 
+            for (let i = 0; i < value.length; i++) {
+                const item = value[i];
+                const key = (item.key || '').trim();
+                const val = (item.value || '').trim();
+
+                if (!key) {
+                    callback(new Error(this.$t('gatewayConfig.modelMappingKeyRequired', { line: i + 1 })));
+                    return;
+                }
+                if (!val) {
+                    callback(new Error(this.$t('gatewayConfig.modelMappingValueRequired', { line: i + 1 })));
+                    return;
+                }
+            }
+
             const keys = value.map(item => item.key).filter(key => key !== '');
 
             const uniqueKeys = [...new Set(keys)];

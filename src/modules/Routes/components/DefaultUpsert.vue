@@ -62,6 +62,7 @@
                     :placeholder="$t('route.selectTargetCluster')"
                     clearable
                     filterable
+                    transfer
                     style="width: 260px;"
                 >
                     <Option

@@ -29,6 +29,7 @@
                 v-if="isHiden"
                 :currentRule="currentRule"
                 :mode="mode"
+                :ruleNames="ruleNames"
                 @submitForm="submitForm"
                 @cancel="isHiden = false"
             />
@@ -68,7 +69,7 @@ export default {
                     render(h, params) {
                         return (
                             <div>
-                                <span>{params.row.index + 1}</span>
+                                <span>{(params.row.index || 0) + 1}</span>
                             </div>
                         );
                     }
@@ -220,6 +221,7 @@ export default {
                     }
                 }
             ],
+            ruleNames: [],
             currentIndex: -1
         };
     },
@@ -244,9 +246,16 @@ export default {
                             index: index
                         };
                     });
+
+                    this.ruleNames = val.map(rule => rule.name);
                 }
             },
             immediate: true
+        },
+        tableData: {
+            handler(val) {
+                this.ruleNames = val.map(rule => rule.name);
+            }  
         }
     },
     methods: {

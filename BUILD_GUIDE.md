@@ -43,10 +43,10 @@ npm start
 npm run build
 ```
 
-构建产物默认输出到 `noahv/` 目录（由 `configs/config.js` 决定），典型结构：
+构建产物默认输出到 `dist/` 目录（由 `configs/config.js` 决定），典型结构：
 
-- `noahv/index.html`
-- `noahv/static/`
+- `dist/index.html`
+- `dist/static/`
 
 ### 方式二：一键打包（用于发布）
 
@@ -58,7 +58,7 @@ sh build.sh
 
 - 读取 `version.txt`，并把版本号写入 `index.html` 与 `src/main.js` 中的 `_VERSION_` 占位符
 - 安装依赖并执行生产构建
-- 将 `noahv/` 重命名后打包为 `output/ai-gateway-web_<version>.tar.gz`
+- 将 `dist/` 重命名后打包为 `output/ai-gateway-web_<version>.tar.gz`
 - 生成 `*_checksums.txt`
 - 同时会把 `docs/` 与 `README.md` 复制进构建产物目录（发布包内自带文档）
 

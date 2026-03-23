@@ -1,3 +1,18 @@
+
+# Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http: //www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#/
 #
 # Copyright (c) 2021 The BFE Authors.
 #
@@ -29,8 +44,8 @@ if [ -d $CUR_DIR/output ]; then
     rm -rf $CUR_DIR/output
 fi
 
-if [ -d $CUR_DIR/noahv ]; then
-    rm -rf $CUR_DIR/noahv
+if [ -d $CUR_DIR/dist ]; then
+    rm -rf $CUR_DIR/dist
 fi
 
 echo "install node_module"
@@ -48,12 +63,12 @@ fi
 echo "npm build success"
 
 echo "pack start"
-rm  noahv/static/#/#.gz
-cp version.txt noahv/
-cp -r docs noahv/
-cp -r README.md noahv/
+rm  dist/static/#/#.gz
+cp version.txt dist/
+cp -r docs dist/
+cp -r README.md dist/
 mkdir output
-mv noahv "ai-gateway-web_${version}"
+mv dist "ai-gateway-web_${version}"
 mv "ai-gateway-web_${version}" output/
 cd output
 tar -czvf "ai-gateway-web_${version}.tar.gz" "ai-gateway-web_${version}"

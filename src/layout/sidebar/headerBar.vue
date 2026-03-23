@@ -42,7 +42,7 @@
             </Dropdown>
         </li>
         <li :class="{ handleSidebarWidth: true }" @click="handleTitleWidth" class="bfe-header-icon">
-            <i class="noahv-icon noahv-icon-fold-left noahv-icon-title"></i>
+            <i class="app-icon app-icon-fold-left app-icon-title"></i>
         </li>
         <li>
             <Dropdown @on-click="userDropdown" class="header_name">
@@ -166,7 +166,7 @@ export default {
 .bfe-header-icon {
     float: left;
 }
-.noahv-icon-title {
+.app-icon-title {
     color: #000000;
     font-size: 24px;
 }

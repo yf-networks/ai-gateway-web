@@ -29,7 +29,7 @@
  * limitations under the License.
  */
 // eslint-disable
-module.exports = {
+export default {
     com: {
         close: '关闭',
         del: '删除',
@@ -416,7 +416,9 @@ module.exports = {
         getModelListFailed: '获取模型列表异常: {message}',
         getModelListSucc: '获取模型列表成功',
         schemaRequired: '请选择模型列表接口的协议',
-        uriRequired: '请输入模型列表接口的uri'
+        uriRequired: '请输入模型列表接口的uri',
+        modelMappingKeyRequired: '第 {line} 行的"原请求模型名称"不能为空',
+        modelMappingValueRequired: '第 {line} 行的"转发的后端模型名称"不能为空'
     },
     aiRouteRules: {
         rulesList: '规则列表'

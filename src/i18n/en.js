@@ -29,7 +29,7 @@
  * limitations under the License.
  */
 // eslint-disable
-module.exports = {
+export default {
     com: {
         close: 'Close',
         del: 'Delete',
@@ -419,7 +419,9 @@ module.exports = {
         getModelListFailed: 'Failed to get model list: {message}',
         getModelListSucc: 'Successfully obtained the model list',
         schemaRequired: 'Please select the protocol for the model list interface',
-        uriRequired: 'Please enter the URI for the model list interface'
+        uriRequired: 'Please enter the URI for the model list interface',
+        modelMappingKeyRequired: 'The "Original Request Model Name" in line {line} cannot be empty',
+        modelMappingValueRequired: 'The "Forwarded Backend Model Name" in line {line} cannot be empty'
     },
     aiRouteRules: {
         rulesList: 'Rules List'
