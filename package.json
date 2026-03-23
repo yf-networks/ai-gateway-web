@@ -12,7 +12,7 @@
     "axios": "^0.21.2",
     "@babel/polyfill": "^7.12.1",
     "@babel/runtime": "^7.22.0",
-    "codemirror": "5.45.0",
+    "codemirror": "5.58.2",
     "downloadjs": "^1.4.7",
     "element-ui": "^2.13.2",
     "email-addresses": "^3.1.0",
