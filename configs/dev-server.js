@@ -36,7 +36,8 @@ var express = require('express');
 var webpack = require('webpack');
 var logger = require('morgan');
 var opn = require('./openBrowser');
-var proxyMiddleware = require('http-proxy-middleware');
+var createProxyMiddleware = require('http-proxy-middleware')
+  .createProxyMiddleware;
 var webpackConfig = require('./webpack.dev.conf');
 var bodyParser = require('body-parser');
 // default port where dev server listens for incoming traffic
@@ -83,7 +84,7 @@ var context = config.dev.proxyTable.path || [];
 
 var options = config.dev.proxyTable.option || {};
 if (context.length && options.target) {
-  server.use(proxyMiddleware(context, options));
+  server.use(createProxyMiddleware(context, options));
 }
 
 // server.use(proxyMiddleware('/*/*', {
