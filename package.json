@@ -83,5 +83,11 @@
     "webpack-dev-middleware": "^5.3.4",
     "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^5.0.0"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.3",
+    "@vue/component-compiler-utils": {
+      "postcss": "^8.4.31"
+    }
   }
 }
