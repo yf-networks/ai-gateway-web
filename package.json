@@ -9,10 +9,10 @@
     "lint": "eslint --ext .js,.vue ./ --quiet --fix"
   },
   "dependencies": {
-    "axios": "^0.21.2",
+    "axios": "^1.6.0",
     "@babel/polyfill": "^7.12.1",
     "@babel/runtime": "^7.22.0",
-    "codemirror": "5.45.0",
+    "codemirror": "^5.65.16",
     "downloadjs": "^1.4.7",
     "element-ui": "^2.13.2",
     "email-addresses": "^3.1.0",
@@ -28,7 +28,7 @@
     "underscore": "^1.9.1",
     "uuid": "^8.2.0",
     "validator": "^13.6.0",
-    "vue": "^2.6.10",
+    "vue": "^2.6.14",
     "vue-clipboard2": "^0.3.3",
     "vue-cookies": "^1.7.2",
     "vue-i18n": "^8.22.2",
@@ -89,7 +89,7 @@
     "validator-js": "^0.2.1",
     "vue-loader": "^15.9.8",
     "vue-style-loader": "^4.1.2",
-    "vue-template-compiler": "^2.5.2",
+    "vue-template-compiler": "^2.6.14",
     "webpack": "^5.0.0",
     "webpack-bundle-analyzer": "^4.0.0",
     "webpack-dev-middleware": "^5.3.4",
@@ -99,6 +99,11 @@
   "overrides": {
     "tar": "7.5.8",
     "postcss": "8.4.31",
-    "minimist": "1.2.6"
+    "minimist": "1.2.6",
+    "serialize-javascript": "6.0.1",
+    "braces": "3.0.3",
+    "minimatch": "3.1.2",
+    "nanoid": "3.3.6",
+    "js-yaml": "4.1.0"
   }
 }
