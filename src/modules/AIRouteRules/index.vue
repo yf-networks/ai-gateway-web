@@ -77,11 +77,14 @@ export default {
                     if (response.status === 200) {
                         this.$Message.success(this.$t('com.tipSubmitSucc'));
                         this.fetchRules();
+                    } else {
+                        console.error('提交规则失败，状态码:', response?.status);
+                        this.$Message.error(this.$t('aiRouteRules.submitFailed'));
                     }
                 })
                 .catch(error => {
-                    console.error('提交规则失败:', error);
-                    this.$Message.error(this.$t('aiRouteRules.submitFailed'));
+                    console.error('提交规则异常:', error);
+                    
                 })
                 .finally(() => {
                     this.isSubmitting = false;
@@ -98,10 +101,12 @@ export default {
                     if (response.status === 200) {
                         this.rules = response.data.Data || [];
                         this.draftRules = cloneDeep(this.rules);
+                    } else {
+                        console.error('获取规则失败，状态码:', response?.status);
                     }
                 })
                 .catch(error => {
-                    console.error('获取规则失败:', error);
+                    console.error('获取规则异常:', error);
                 });
         }
     }

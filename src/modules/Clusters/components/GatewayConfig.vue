@@ -528,11 +528,14 @@ export default {
                                 content: this.$t('gatewayConfig.getModelListSucc')
                             });
                         }
+                    } else {
+                        console.error('获取模型列表失败，状态码:', data?.status);
+                        this.$Message.error('获取模型列表异常: ' + (error?.message || '网络错误'));
                     }
                 })
                 .catch(error => {
                     console.error('获取模型列表异常:', error);
-                    this.$Message.error('获取模型列表异常: ' + (error.message || '网络错误'));
+                   
                 })
                 .finally(() => {
                     this.btnLoading = false;
