@@ -52,6 +52,9 @@
                 @cancle="onClose"
             />
         </Drawer>
+        <Drawer v-model="isHidden" :title="$t('com.detail')" width="80">
+            <Details v-if="isHidden" :infoData="currentData" @close="onCloseDetails" />
+        </Drawer>
         <pageTable ref="pageTable" :tableData="tableData" :columns="columns" :loading="loading" />
     </div>
 </template>
@@ -59,11 +62,13 @@
 <script>
 import pageTable from '@/components/table/pageTable';
 import createPool from './components/Create.vue';
+import Details from './components/Details.vue';
 import { cloneDeep } from 'lodash';
 export default {
     name: 'instancePools',
     components: {
         pageTable,
+        Details,
         createPool
     },
     mounted() {
@@ -76,6 +81,7 @@ export default {
             instancesPoolNames: [],
             loading: false,
             isVisible: false,
+            isHidden: false,
             isAdd: false,
             tableData: [],
             currentName: '',
@@ -90,6 +96,24 @@ export default {
                     title: this.$t('com.operation'),
                     render(h, params) {
                         return h('div', [
+                            h(
+                                'Button',
+                                {
+                                    props: {
+                                        type: 'success',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '10px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            that.onViewDetails(params);
+                                        }
+                                    }
+                                },
+                                that.$t('com.see')
+                            ),
                             h(
                                 'Button',
                                 {
@@ -136,8 +160,9 @@ export default {
         },
         onUpdate(params) {
             this.isAdd = false;
+            this.isHidden = false;
             this.loading = true;
-            this.getProductInstancePoolInfo(params.row.name);
+            this.getProductInstancePoolInfo(params.row.name, 'edit');
         },
         onDel(params) {
             this.$Modal.confirm({
@@ -154,8 +179,16 @@ export default {
                 }
             });
         },
+        onViewDetails(params) {
+            this.isAdd = false;
+            this.isVisible = false;
+            this.getProductInstancePoolInfo(params.row.name, 'view');
+        },
         onClose() {
             this.isVisible = !this.isVisible;
+        },
+        onCloseDetails() {
+            this.isHidden = false;
         },
         submitData(data) {
             if (this.isAdd) {
@@ -164,7 +197,7 @@ export default {
                 this.onUpdatetInstancePool(data);
             }
         },
-        getProductInstancePoolInfo(name) {
+        getProductInstancePoolInfo(name, mode) {
             let tmpName = name.split('.')[1];
             this.$request({
                 url: this.$urlFormat(
@@ -175,10 +208,14 @@ export default {
                 ),
                 method: 'get'
             }).then(data => {
+                this.loading = false;
                 if (data.status === 200) {
-                    this.loading = false;
-                    this.isVisible = true;
                     this.currentData = data.data.Data;
+                    if (mode === 'view') {
+                        this.isHidden = true;
+                    } else if (mode === 'edit') {
+                        this.isVisible = true;
+                    }
                 }
             });
         },
