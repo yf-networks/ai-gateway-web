@@ -49,7 +49,7 @@ if [ -d $CUR_DIR/dist ]; then
 fi
 
 echo "install node_module"
-npm install --registry https://registry.npm.taobao.org
+npm install --registry https://registry.npmmirror.com
 
 # build
 echo "npm build start"

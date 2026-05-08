@@ -62,7 +62,7 @@ sh build.sh
 - 生成 `*_checksums.txt`
 - 同时会把 `docs/` 与 `README.md` 复制进构建产物目录（发布包内自带文档）
 
-注意：`build.sh` 默认使用 `https://registry.npm.taobao.org` 安装依赖；如你的网络环境不适用，可改回官方 registry 或在命令行里显式指定。
+注意：`build.sh` 默认使用 `https://registry.npmmirror.com` 安装依赖；如你的网络环境不适用，可改回官方 registry 或在命令行里显式指定。
 
 ## 测试与代码检查
 
