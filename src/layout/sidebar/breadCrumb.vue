@@ -29,8 +29,8 @@
 * limitations under the License.
 */
 <template>
-    <Breadcrumb class="bfe-breadcrumb">
-        <BreadcrumbItem v-if="nav">{{ $t(`nav.${nav.text}`) }}</BreadcrumbItem>
+    <Breadcrumb class="bfe-breadcrumb" v-if="user && nav">
+        <BreadcrumbItem>{{ $t(`nav.${nav.text}`) }}</BreadcrumbItem>
     </Breadcrumb>
 </template>
 <script>

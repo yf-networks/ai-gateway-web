@@ -20,6 +20,7 @@
             :clustersData="clustersData"
             :basic="formData.basic"
             :isAdd="mode === 'add'"
+            :ruleNames="ruleNames"
             ref="rulesForm"
         />
         <Review v-if="stepsCurrentState === 1" ref="reviewForm" :data="formData" />
@@ -74,6 +75,19 @@ export default {
             default() {
                 return {};
             }
+        },
+        ruleNames: {
+            type: Array,
+            default() {
+                return [];
+            }
+        }
+    },
+    computed: {
+        getCurrentStepName() {
+            return () => {
+                return this.stepList[this.stepsCurrentState].title;
+            };
         }
     },
     components: {

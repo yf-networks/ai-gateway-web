@@ -1,4 +1,19 @@
 /**
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http: //www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Copyright (c) 2021 The BFE Authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +33,18 @@
         <div class="upsert-subClusters">
             <div class="subClusters-child">
                 <h4 class="title">{{ $t('cluster.subClusterPool') }}</h4>
-                <pageTable
-                    :columns="columnsAll"
-                    :tableData="subClustersAllList"
-                    :loading="clustersLoading"
-                />
+                <pageTable :columns="columnsAll" :tableData="subClustersAllList" :loading="clustersLoading" />
             </div>
             <div class="subClusters-child">
                 <h4 class="title">{{ $t('cluster.subClusterMounted') }}</h4>
-                <pageTable
-                    :columns="columnsUsed"
-                    :tableData="subClustersUsed"
-                    :loading="clustersLoading"
-                />
+                <pageTable :columns="columnsUsed" :tableData="subClustersUsed" :loading="clustersLoading" />
             </div>
         </div>
     </div>
 </template>
 <script>
-import pageTable from '@/components/table/pageTable';
-import { cloneDeep } from 'lodash';
+import pageTable from '@/components/table/pageTable'
+import { cloneDeep } from 'lodash'
 export default {
     name: 'upsert-SubClusters',
 
@@ -47,7 +54,7 @@ export default {
         subClustersData: {
             type: Array,
             default() {
-                return [];
+                return []
             }
         },
         reportFlag: {
@@ -56,13 +63,13 @@ export default {
         subClusterProductList: {
             type: Array,
             default() {
-                return [];
+                return []
             }
         },
         mountedSubCluster: {
             type: Array,
             default() {
-                return [];
+                return []
             }
         }
     },
@@ -70,7 +77,7 @@ export default {
         mountedSubCluster: {
             handler(data) {
                 if (data) {
-                    this.currentUsedSubCluters = cloneDeep(data);
+                    this.currentUsedSubCluters = cloneDeep(data)
                 }
             },
             deep: true,
@@ -79,12 +86,12 @@ export default {
         subClustersData: {
             handler(data) {
                 if (data) {
-                    this.subClustersUsed = [];
-                    this.subClustersAllList.map(item => {
+                    this.subClustersUsed = []
+                    this.subClustersAllList.map((item) => {
                         if (data.indexOf(item.name) !== -1) {
-                            this.subClustersUsed.push(item);
+                            this.subClustersUsed.push(item)
                         }
-                    });
+                    })
                 }
             },
             deep: true,
@@ -93,19 +100,19 @@ export default {
 
         reportFlag: {
             handler(v) {
-                this.handleSubmit();
+                this.handleSubmit()
             }
         },
         subClusterProductList: {
             handler(v) {
-                this.subClustersAllList = cloneDeep(v);
+                this.subClustersAllList = cloneDeep(v)
             },
             deep: true,
             immediate: true
         }
     },
     data() {
-        const that = this;
+        const that = this
         const columns = [
             {
                 title: this.$t('subCluster.name'),
@@ -114,8 +121,12 @@ export default {
             {
                 title: this.$t('instancePool.name'),
                 key: 'instance_pool'
+            },
+            {
+                title: this.$t('instancePool.type'),
+                key: 'role'
             }
-        ];
+        ]
         return {
             currentUsedSubCluters: [],
             subClustersAllList: [],
@@ -127,7 +138,7 @@ export default {
                     title: this.$t('com.state'),
                     key: 'instance_pool',
                     render(h, params) {
-                        return <span>{that.getSubClusterState(params.row)}</span>;
+                        return <span>{that.getSubClusterState(params.row)}</span>
                     }
                 },
                 {
@@ -144,13 +155,12 @@ export default {
                                 },
                                 on: {
                                     click: () => {
-                                        that.subClustersUsed.push(params.row);
-                                        that.currentUsedSubCluters.push(params.row.name);
+                                        that.handleMount(params.row)
                                     }
                                 }
                             },
                             that.$t('cluster.mount')
-                        );
+                        )
                     }
                 }
             ],
@@ -169,56 +179,89 @@ export default {
                                 },
                                 on: {
                                     click: () => {
-                                        that.subClustersUsed.splice(params.row._index, 1);
-                                        let index = that.currentUsedSubCluters.indexOf(
-                                            params.row.name
-                                        );
-                                        that.currentUsedSubCluters.splice(index, 1);
+                                        that.subClustersUsed.splice(params.row._index, 1)
+                                        let index = that.currentUsedSubCluters.indexOf(params.row.name)
+                                        that.currentUsedSubCluters.splice(index, 1)
                                     }
                                 }
                             },
                             that.$t('cluster.unmount')
-                        );
+                        )
                     }
                 }
             ]
-        };
+        }
     },
 
     methods: {
-        getDisabled(params) {
-            if (!params.ready || this.currentUsedSubCluters.indexOf(params.name) !== -1) {
-                return true;
+        isEppType(params) {
+            return (
+                String(params.role || '')
+                    .toLowerCase()
+                    .trim() === 'epp'
+            )
+        },
+        hasMountedEpp() {
+            return this.subClustersUsed.some((item) => this.isEppType(item))
+        },
+        handleMount(params) {
+            const hasMountedEpp = this.hasMountedEpp()
+            const isCurrentMounted = this.currentUsedSubCluters.indexOf(params.name) !== -1
+            if (hasMountedEpp && !isCurrentMounted) {
+                this.$Message.info({
+                    content: this.$t('cluster.tipEppMountedOnlyOnePool')
+                })
+                return
             }
-            return false;
+            if (this.isEppType(params) && this.subClustersUsed.length > 0 && !isCurrentMounted) {
+                this.$Message.info({
+                    content: this.$t('cluster.tipMountEppAfterUnmountOthers')
+                })
+                return
+            }
+            this.subClustersUsed.push(params)
+            this.currentUsedSubCluters.push(params.name)
+        },
+        getDisabled(params) {
+            const isCurrentMounted = this.currentUsedSubCluters.indexOf(params.name) !== -1
+            if (!params.ready || isCurrentMounted) {
+                return true
+            }
+            if (this.hasMountedEpp()) {
+                return true
+            }
+            if (this.isEppType(params) && this.subClustersUsed.length > 0) {
+                return true
+            }
+            return false
         },
         getSubClusterState(params) {
             if (this.currentUsedSubCluters.indexOf(params.name) !== -1) {
-                return this.$t('cluster.mounted');
+                return this.$t('cluster.mounted')
             }
             if (!params.ready) {
-                return this.$t('com.notEffective');
+                return this.$t('com.notEffective')
             }
-            return this.$t('cluster.available');
+            return this.$t('cluster.available')
         },
         handleSubmit() {
             if (this.subClustersUsed.length < 1) {
                 this.$Message.info({
                     content: this.$t('cluster.tipSubClusterMounted')
-                });
-                return;
+                })
+                return
             }
-            let tmpList = [];
-            tmpList = this.subClustersUsed.map(item => {
-                return item.name;
-            });
+            let tmpList = []
+            tmpList = this.subClustersUsed.map((item) => {
+                return item.name
+            })
             this.$emit('submitData', {
                 topic: 'subClustersData',
                 data: tmpList
-            });
+            })
         }
     }
-};
+}
 </script>
 <style lang="less" scoped>
 .upsert-subClusters {

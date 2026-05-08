@@ -54,8 +54,7 @@
 二次开发步骤包括：
 
 - 基础开发环境搭建：nodejs 开发环境搭建本文不展开描述
-- noahv 开发工具获取: 项目基于[noahv](https://github.com/baidu/noahv)，获取步骤见noahv项目
-- 启动项目：修改 configs配置后执行 `noahv start` 即可启动项目
+- 启动项目：修改 configs配置后执行 `npm start` 即可启动项目
   - API Server 必须先启动
   - API Server 端口号配置在 configs/devProxy.js 的 `proxy.option.target`
   - 开发端口号配置在 configs/config.js 的 `dev.ports`
