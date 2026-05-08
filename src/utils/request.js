@@ -1,4 +1,19 @@
 /**
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http: //www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Copyright (c) 2021 The BFE Authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,85 +29,101 @@
 * limitations under the License.
 */
 import Vue from 'vue';
-import noahv from 'noahv-core';
-import request from 'noahv-request';
+import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { i18n, getLang } from '@/utils/i18n';
 import store from '@/utils/store';
-request.hooks.showGlobalLoading = data => {
-    data.showLoading = false;
-};
-request.hooks.beforeRequest = config => {
-    config.transformRequest = [
-        data => {
-            data = JSON.stringify(data);
-            return data;
-        }
-    ];
-    config.headers['Content-Type'] = 'application/json;';
-    config.headers['X-Fe-Request-Id'] = uuidv4();
-    config.headers['Accept-Language'] = getLang() || 'en';
-    let user = store.getUser();
-    if (user && !config.withoutAuth) {
-        config.headers.Authorization = `Session ${user.sessionKey}`;
-    }
-    config.url = `${window.location.protocol}//${window.location.host}/open-api/v1/${config.url}`;
-    return config;
-};
-request.hooks.beforeSuccess = response => {
-    if (response.data === 'null') {
-        response.data = '{}';
-    }
-    return response;
-};
-request.hooks.beforeFailure = error => {
-    if (error.response) {
-        const errorMsg = JSON.parse(error.response.data);
-        if (!errorMsg) {
-            Vue.prototype.$Notice.error({
-                title: i18n.t('com.tipError'),
-                render: h => {
-                    return h('div', [i18n.t('com.tipNetworkFail')]);
-                }
-            });
-        }
-        error.response.data = errorMsg.Data;
-        if (error.response.config.unneedTips) {
-            error.response.isSilent = true;
-            return error.response;
-        }
-        if (
-            (error.response.status === 401 || error.response.status === 402) && noahv._router.currentRoute
-                .name !== store.getLoginRoute()
-        ) {
-            if (error.response.status === 401) {
-                store.removeUserData();
+import router from '@/router/instance';
+
+const request = axios.create({
+    timeout: 30000
+});
+
+request.interceptors.request.use(
+    config => {
+        config.transformRequest = [
+            data => {
+                data = JSON.stringify(data);
+                return data;
             }
-            Vue.prototype.$Modal.error({
-                title: 'Error',
-                content: errorMsg.ErrMsg,
-                onOk: () => {
-                    noahv._router.push({
-                        name: store.getLoginRoute()
-                    });
-                }
-            });
-            return;
+        ];
+        config.headers['Content-Type'] = 'application/json;';
+        config.headers['X-Fe-Request-Id'] = uuidv4();
+        config.headers['Accept-Language'] = getLang() || 'en';
+        let user = store.getUser();
+        if (user && !config.withoutAuth) {
+            config.headers.Authorization = `Session ${user.sessionKey}`;
         }
-        let splitIndex = errorMsg.ErrMsg.indexOf(':') + 1;
-        const title = errorMsg.ErrMsg.slice(0, splitIndex - 1);
-        const content = errorMsg.ErrMsg.slice(splitIndex);
-        Vue.prototype.$Notice.error({
-            title,
-            render: h => {
-                return h('div', [
-                    h('span', content),
-                    ' '
-                ]);
-            },
-            duration: 5
-        });
-        error.response.isSilent = true;
+        config.url = `${window.location.protocol}//${window.location.host}/open-api/v1/${config.url}`;
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
     }
-    return error.response;
+);
+
+request.interceptors.response.use(
+    response => {
+        if (response.data === 'null') {
+            response.data = '{}';
+        }
+        return response;
+    },
+    error => {
+        if (error.response) {
+            const errorMsg = JSON.parse(error.response.data);
+            if (!errorMsg) {
+                Vue.prototype.$Notice.error({
+                    title: i18n.t('com.tipError'),
+                    render: h => {
+                        return h('div', [i18n.t('com.tipNetworkFail')]);
+                    }
+                });
+            }
+            error.response.data = errorMsg.Data;
+            if (error.response.config.unneedTips) {
+                error.response.isSilent = true;
+                return error.response;
+            }
+            if (
+                (error.response.status === 401 || error.response.status === 402) &&
+                router.currentRoute.name !== store.getLoginRoute()
+            ) {
+                if (error.response.status === 401) {
+                    store.removeUserData();
+                }
+                Vue.prototype.$Modal.error({
+                    title: 'Error',
+                    content: errorMsg.ErrMsg,
+                    onOk: () => {
+                        router.push({
+                            name: store.getLoginRoute()
+                        });
+                    }
+                });
+                return;
+            }
+            let splitIndex = errorMsg.ErrMsg.indexOf(':') + 1;
+            const title = errorMsg.ErrMsg.slice(0, splitIndex - 1);
+            const content = errorMsg.ErrMsg.slice(splitIndex);
+            Vue.prototype.$Notice.error({
+                title,
+                render: h => {
+                    return h('div', [h('span', content), ' ']);
+                },
+                duration: 5
+            });
+            error.response.isSilent = true;
+        }
+        return error.response;
+    }
+);
+
+const requestPlugin = {
+    install(Vue) {
+        Vue.prototype.$request = request;
+    }
 };
+
+export default requestPlugin;
+export { request };

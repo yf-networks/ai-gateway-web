@@ -143,7 +143,7 @@ export function UserNameRegCheck(value) {
 }
 
 export function PasswordRegCheck(value) {
-    const reg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\'"-+=\.,~`!@#\$%\^&\*\(\);:])(?=.{3,})/;
+    const reg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*['"\-+=\.,~`!@#$%^&*();:])(.{3,})/;
     return reg.test(value);
 }
 
@@ -184,9 +184,8 @@ export function CertNameRegCheck(value) {
  * @returns {boolean} - 如果输入值匹配正则表达式则返回true，否则返回false
  */
 export function DescriptionRegCheck(value) {
-    // 定义正则表达式，要求至少包含2个字母或数字
-    const reg = /[a-zA-Z0-9]{2}/;
-    // 测试输入值是否符合正则表达式规则，并返回结果
+// 要求至少包含2个任意字符（包括中文、字母、数字、标点等）
+    const reg = /^.{2,}$/;
     return reg.test(value);
 }
 

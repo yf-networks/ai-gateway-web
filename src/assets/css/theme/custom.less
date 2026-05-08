@@ -13,187 +13,201 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+/**
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http: //www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+@app-disbled-bg: #cccccc;
+@app-font-size-base: 14px;
+@app-font-size-large: 14px;
+@app-border-radius: 0px;
+@app-font-default-color: rgb(16, 140, 238);
+@app-font-placeholder-color: #999999;
+@app-font-text-color: #333333;
+@app-font-text-disabled-color: #999999;
+@app-font-primary-color: #ffffff;
+@app-font-primary-disabled-color: #ffffff;
+@app-font-link-color: #3a62ca;
+@app-box-shadow: none;
 
-@noahv-disbled-bg                   :             #cccccc;
-@noahv-font-size-base               :             14px;
-@noahv-font-size-large              :             14px;
-@noahv-border-radius                :             0px;
-@noahv-font-default-color           :             rgb(16, 140, 238);
-@noahv-font-placeholder-color       :             #999999;
-@noahv-font-text-color              :             #333333;
-@noahv-font-text-disabled-color     :             #999999;
-@noahv-font-primary-color           :             #ffffff;
-@noahv-font-primary-disabled-color  :             #ffffff;
-@noahv-font-link-color              :             #3a62ca;
-@noahv-box-shadow                   :             none;
+@app-btn-default-bg: rgb(234, 246, 254);
+@app-btn-default-hover-bg: #d2ecfd;
 
-@noahv-btn-default-bg               :             rgb(234, 246, 254);
-@noahv-btn-default-hover-bg         :             #d2ecfd;
+@app-btn-primary-bg: #409eff;
+@app-btn-primary-hover-bg: #57a3f3;
 
-@noahv-btn-primary-bg               :             #409eff;
-@noahv-btn-primary-hover-bg         :             #57a3f3;
+@app-btn-default-border-color: #e9efff;
+@app-btn-primary-border-color: #57a3f3;
 
-@noahv-btn-default-border-color     :             #e9efff;
-@noahv-btn-primary-border-color     :             #57a3f3;
+@app-btn-disabled-bg: #cccccc;
 
-@noahv-btn-disabled-bg              :             #cccccc;
+@app-btn-min-width: 68px;
+@app-btn-large-min-width: 96px;
+@app-btn-default-height: 30px;
+@app-btn-large-height: 40px;
+@app-btn-line-height: 15px;
+@app-btn-large-height: 40px;
+@app-btn-padding-base: 10px;
+@app-btn-border-radius: 3px;
+@app-btn-border-base: 0px;
 
-@noahv-btn-min-width                :             68px;
-@noahv-btn-large-min-width          :             96px;
-@noahv-btn-default-height           :             30px;
-@noahv-btn-large-height             :             40px;
-@noahv-btn-line-height              :             15px;
-@noahv-btn-large-height             :             40px;
-@noahv-btn-padding-base             :             10px;
-@noahv-btn-border-radius            :             3px;
-@noahv-btn-border-base              :             0px;
+@app-btn-focus-box-shadow: @app-box-shadow;
 
-@noahv-btn-focus-box-shadow         :             @noahv-box-shadow;
+@app-table-header-bg: #f8f8f9;
+@app-table-row-hover-bg: #e6f7ff;
+@app-table-outer-border: 1px solid #e7e9f0;
+@app-table-outer-border-after: 1px;
+@app-table-outer-border-before: 0px;
+@app-table-outer-border-bg: #e7e9f0;
+@app-table-inner-border: 1px solid #e7e9f0;
+@app-table-inner-border-right: 1px solid #ffffff;
+@app-table-height-base: 40px;
+@app-table-td-padding: 10px 20px;
+@app-table-link-margin: 20px;
 
-@noahv-table-header-bg              :             #f8f8f9;
-@noahv-table-row-hover-bg           :             #e6f7ff;
-@noahv-table-outer-border           :             1px solid #e7e9f0;
-@noahv-table-outer-border-after     :             1px;
-@noahv-table-outer-border-before    :             0px;
-@noahv-table-outer-border-bg        :             #e7e9f0;
-@noahv-table-inner-border           :             1px solid #e7e9f0;
-@noahv-table-inner-border-right     :             1px solid #ffffff;
-@noahv-table-height-base            :             40px;
-@noahv-table-td-padding             :             10px 20px;
-@noahv-table-link-margin            :             20px;
+@nohav-input-height: 30px;
+@app-input-border-radius: @app-border-radius;
+@app-input-focus-box-shadow: @app-box-shadow;
+@app-input-padding: 5px 10px;
+@app-input-default-border: 1px solid #d9dbe3;
+@app-input-focus-color: #3a62ca;
+@app-input-hover-color: #3a62ca;
+@app-input-active-bg: #f7f9ff;
+@app-input-disabled-bg: #f3f4f5;
 
-@nohav-input-height                 :             30px;
-@noahv-input-border-radius          :             @noahv-border-radius;
-@noahv-input-focus-box-shadow       :             @noahv-box-shadow;
-@noahv-input-padding                :             5px 10px;
-@noahv-input-default-border         :             1px solid #d9dbe3;
-@noahv-input-focus-color            :             #3a62ca;
-@noahv-input-hover-color            :             #3a62ca;
-@noahv-input-active-bg              :             #F7F9FF;
-@noahv-input-disabled-bg            :             #f3f4f5;
+@app-radio-width: 14px;
+@app-radio-height: 14px;
+@app-radio-default-bg: #ffffff;
+@app-radio-default-border: 1px solid #bbbbbb;
+@app-radio-checked-color: #3a62ca;
+@app-radio-disabled-bg: #f4f4f4;
+@app-radio-disabled-border: #cccccc;
+@app-radio-box-shadow: @app-box-shadow;
 
-@noahv-radio-width                  :             14px;
-@noahv-radio-height                 :             14px;
-@noahv-radio-default-bg             :             #ffffff;
-@noahv-radio-default-border         :             1px solid #bbbbbb;
-@noahv-radio-checked-color          :             #3a62ca;
-@noahv-radio-disabled-bg            :             #f4f4f4;
-@noahv-radio-disabled-border        :             #cccccc;
-@noahv-radio-box-shadow             :             @noahv-box-shadow;
+@app-checkbox-width: 14px;
+@app-checkbox-height: 14px;
+@app-checkbox-default-bg: #ffffff;
+@app-checkbox-default-border: 1px solid #bbbbbb;
+@app-checkbox-checked-color: #2d8cf0;
+@app-checkbox-disabled-bg: #f4f4f4;
+@app-checkbox-disabled-border: #bbbbbb;
+@app-checkbox-box-shadow: @app-box-shadow;
+@app-checkbox-wapper-margin-right: 0px;
 
-@noahv-checkbox-width               :             14px;
-@noahv-checkbox-height              :             14px;
-@noahv-checkbox-default-bg          :             #ffffff;
-@noahv-checkbox-default-border      :             1px solid #bbbbbb;
-@noahv-checkbox-checked-color       :             #2d8cf0;
-@noahv-checkbox-disabled-bg         :             #f4f4f4;
-@noahv-checkbox-disabled-border     :             #bbbbbb;
-@noahv-checkbox-box-shadow          :             @noahv-box-shadow;
-@noahv-checkbox-wapper-margin-right :             0px;
+@app-toast-border-radius: @app-border-radius;
+@app-toast-padding: 8px 20px;
+@app-toast-icon-margin-right: 10px;
 
-@noahv-toast-border-radius          :             @noahv-border-radius;
-@noahv-toast-padding                :             8px 20px;
-@noahv-toast-icon-margin-right      :             10px;
+@app-tooltip-padding: 7px 10px;
+@app-tooltip-border-radius: @app-border-radius;
+@app-tooltip-box-shadow: 0 1px 4px rgba(11, 32, 86, 0.2);
 
-@noahv-tooltip-padding              :             7px 10px;
-@noahv-tooltip-border-radius        :             @noahv-border-radius;
-@noahv-tooltip-box-shadow           :             0 1px 4px rgba(11, 32, 86, 0.2);
+@app-dialog-bg: #ffffff;
+@app-dialog-border-radius: @app-border-radius;
+@app-dialog-close-right: 20px;
+@app-dialog-close-top: 5px;
+@app-dialog-header-height: 40px;
+@app-dialog-header-border: none;
+@app-dialog-footer-border: 1px solid #e7e9f0;
+@app-dialog-padding-base: 15px 20px;
+@app-dialog-header-padding: 10px 20px;
+@app-dialog-body-padding: 10px;
+@app-dialog-body-margin: 10px 20px;
+@app-dialog-header-bg: #f7f8fc;
+@app-dialog-footer-text-align: unset;
+@app-dialog-footer-margin-left: 10px;
+@app-dialog-footer-margin: 0 20px;
+@app-dialog-footer-padding: 15px 0;
+@app-dialog-large-button-min-width: @app-btn-min-width;
+@app-dialog-large-button-height: @app-btn-default-height;
+@app-dialog-large-button-font-size: @app-font-size-base;
+@app-dialog-confirm-padding: 0px;
+@app-dialog-confirm-body-margin-top: 0px;
+@app-dialog-confirm-body-padding: 30px 0px 30px 58px;
+@app-dialog-confirm-body-icon-font: 22px;
+@app-dialog-confirm-body-icon-top: 22px;
+@app-dialog-confirm-body-icon-left: 26px;
+@app-dialog-confirm-footer-margin-top: 0px;
+@app-dialog-confirm-footer-margin-bottom: 5px;
 
-@noahv-dialog-bg                    :             #ffffff;
-@noahv-dialog-border-radius         :             @noahv-border-radius;
-@noahv-dialog-close-right           :             20px;
-@noahv-dialog-close-top             :             5px;
-@noahv-dialog-header-height         :             40px;
-@noahv-dialog-header-border         :             none;
-@noahv-dialog-footer-border         :             1px solid #e7e9f0;
-@noahv-dialog-padding-base          :             15px 20px;
-@noahv-dialog-header-padding        :             10px 20px;
-@noahv-dialog-body-padding          :             10px;
-@noahv-dialog-body-margin           :             10px 20px;
-@noahv-dialog-header-bg             :             #f7f8fc;
-@noahv-dialog-footer-text-align     :             unset;
-@noahv-dialog-footer-margin-left   :             10px;
-@noahv-dialog-footer-margin         :             0 20px;
-@noahv-dialog-footer-padding        :             15px 0;
-@noahv-dialog-large-button-min-width:             @noahv-btn-min-width;
-@noahv-dialog-large-button-height   :             @noahv-btn-default-height;
-@noahv-dialog-large-button-font-size:             @noahv-font-size-base;
-@noahv-dialog-confirm-padding       :             0px;
-@noahv-dialog-confirm-body-margin-top      :      0px;
-@noahv-dialog-confirm-body-padding  :             30px 0px 30px 58px;
-@noahv-dialog-confirm-body-icon-font:             22px;
-@noahv-dialog-confirm-body-icon-top :             22px;
-@noahv-dialog-confirm-body-icon-left:             26px;
-@noahv-dialog-confirm-footer-margin-top    :      0px;
-@noahv-dialog-confirm-footer-margin-bottom :      5px;
+@app-tabs-card-height: 40px;
+@app-tabs-card-active-height: 41px;
+@app-tabs-bg: #3a62ca;
+@app-tabs-card-bg: #f2f2f2;
+@app-tabs-color: #3a62ca;
+@app-tabs-card-active-bg: #ffffff;
+@app-tabs-border: 1px solid #d9dbe3;
+@app-tabs-border-color: #d9dbe3 !important;
+@app-tabs-padding: 8px 20px;
+@app-tabs-margin-right: 0px;
+@app-tabs-close-icon-margin-right: -10px;
+@app-tabs-title-font-size: 16px;
+@app-tabs-border-radius: @app-border-radius;
 
-@noahv-tabs-card-height             :             40px;
-@noahv-tabs-card-active-height      :             41px;
-@noahv-tabs-bg                      :             #3A62CA;
-@noahv-tabs-card-bg                 :             #f2f2f2;
-@noahv-tabs-color                   :             #3A62CA;
-@noahv-tabs-card-active-bg          :             #ffffff;
-@noahv-tabs-border                  :             1px solid #d9dbe3;
-@noahv-tabs-border-color            :             #d9dbe3 !important;
-@noahv-tabs-padding                 :             8px 20px;
-@noahv-tabs-margin-right            :             0px;
-@noahv-tabs-close-icon-margin-right :             -10px;
-@noahv-tabs-title-font-size         :             16px;
-@noahv-tabs-border-radius           :             @noahv-border-radius;
+@app-page-border: 0px;
+@app-page-border-radius: @app-border-radius;
+@app-page-active-bg: #3a62ca;
+@app-page-hover-color: #3a62ca;
+@app-page-avtive-hover-color: #ffffff;
+@app-page-item-min-width: 30px;
+@app-page-item-height: 30px;
+@app-page-options-float: left;
+@app-page-options-content: '每页显示：';
 
-@noahv-page-border                  :             0px;
-@noahv-page-border-radius           :             @noahv-border-radius;
-@noahv-page-active-bg               :             #3A62CA;
-@noahv-page-hover-color             :             #3A62CA;
-@noahv-page-avtive-hover-color      :             #ffffff;
-@noahv-page-item-min-width          :             30px;
-@noahv-page-item-height             :             30px;
-@noahv-page-options-float           :             left;
-@noahv-page-options-content         :             '每页显示：';
+@app-select-color: #409eff;
+@app-select-droplist-color: @app-select-color;
+@app-select-disabled-color: #ffffff;
+@app-select-height: 30px;
+@app-select-border-radius: #eaf6fe;
+@app-select-border: none;
+@app-select-tag-height: 20px;
+@app-select-tag-line-height: 20px;
+@app-select-bg: #eaf6fe;
+@app-select-hover-bg: #eaf6fe;
+@app-select-focus-bg: #eaf6fe;
+@app-select-disabled-bg: #f3f3f3;
+@app-select-disabled-hover-bg: #f3f3f3;
+@app-select-disabled-focus-bg: #f3f3f3;
+@app-select-box-shadow: none;
+@app-select-init-padding: 0px;
+@app-select-init-margin: 0px;
+@app-select-arrow-right: 10px;
+@app-select-arrow-font-size: 16px;
+@app-select-ph-padding-left: 10px;
+@app-select-dropdown-box-shadow: 0 1px 8px rgba(10, 49, 158, 0.1);
+@app-select-item-hover-bg: #f7f8fc;
+@app-select-item-focus-bg: #f7f8fc;
+@app-select-item-multi-bg: #f7f8fc;
+@app-select-multi-padding: 0 30px 0 4px;
+@app-select-tag-margin: 5px 5px 5px 0;
+@app-select-tag-bg: #ccdaff;
+@app-select-input-padding: 0 24px 0 10px;
+@app-select-multy-max-height: 150px;
 
-@noahv-select-color                 :             #409eff;
-@noahv-select-droplist-color        :             @noahv-select-color;
-@noahv-select-disabled-color        :             #ffffff;
-@noahv-select-height                :             30px;
-@noahv-select-border-radius         :             #eaf6fe;
-@noahv-select-border                :             none;
-@noahv-select-tag-height            :             20px;
-@noahv-select-tag-line-height       :             20px;
-@noahv-select-bg                    :             #eaf6fe;
-@noahv-select-hover-bg              :             #eaf6fe;
-@noahv-select-focus-bg              :             #eaf6fe;
-@noahv-select-disabled-bg           :             #f3f3f3;
-@noahv-select-disabled-hover-bg     :             #f3f3f3;
-@noahv-select-disabled-focus-bg     :             #f3f3f3;
-@noahv-select-box-shadow            :             none;
-@noahv-select-init-padding          :             0px;
-@noahv-select-init-margin           :             0px;
-@noahv-select-arrow-right           :             10px;
-@noahv-select-arrow-font-size       :             16px;
-@noahv-select-ph-padding-left       :             10px;
-@noahv-select-dropdown-box-shadow   :             0 1px 8px rgba(10, 49, 158, 0.1);
-@noahv-select-item-hover-bg         :             #f7f8fc;
-@noahv-select-item-focus-bg         :             #f7f8fc;
-@noahv-select-item-multi-bg         :             #f7f8fc;
-@noahv-select-multi-padding         :             0 30px 0 4px;
-@noahv-select-tag-margin            :             5px 5px 5px 0;
-@noahv-select-tag-bg                :             #ccdaff;
-@noahv-select-input-padding         :             0 24px 0 10px;
-@noahv-select-multy-max-height      :             150px;
-
-@noahv-switch-height                :             22px;
-@noahv-switch-width                 :             48px;
-@noahv-switch-border                :             0px;
-@noahv-switch-bg                    :             #ea2e2e;
-@noahv-switch-checked-border-color  :             #3a62ca;
-@noahv-switch-checked-bg            :             #3a62ca;
-@noahv-switch-font-size             :             @noahv-font-size-base;
-@noahv-switch-inner-left            :             23px;
-@noahv-switch-inner-color           :             #ffffff;
-@noahv-switch-inner-checked-color   :             #ffffff;
-@noahv-switch-inner-checked-left    :             4px;
-@noahv-switch-box-shadow            :             none;
-@noahv-switch-circle-size           :             20px;
-@noahv-switch-circle-bg             :             #ffffff;
-@noahv-switch-circle-left           :             26px;
-@noahv-switch-disabled-bg           :             #cccccc;
+@app-switch-height: 22px;
+@app-switch-width: 48px;
+@app-switch-border: 0px;
+@app-switch-bg: #ea2e2e;
+@app-switch-checked-border-color: #3a62ca;
+@app-switch-checked-bg: #3a62ca;
+@app-switch-font-size: @app-font-size-base;
+@app-switch-inner-left: 23px;
+@app-switch-inner-color: #ffffff;
+@app-switch-inner-checked-color: #ffffff;
+@app-switch-inner-checked-left: 4px;
+@app-switch-box-shadow: none;
+@app-switch-circle-size: 20px;
+@app-switch-circle-bg: #ffffff;
+@app-switch-circle-left: 26px;
+@app-switch-disabled-bg: #cccccc;
