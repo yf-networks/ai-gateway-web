@@ -1,4 +1,19 @@
 /**
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http: //www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Copyright (c) 2021 The BFE Authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,31 +29,37 @@
 * limitations under the License.
 */
 <template>
-    <div>
-        <Button class="add-button" type="primary" size="small" @click="onAdd">
-            {{ $t('com.createX', { obj: $t('instancePool.name') }) }}
-        </Button>
-        <Drawer
-            v-model="isHiden"
-            :mask-closable="false"
-            width="1150"
-            :title="
+  <div>
+    <Button class="add-button" type="primary" size="small" @click="onAdd">
+      {{ $t('com.createX', { obj: $t('instancePool.name') }) }}
+    </Button>
+    <Drawer
+      v-model="isHiden"
+      :mask-closable="false"
+      width="1150"
+      :title="
                 isAdd
-                    ? $t('com.editX', { obj: $t('instancePool.name') })
-                    : $t('com.createX', { obj: $t('instancePool.name') })
+                    ? $t('com.createX', { obj: $t('instancePool.name') })
+                    : $t('com.editX', { obj: $t('instancePool.name') })
             "
-        >
-            <createPool
-                v-if="isHiden"
-                :isAdd="isAdd"
-                :currentData="currentData"
-                :instancesPoolNames="instancesPoolNames"
-                @submit="submitData"
-                @cancle="onClose"
-            />
-        </Drawer>
-        <pageTable ref="pageTable" :tableData="tableData" :columns="columns" :loading="loading" />
-    </div>
+    >
+      <createPool
+        v-if="isHiden"
+        :isAdd="isAdd"
+        :currentData="currentData"
+        :instancesPoolNames="instancesPoolNames"
+        :prefix="'BFE'"
+        @submit="submitData"
+        @cancle="onClose"
+      />
+    </Drawer>
+    <pageTable
+      ref="pageTable"
+      :tableData="tableData"
+      :columns="columns"
+      :loading="loading"
+    />
+  </div>
 </template>
 
 <script>

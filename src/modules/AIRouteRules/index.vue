@@ -13,26 +13,25 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 <template>
-    <div class="ai-route-rules-container">
-        <div class="action-bar">
-            <Button
-                size="small"
-                type="primary"
-                class="submit-button"
-                :loading="isSubmitting"
-                @click="submitRules"
-            >
-                {{ $t('com.submitAndEffect') }}
-            </Button>
-        </div>
-        <Tabs v-model="activeTab">
-            <TabPane :label="$t('aiRouteRules.rulesList')" name="rule">
-                <Rules :rules="rules" @update:forward_rules="handleRulesUpdate" />
-            </TabPane>
-        </Tabs>
+  <div class="ai-route-rules-container">
+    <div class="action-bar">
+      <Button
+        size="small"
+        type="primary"
+        class="submit-button"
+        :loading="isSubmitting"
+        @click="submitRules"
+      >
+        {{ $t('com.submitAndEffect') }}
+      </Button>
     </div>
+    <Tabs v-model="activeTab">
+      <TabPane :label="$t('aiRouteRules.rulesList')" name="rule">
+        <Rules :rules="rules" @update:forward_rules="handleRulesUpdate" />
+      </TabPane>
+    </Tabs>
+  </div>
 </template>
 
 <script>
@@ -78,13 +77,13 @@ export default {
                         this.$Message.success(this.$t('com.tipSubmitSucc'));
                         this.fetchRules();
                     } else {
-                        console.error('提交规则失败，状态码:', response?.status);
+                        console.error('提交规则失败，状态码:', response.status);
                         this.$Message.error(this.$t('aiRouteRules.submitFailed'));
                     }
                 })
                 .catch(error => {
                     console.error('提交规则异常:', error);
-                    
+
                 })
                 .finally(() => {
                     this.isSubmitting = false;
@@ -102,7 +101,7 @@ export default {
                         this.rules = response.data.Data || [];
                         this.draftRules = cloneDeep(this.rules);
                     } else {
-                        console.error('获取规则失败，状态码:', response?.status);
+                        console.error('获取规则失败，状态码:', response.status);
                     }
                 })
                 .catch(error => {

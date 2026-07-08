@@ -36,93 +36,121 @@ import store from '@/utils/store';
 import router from '@/router/instance';
 
 const request = axios.create({
-    timeout: 30000
+  timeout: 30000,
 });
 
 request.interceptors.request.use(
-    config => {
-        config.transformRequest = [
-            data => {
-                data = JSON.stringify(data);
-                return data;
-            }
-        ];
-        config.headers['Content-Type'] = 'application/json;';
-        config.headers['X-Fe-Request-Id'] = uuidv4();
-        config.headers['Accept-Language'] = getLang() || 'en';
-        let user = store.getUser();
-        if (user && !config.withoutAuth) {
-            config.headers.Authorization = `Session ${user.sessionKey}`;
-        }
-        config.url = `${window.location.protocol}//${window.location.host}/open-api/v1/${config.url}`;
-        return config;
-    },
-    error => {
-        return Promise.reject(error);
+  (config) => {
+    config.transformRequest = [
+      (data) => {
+        data = JSON.stringify(data);
+        return data;
+      },
+    ];
+    config.headers['Content-Type'] = 'application/json;';
+    config.headers['X-Fe-Request-Id'] = uuidv4();
+    config.headers['Accept-Language'] = getLang() || 'en';
+    let user = store.getUser();
+    if (user && !config.withoutAuth) {
+      config.headers.Authorization = `Session ${user.sessionKey}`;
     }
+    config.url = `${window.location.protocol}//${window.location.host}/open-api/v1/${config.url}`;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
 );
 
 request.interceptors.response.use(
-    response => {
-        if (response.data === 'null') {
-            response.data = '{}';
-        }
-        return response;
-    },
-    error => {
-        if (error.response) {
-            const errorMsg = JSON.parse(error.response.data);
-            if (!errorMsg) {
-                Vue.prototype.$Notice.error({
-                    title: i18n.t('com.tipError'),
-                    render: h => {
-                        return h('div', [i18n.t('com.tipNetworkFail')]);
-                    }
-                });
-            }
-            error.response.data = errorMsg.Data;
-            if (error.response.config.unneedTips) {
-                error.response.isSilent = true;
-                return error.response;
-            }
-            if (
-                (error.response.status === 401 || error.response.status === 402) &&
-                router.currentRoute.name !== store.getLoginRoute()
-            ) {
-                if (error.response.status === 401) {
-                    store.removeUserData();
-                }
-                Vue.prototype.$Modal.error({
-                    title: 'Error',
-                    content: errorMsg.ErrMsg,
-                    onOk: () => {
-                        router.push({
-                            name: store.getLoginRoute()
-                        });
-                    }
-                });
-                return;
-            }
-            let splitIndex = errorMsg.ErrMsg.indexOf(':') + 1;
-            const title = errorMsg.ErrMsg.slice(0, splitIndex - 1);
-            const content = errorMsg.ErrMsg.slice(splitIndex);
-            Vue.prototype.$Notice.error({
-                title,
-                render: h => {
-                    return h('div', [h('span', content), ' ']);
-                },
-                duration: 5
-            });
-            error.response.isSilent = true;
-        }
-        return error.response;
+  (response) => {
+    if (response.data === 'null') {
+      response.data = '{}';
     }
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      if (error.response.isSilent) {
+        return error.response;
+      }
+
+      let errorMsg = error.response.data;
+      if (typeof errorMsg === 'string') {
+        try {
+          errorMsg = JSON.parse(errorMsg);
+        } catch (e) {}
+      }
+
+      if (!errorMsg) {
+        Vue.prototype.$Notice.error({
+          title: i18n.t('com.tipError') + i18n.t('com.tipNetworkFail'),
+          duration: 0,
+          render: (h) => {
+            return h('div', [i18n.t('com.tipNetworkFail')]);
+          },
+        });
+        return error.response;
+      }
+
+      if (errorMsg.ErrMsg) {
+        error.response.errMsg =
+          errorMsg.ErrMsg.split(':')[1] || errorMsg.ErrMsg;
+      }
+      error.response.data = errorMsg.Data || errorMsg;
+
+      if (error.response.config.unneedTips) {
+        error.response.isSilent = true;
+        return error.response;
+      }
+
+      if (error.response.status === 401 || error.response.status === 402) {
+        if (error.response.config.withoutAuth) {
+          error.response.isSilent = true;
+          return error.response;
+        }
+
+        if (error.response.status === 401) {
+          store.removeUserData();
+        }
+
+        const errMsg = (errorMsg.ErrMsg || '').split(':')[1] || errorMsg.ErrMsg;
+        Vue.prototype.$Modal.error({
+          title: 'Error',
+          content: errMsg,
+          onOk: () => {
+            if (router.currentRoute.name !== store.getLoginRoute()) {
+              router.push({
+                name: store.getLoginRoute(),
+              });
+            }
+          },
+        });
+        error.response.isSilent = true;
+        return error.response;
+      }
+
+      const splitIndex = (errorMsg.ErrMsg || '').indexOf(':') + 1;
+      const title = (errorMsg.ErrMsg || '').slice(0, splitIndex - 1) || 'Error';
+      const content =
+        (errorMsg.ErrMsg || '').slice(splitIndex) || errorMsg.ErrMsg;
+      Vue.prototype.$Notice.error({
+        title,
+        render: (h) => {
+          return h('div', [h('span', content), ' ']);
+        },
+        duration: 0,
+      });
+      error.response.isSilent = true;
+    }
+    return error.response;
+  },
 );
 
 const requestPlugin = {
-    install(Vue) {
-        Vue.prototype.$request = request;
-    }
+  install(Vue) {
+    Vue.prototype.$request = request;
+  },
 };
 
 export default requestPlugin;

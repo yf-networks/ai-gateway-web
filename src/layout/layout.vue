@@ -69,7 +69,7 @@ export default {
 
     computed: {
         showLayout() {
-            // 只有当路由名称存在且不是登录页，同时用户已登录时才显示完整布局
+            // Only show full layout when route name exists, not login page, and user is logged in
             return this.$route.name && this.$route.name !== 'LoginPassword' && this.$store.getUser();
         }
     },

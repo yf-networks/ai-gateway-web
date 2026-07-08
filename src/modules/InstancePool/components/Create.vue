@@ -29,110 +29,130 @@
 * limitations under the License.
 */
 <template>
-    <div>
-        <Form ref="formData" :model="formData" :rules="ruleValidate" label-position="top">
-            <FormItem :label="$t('com.nameX', { obj: $t('instancePool.name') })" prop="name">
-                <Input
-                    v-model="formData.name"
-                    :disabled="!isAdd"
-                    :placeholder="
+  <div>
+    <Form
+      ref="formData"
+      :model="formData"
+      :rules="ruleValidate"
+      label-position="top"
+    >
+      <FormItem
+        :label="$t('com.nameX', { obj: $t('instancePool.name') })"
+        prop="name"
+      >
+        <Input
+          v-model="formData.name"
+          :disabled="!isAdd"
+          :placeholder="
                         $t('com.tipRequiredX', {
                             obj: $t('com.nameX', { obj: $t('instancePool.name') })
                         })
                     "
-                    class="nameInput"
-                >
-                    <span v-if="!isProductManager" slot="prepend">AI_product.</span>
-                </Input>
-            </FormItem>
-            <FormItem :label="$t('instancePool.list')" style="width: 100%;" prop="instances">
-                <div class="formBox">
-                    <table border="0" cellspacing="0" cellpadding="0">
-                        <tr>
-                            <th>{{ $t('instancePool.machineName') }}</th>
-                            <th>ip/{{ $t('nav.Domain') }}</th>
-                            <th>{{ $t('instancePool.port') }}</th>
-                            <th v-show="isProductManager">{{ $t('instancePool.weight') }}</th>
-                            <th>{{ $t('com.operation') }}</th>
-                        </tr>
-                        <tr v-for="(item, ind) in formData.instances" :key="ind">
-                            <td>
-                                <Input
-                                    v-model="item.hostname"
-                                    type="text"
-                                    :placeholder="
+          class="nameInput"
+        >
+          <span v-if="!isProductManager && prefix" slot="prepend"
+            >{{ prefix }}.</span
+          >
+        </Input>
+      </FormItem>
+      <FormItem
+        :label="$t('instancePool.list')"
+        style="width: 100%;"
+        prop="instances"
+      >
+        <div class="formBox">
+          <table border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <th>{{ $t('instancePool.machineName') }}</th>
+              <th>ip/{{ $t('nav.Domain') }}</th>
+              <th>{{ $t('instancePool.port') }}</th>
+              <th v-show="isProductManager">{{ $t('instancePool.weight') }}</th>
+              <th>{{ $t('com.operation') }}</th>
+            </tr>
+            <tr v-for="(item, ind) in formData.instances" :key="ind">
+              <td>
+                <Input
+                  v-model="item.hostname"
+                  type="text"
+                  :placeholder="
                                         $t('com.tipEnterX', { obj: $t('instancePool.machineName') })
                                     "
-                                />
-                            </td>
-                            <td>
-                                <Input
-                                    v-model="item.ip"
-                                    type="text"
-                                    :placeholder="$t('com.tipEnterX', { obj: 'ip/' + $t('nav.Domain') })"
-                                />
-                            </td>
-                            <td>
-                                <div v-for="(info, index) in item.ports" :key="index">
-                                    <Input
-                                        v-model="index"
-                                        class="poolInput"
-                                        type="text"
-                                        :placeholder="$t('instancePool.portName')"
-                                        style="width: 80px;"
-                                        disabled
-                                    />：
-                                    <InputNumber
-                                        v-model="item.ports.Default"
-                                        :max="65535"
-                                        :min="1"
-                                        class="poolInput"
-                                        :placeholder="$t('instancePool.portValue')"
-                                        style="width: 80px;"
-                                        @on-change="handleNumber(item.ports, 'Default')"
-                                    ></InputNumber>
-                                </div>
-                            </td>
-                            <td v-show="isProductManager">
-                                <InputNumber
-                                    v-model="item.weight"
-                                    class="InputNumber"
-                                    :max="100"
-                                    :min="1"
-                                    :placeholder="
+                />
+              </td>
+              <td>
+                <Input
+                  v-model="item.ip"
+                  type="text"
+                  :placeholder="$t('com.tipEnterX', { obj: 'ip/' + $t('nav.Domain') })"
+                />
+              </td>
+              <td>
+                <div v-for="(info, index) in item.ports" :key="index">
+                  <Input
+                    v-model="index"
+                    class="poolInput"
+                    type="text"
+                    :placeholder="$t('instancePool.portName')"
+                    style="width: 80px;"
+                    disabled
+                  />：
+                  <InputNumber
+                    v-model="item.ports.Default"
+                    :max="65535"
+                    :min="1"
+                    class="poolInput"
+                    :placeholder="$t('instancePool.portValue')"
+                    style="width: 80px;"
+                    @on-change="handleNumber(item.ports, 'Default')"
+                  ></InputNumber>
+                </div>
+              </td>
+              <td v-show="isProductManager">
+                <InputNumber
+                  v-model="item.weight"
+                  class="InputNumber"
+                  :max="100"
+                  :min="1"
+                  :placeholder="
                                         $t('com.tipEnterX', { obj: $t('instancePool.weight') })
                                     "
-                                    style="width: 80px;"
-                                    @on-change="handleNumber(item, 'weight')"
-                                ></InputNumber>
-                            </td>
-                            <td>
-                                <Button
-                                    size="small"
-                                    type="error"
-                                    :disabled="!deleteAble"
-                                    @click="handleRemove(ind)"
-                                    >{{ $t('com.del') }}</Button
-                                >
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <Button plain size="small" type="primary" @click="handleAdd"
-                    >+ {{ $t('com.create') }}</Button
+                  style="width: 80px;"
+                  @on-change="handleNumber(item, 'weight')"
+                ></InputNumber>
+              </td>
+              <td>
+                <Button
+                  size="small"
+                  type="error"
+                  :disabled="!deleteAble"
+                  @click="handleRemove(ind)"
+                  >{{ $t('com.del') }}</Button
                 >
-            </FormItem>
-        </Form>
-        <div class="drawer-footer">
-            <Button size="small" type="primary" @click="handleSubmit('formData')">{{
-                $t('com.submit')
-            }}</Button>
-            <Button size="small" class="com-create-btn" type="error" @click="closeSubmit">{{
-                $t('com.cancel')
-            }}</Button>
+              </td>
+            </tr>
+          </table>
         </div>
-        <Spin v-if="spinShow" size="large" fix></Spin>
+        <Button plain size="small" type="primary" @click="handleAdd"
+          >+ {{ $t('com.create') }}</Button
+        >
+      </FormItem>
+    </Form>
+    <div class="drawer-footer">
+      <Button size="small" type="primary" @click="handleSubmit('formData')">{{
+                $t('com.submit')
+      }}</Button>
+      <Button
+        size="small"
+        class="com-create-btn"
+        type="error"
+        @click="closeSubmit"
+        >{{
+                $t('com.cancel')
+        }}</Button
+      >
     </div>
+    <Spin v-if="spinShow" size="large" fix></Spin>
+  </div>
 </template>
 
 <script>
@@ -155,6 +175,10 @@ export default {
             default() {
                 return [];
             }
+        },
+        prefix: {
+            type: String,
+            default: ''
         }
     },
     watch: {
@@ -165,8 +189,11 @@ export default {
                     this.formData.name = v.name.split('.')[1];
                     if (this.formData.instances && this.formData.instances.length > 1) {
                         this.deleteAble = true;
+                    } else {
+                        this.deleteAble = false;
                     }
                 } else {
+                    this.deleteAble = false;
                     this.formData = {
                         name: '',
                         instances: [
