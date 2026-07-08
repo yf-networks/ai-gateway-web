@@ -1,6 +1,5 @@
 # Summary
 
-* [引言](README.md)
 * [用户和角色](user-and-role.md)
 * [资源管理](resource-management.md)
   * [AI网关集群和实例池](resource-management/ai-gateway-cluster.md)
