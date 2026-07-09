@@ -48,6 +48,7 @@
                 :isAdd="isAdd"
                 :currentData="currentData"
                 :instancesPoolNames="instancesPoolNames"
+                :prefix="'AI_product'"
                 @submit="submitData"
                 @cancle="onClose"
             />

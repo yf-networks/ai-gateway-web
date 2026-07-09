@@ -208,7 +208,7 @@ export default {
     },
 
     computed: {
-        // 定义所有可能的步骤
+        // Define all possible steps
         allSteps() {
             return [
                 { content: this.$t('cluster.basicConfig'), visible: true },

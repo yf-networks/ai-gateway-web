@@ -1,4 +1,19 @@
 /**
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http: //www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
 * Copyright (c) 2021 The BFE Authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,45 +29,46 @@
 * limitations under the License.
 */
 <template>
-    <div class="page-table">
-        <div class="searchTable">
-            <Table
-                v-if="needSerarchInput"
-                :columns="searchColumns"
-                :data="[{ title: '' }]"
-                :show-header="false"
-                :row-class-name="rowClassName"
-            ></Table>
-        </div>
-
-        <div class="show-iView-Table">
-            <Table
-                :columns="columns"
-                :data="pageData"
-                :border="border"
-                width="95%"
-                :height="height"
-                @on-sort-change="sortChange"
-                :loading="loading"
-                :class="loading ? 'show-iView-Table-list' : ''"
-                :draggable="draggable"
-                @on-drag-drop="onDragDrop"
-            >
-            </Table>
-        </div>
-
-        <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page.sync="showCurrentPage"
-            :page-sizes="pageSizes"
-            :page-size="pageSize"
-            layout="sizes, prev, pager, next"
-            :total="showTableData.length"
-            background
-            class="page"
-        ></el-pagination>
+  <div class="page-table">
+    <div class="searchTable">
+      <Table
+        v-if="needSerarchInput"
+        :columns="searchColumns"
+        :data="[{ title: '' }]"
+        :show-header="false"
+        :row-class-name="rowClassName"
+      ></Table>
     </div>
+
+    <div class="show-iView-Table">
+      <Table
+        :columns="columns"
+        :data="pageData"
+        :border="border"
+        width="95%"
+        :height="height"
+        @on-sort-change="sortChange"
+        @on-row-click="handleRowClick"
+        :loading="loading"
+        :class="loading ? 'show-iView-Table-list' : ''"
+        :draggable="draggable"
+        @on-drag-drop="onDragDrop"
+      >
+      </Table>
+    </div>
+
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page.sync="showCurrentPage"
+      :page-sizes="pageSizes"
+      :page-size="pageSize"
+      layout="sizes, prev, pager, next"
+      :total="showTableData.length"
+      background
+      class="page"
+    ></el-pagination>
+  </div>
 </template>
 <script>
 import { cloneDeep, isEmpty } from 'lodash';
@@ -119,30 +135,65 @@ export default {
                 data.forEach(item => {
                     const showTitle = item.showTitle ? item.searchMsg : item.title;
                     if (item.searchable) {
-                        this.searchColumns.push({
-                            key: item.key,
-                            width: item.width,
-                            maxWidth: item.maxWidth,
-                            minWidth: item.minWidth,
-                            render(h) {
-                                return h('Input', {
-                                    props: {
-                                        placeholder:
-                                            that.$t('com.tipEnterX', { obj: '' }) +
-                                            showTitle +
-                                            that.$t('com.query'),
-                                        value: item.searchValue,
-                                        maxWidth: '230px'
-                                    },
-                                    on: {
-                                        'on-change': event => {
-                                            item.searchValue = event.target.value;
-                                            that.searchTable(item);
+                        // Support custom search control types
+                        if (item.searchType === 'select' && item.searchFilters) {
+                            // Dropdown search
+                            this.searchColumns.push({
+                                key: item.key,
+                                width: item.width,
+                                maxWidth: item.maxWidth,
+                                minWidth: item.minWidth,
+                                render(h) {
+                                    return h('Select', {
+                                        props: {
+                                            placeholder: that.$t('com.tipSelectX', { obj: showTitle }),
+                                            value: item.searchValue,
+                                            clearable: true,
+                                            transfer: true,
+                                            maxWidth: '230px'
+                                        },
+                                        on: {
+                                            'on-change': value => {
+                                                item.searchValue = value;
+                                                that.searchTable(item);
+                                            },
+                                            'on-clear': () => {
+                                                item.searchValue = null; // Use null instead of empty string to distinguish false values
+                                                that.searchTable(item);
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        });
+                                    }, item.searchFilters.map(filter =>
+                                        h('Option', { props: { value: filter.value } }, filter.label)
+                                    ));
+                                }
+                            });
+                        } else {
+                            // Default input search
+                            this.searchColumns.push({
+                                key: item.key,
+                                width: item.width,
+                                maxWidth: item.maxWidth,
+                                minWidth: item.minWidth,
+                                render(h) {
+                                    return h('Input', {
+                                        props: {
+                                            placeholder:
+                                                that.$t('com.tipEnterX', { obj: '' }) +
+                                                showTitle +
+                                                that.$t('com.query'),
+                                            value: item.searchValue,
+                                            maxWidth: '230px'
+                                        },
+                                        on: {
+                                            'on-change': event => {
+                                                item.searchValue = event.target.value;
+                                                that.searchTable(item);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
                         this.needSerarchInput = true;
                     } else {
                         this.searchColumns.push({
@@ -207,7 +258,8 @@ export default {
     methods: {
         searchTable(event) {
             if (event !== 'filter-message') {
-                if (event.searchValue === '') {
+                // Boolean false is a valid search value, only empty string, null, undefined should clear
+                if (event.searchValue === '' || event.searchValue === null || event.searchValue === undefined) {
                     this.$delete(this.searchMessage, event.key);
                     this.$delete(this.searchMessage, event.key + '_render_', event.render);
                 } else {
@@ -232,12 +284,25 @@ export default {
                     let flag = true;
                     l: for (let key in this.searchMessage) {
                         if (key.indexOf('_render_') === -1) {
-                            const item = this.tableData[i][key] + '';
-                            if (!this.searchMessage[key + '_render_']) {
+                            const searchValue = this.searchMessage[key];
+                            const itemValue = this.tableData[i][key];
+
+                            // Exact match for boolean (supports strings 'true'/'false')
+                            if (typeof searchValue === 'boolean' || searchValue === 'true' || searchValue === 'false') {
+                                const boolValue = searchValue === 'true' || searchValue === true;
+                                if (itemValue !== boolValue) {
+                                    flag = false;
+                                    break l;
+                                } else {
+                                    flag = true;
+                                }
+                            } else if (!this.searchMessage[key + '_render_']) {
+                                // Regular string contains match
+                                const item = itemValue + '';
                                 if (
                                     item
                                         .toUpperCase()
-                                        .indexOf(this.searchMessage[key].toUpperCase()) === -1
+                                        .indexOf(searchValue.toUpperCase()) === -1
                                 ) {
                                     flag = false;
                                     break l;
@@ -245,6 +310,7 @@ export default {
                                     flag = true;
                                 }
                             } else {
+                                // Render function value match
                                 const render = this.searchMessage[key + '_render_'](
                                     this.$createElement,
                                     {
@@ -254,7 +320,7 @@ export default {
                                 if (
                                     this.getShowTableChildren(render.children)
                                         .toUpperCase()
-                                        .indexOf(this.searchMessage[key].toUpperCase()) === -1
+                                        .indexOf(searchValue.toUpperCase()) === -1
                                 ) {
                                     flag = false;
                                     break l;
@@ -314,18 +380,20 @@ export default {
                 });
             } else {
                 this.showTableData.sort((a, b) => {
-                    if (typeof a[data.key] === 'object') {
-                        return;
-                    } else if (typeof a[data.key] === 'number' && typeof b[data.key] === 'number') {
+                    const valA = a[data.key];
+                    const valB = b[data.key];
+                    if (typeof valA === 'object' || typeof valB === 'object') {
+                        return 0;
+                    } else if (typeof valA === 'number' && typeof valB === 'number') {
                         if (data.order === 'asc') {
-                            return a[data.key] - b[data.key];
+                            return valA - valB;
                         } else {
-                            return b[data.key] - a[data.key];
+                            return valB - valA;
                         }
                     } else if (data.order === 'asc') {
-                        return a[data.key].localeCompare(b[data.key]);
+                        return String(valA || '').localeCompare(String(valB || ''));
                     } else {
-                        return b[data.key].localeCompare(a[data.key]);
+                        return String(valB || '').localeCompare(String(valA || ''));
                     }
                 });
             }
@@ -361,6 +429,9 @@ export default {
             const startIndex = pageStartIndex + parseInt(a, 10);
             const endIndex = pageStartIndex + parseInt(b, 10);
             this.$emit('dragDrop', startIndex, endIndex);
+        },
+        handleRowClick(row, index) {
+            this.$emit('on-row-click', row, index);
         }
     }
 };
