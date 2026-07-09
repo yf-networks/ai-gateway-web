@@ -1,5 +1,5 @@
 /**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -517,7 +517,7 @@ export default {
                 const rpm = that.formData.rate_limit_policy.rules.rpm || [];
                 const maxConcurrency = that.formData.rate_limit_policy.rules.max_concurrency;
                 if (tpm.length === 0 && rpm.length === 0 && maxConcurrency === -1) {
-                    callback(new Error('启用限流时，至少需要配置TPM、RPM或最大并发中的一项'));
+                    callback(new Error(this.$t('entity.rateLimitRuleRequired')));
                     return;
                 }
             }
@@ -815,7 +815,7 @@ export default {
             const tpm = this.formData.rate_limit_policy.rules.tpm || [];
             const count = tpm.filter(r => r.name === value.trim()).length;
             if (count > 1) {
-                callback(new Error(`规则名称 ${value.trim()} 重复`));
+                callback(new Error(this.$t('entity.ruleNameDuplicate', { name: value.trim() })));
                 return;
             }
             callback();
@@ -829,7 +829,7 @@ export default {
             const rpm = this.formData.rate_limit_policy.rules.rpm || [];
             const count = rpm.filter(r => r.name === value.trim()).length;
             if (count > 1) {
-                callback(new Error(`规则名称 ${value.trim()} 重复`));
+                callback(new Error(this.$t('entity.ruleNameDuplicate', { name: value.trim() })));
                 return;
             }
             callback();

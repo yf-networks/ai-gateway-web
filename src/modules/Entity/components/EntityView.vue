@@ -1,5 +1,5 @@
 /**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -75,6 +75,11 @@
           <span class="info-value"
             >{{ formatNumber(quotaPlanUsed) }} tokens ({{ quotaPercent
 
+
+
+
+
+
             }}%)</span
           >
         </div>
@@ -127,7 +132,7 @@
         class="rules-detail"
       >
         <div class="rules-detail-title">
-          {{ $t('entity.tpmRules') }} ({{ tpmRulesLength }}条)
+          {{ $t('entity.tpmRules') }} ({{ tpmRulesLength }}{{ $t('com.item') }})
         </div>
         <div
           v-for="(rule, index) in tpmRules"
@@ -138,13 +143,30 @@
           <div>
             {{ $t('entity.applyModel')
 
+
+
+
+
+
             }}：{{ rule.model === '*' ? $t('entity.allModels') : rule.model }}
           </div>
           <div>
-            {{ $t('entity.timeWindow') }}：{{ rule.window_minutes }}分钟
+            {{ $t('entity.timeWindow') }}：{{ rule.window_minutes
+
+
+
+
+            }}{{ $t('com.minute') }}
           </div>
           <div>{{ $t('entity.maxTokens') }}：{{ rule.max_tokens }}</div>
-          <div>{{ $t('entity.stepMinutes') }}：{{ rule.step_minutes }}分钟</div>
+          <div>
+            {{ $t('entity.stepMinutes') }}：{{ rule.step_minutes
+
+
+
+
+            }}{{ $t('com.minute') }}
+          </div>
         </div>
       </div>
 
@@ -153,7 +175,7 @@
         class="rules-detail"
       >
         <div class="rules-detail-title">
-          {{ $t('entity.rpmRules') }} ({{ rpmRulesLength }}条)
+          {{ $t('entity.rpmRules') }} ({{ rpmRulesLength }}{{ $t('com.item') }})
         </div>
         <div
           v-for="(rule, index) in rpmRules"
@@ -164,10 +186,18 @@
           <div>
             {{ $t('entity.applyModel')
 
+
+
+
+
+
             }}：{{ rule.model === '*' ? $t('entity.allModels') : rule.model }}
           </div>
           <div>
-            {{ $t('entity.timeWindow') }}：{{ rule.window_minutes }}分钟
+            {{ $t('entity.timeWindow') }}：{{ rule.window_minutes
+
+
+            }}{{ $t('com.minute') }}
           </div>
           <div>{{ $t('entity.maxRequests') }}：{{ rule.max_requests }}</div>
         </div>

@@ -1,33 +1,33 @@
 /**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http: //www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http: //www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**
-* Copyright (c) 2021 The BFE Authors.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2021 The BFE Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // eslint-disable
 export default {
   com: {
@@ -87,6 +87,19 @@ export default {
     used: '已使用',
     remaining: '剩余量',
     usageProgress: '使用进度',
+    create: '创建',
+    detail: '详情',
+    cancel: '取消',
+    close: '关闭',
+    submit: '提交',
+    desc: '描述',
+    state: '状态',
+    enable: '启用',
+    deactivate: '停用',
+    operation: '操作',
+    edit: '编辑',
+    del: '删除',
+    confirm: '确认',
 
     tipError: '错误',
     tipNetworkFail: '网络异常',
@@ -115,6 +128,9 @@ export default {
     tipMustStartWithX: '{obj}必须以 / 开头',
     tipCommonRule:
       '以字母或数字开头，允许数字、大小写字母、下划线、中划线组合且长度大于1',
+    copy: '复制',
+    minute: '分钟',
+    item: '条',
   },
   nav: {
     Backend: '后端',
