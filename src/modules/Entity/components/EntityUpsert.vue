@@ -39,6 +39,7 @@
               v-model="formData.type"
               style="width: 100%;"
               :disabled="!isAdd"
+              filterable
             >
               <Option
                 v-for="item in entityTypeList"
@@ -52,7 +53,7 @@
         </Col>
         <Col span="12">
           <FormItem :label="$t('entity.parentEntity')">
-            <Select v-model="formData.parent_id" style="width: 100%;" clearable>
+            <Select v-model="formData.parent_id" style="width: 100%;" clearable filterable>
               <Option value="">{{ $t('entity.noParent') }}</Option>
               <Option
                 v-for="item in parentEntityList"

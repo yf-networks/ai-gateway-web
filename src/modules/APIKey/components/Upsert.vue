@@ -105,6 +105,7 @@
                 v-model="formData.entity_id"
                 style="width: 100%"
                 :placeholder="$t('apiKey.selectEntity')"
+                filterable
               >
                 <Option v-for="entity in entityList" :key="entity.id" :value="entity.id">
                   {{ entity.name }} ({{ entity.type }})
