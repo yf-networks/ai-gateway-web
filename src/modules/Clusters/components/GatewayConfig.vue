@@ -14,141 +14,169 @@
 * limitations under the License.
 */
 <template>
-    <div>
-        <Form
-            label-position="top"
-            ref="formData"
-            :model="formData"
-            :rules="ruleValidate"
-            @submit.native.prevent
+  <div>
+    <Form
+      label-position="top"
+      ref="formData"
+      :model="formData"
+      :rules="ruleValidate"
+      @submit.native.prevent
+    >
+      <div>
+        <FormItem :label="$t('gatewayConfig.serviceName')" prop="service_name">
+          <Input v-model="formData.service_name" />
+        </FormItem>
+        <FormItem :label="$t('gatewayConfig.group')" prop="group">
+          <Input v-model="formData.group" />
+        </FormItem>
+        <FormItem
+          :label="$t('gatewayConfig.modelServiceProvider')"
+          prop="provider_type"
         >
-            <div>
-                <FormItem :label="$t('gatewayConfig.serviceName')" prop="service_name">
-                    <Input v-model="formData.service_name" />
-                </FormItem>
-                <FormItem :label="$t('gatewayConfig.group')" prop="group">
-                    <Input v-model="formData.group" />
-                </FormItem>
-                <FormItem :label="$t('gatewayConfig.modelServiceProvider')" prop="provider_type">
-                    <Select v-model="formData.provider_type">
-                        <Option v-for="item in providers" :value="item.id" :key="item.id">
-                            {{ item.name }}
-                        </Option>
-                    </Select>
-                </FormItem>
-                <FormItem :label="$t('gatewayConfig.modelListEndpoint')" prop="model_endpoint">
-                    <div class="flex">
-                        <Select class="item" v-model="formData.model_endpoint.schema">
-                            <Option value="http">http</Option>
-                            <Option value="https">https</Option>
-                        </Select>
-                        <Input class="item" v-model="ipStr" type="textarea" readonly :rows="4" />
-                        <Input class="item" v-model="formData.model_endpoint.uri" />
-                    </div>
-                    <Button
-                        type="primary"
-                        style="margin-left: 14px; margin-bottom: 14px;"
-                        @click="addHeader"
-                        size="small"
-                        >+{{ $t('com.createX', { obj: 'Header' }) }}</Button
-                    >
-                    <div class="header-controls">
-                        <div v-for="(header, index) in headerList" :key="index" class="header-pair">
-                            <Input
-                                class="header-input"
-                                v-model="header.key"
-                                placeholder="Header Key"
-                            />
-                            <span class="header-separator">:</span>
-                            <Input
-                                class="header-input"
-                                v-model="header.value"
-                                placeholder="Header Value"
-                            />
-                            <Button type="error" @click="removeHeader(index)" size="small"
-                                >-</Button
-                            >
-                        </div>
-                    </div>
-                </FormItem>
-                <FormItem :label="$t('apiKey.models')" prop="models">
-                    <el-select
-                        v-model="formData.models"
-                        style="width: 487px;"
-                        multiple
-                        clearable
-                        filterable
-                    >
-                        <el-option
-                            v-for="item in modelsList"
-                            :value="item.id"
-                            :key="item.id"
-                            :label="item.id"
-                        >
-                        </el-option>
-                    </el-select>
-                    <Button
-                        type="primary"
-                        :disabled="!ipStr || !formData.provider_type"
-                        :loading="btnLoading"
-                        @click="queryModels"
-                        >{{ $t('gatewayConfig.get') }}
-                    </Button>
-                </FormItem>
-                <FormItem :label="$t('gatewayConfig.modelRedirect')" prop="model_mappings">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>{{ $t('gatewayConfig.originalModelName') }}</th>
-                                <th>{{ $t('gatewayConfig.backendModelName') }}</th>
-                                <th>{{ $t('com.operation') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(model, index) in formData.model_mappings" :key="index">
-                                <td>
-                                    <Input
-                                        :value="model.key"
-                                        @on-change="e => changeMappingKey(index, e.target.value)"
-                                        :placeholder="$t('gatewayConfig.enterOriginalModelName')"
-                                    />
-                                </td>
-                                <td>
-                                    <Select
-                                        v-model="model.value"
-                                        :placeholder="$t('gatewayConfig.selectTargetModel')"
-                                        @on-change="value => changeMappingValue(index, value)"
-                                    >
-                                        <Option
-                                            v-for="(item, idx) in formData.models"
-                                            :value="item"
-                                            :key="idx"
-                                        >
-                                            {{ item }}
-                                        </Option>
-                                    </Select>
-                                </td>
-                                <td>
-                                    <Button
-                                        type="error"
-                                        size="small"
-                                        @click="removeModelMapping(index)"
-                                        >{{ $t('com.del') }}</Button
-                                    >
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <Button class="mt20" size="small" type="primary" @click="addModelRedirect">{{
-                        $t('gatewayConfig.add')
-                    }}</Button>
-                </FormItem>
-                <FormItem :label="$t('gatewayConfig.serviceAuthKey')" prop="key">
-                    <Input v-model="formData.key" />
-                </FormItem>
+          <Select v-model="formData.provider_type">
+            <Option v-for="item in providers" :value="item.id" :key="item.id">
+              {{ item.name }}
+            </Option>
+          </Select>
+        </FormItem>
+        <FormItem
+          :label="$t('gatewayConfig.modelListEndpoint')"
+          prop="model_endpoint"
+        >
+          <div class="flex">
+            <Select class="item" v-model="formData.model_endpoint.schema">
+              <Option value="http">http</Option>
+              <Option value="https">https</Option>
+            </Select>
+            <Input
+              class="item"
+              v-model="ipStr"
+              type="textarea"
+              readonly
+              :rows="4"
+            />
+            <Input class="item" v-model="formData.model_endpoint.uri" />
+          </div>
+          <Button
+            type="primary"
+            style="margin-left: 14px; margin-bottom: 14px;"
+            @click="addHeader"
+            size="small"
+            >+{{ $t('com.createX', { obj: 'Header' }) }}</Button
+          >
+          <div class="header-controls">
+            <div
+              v-for="(header, index) in headerList"
+              :key="index"
+              class="header-pair"
+            >
+              <Input
+                class="header-input"
+                v-model="header.key"
+                placeholder="Header Key"
+              />
+              <span class="header-separator">:</span>
+              <Input
+                class="header-input"
+                v-model="header.value"
+                placeholder="Header Value"
+              />
+              <Button type="error" @click="removeHeader(index)" size="small"
+                >-</Button
+              >
             </div>
-        </Form>
-    </div>
+          </div>
+        </FormItem>
+        <FormItem :label="$t('apiKey.models')" prop="models">
+          <el-select
+            v-model="formData.models"
+            style="width: 487px;"
+            multiple
+            clearable
+            filterable
+          >
+            <el-option
+              v-for="item in modelsList"
+              :value="item.id"
+              :key="item.id"
+              :label="item.id"
+            >
+            </el-option>
+          </el-select>
+          <Button
+            type="primary"
+            :disabled="!ipStr || !formData.provider_type"
+            :loading="btnLoading"
+            @click="queryModels"
+            >{{ $t('gatewayConfig.get') }}
+          </Button>
+        </FormItem>
+        <FormItem
+          :label="$t('gatewayConfig.modelRedirect')"
+          prop="model_mappings"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th>{{ $t('gatewayConfig.originalModelName') }}</th>
+                <th>{{ $t('gatewayConfig.backendModelName') }}</th>
+                <th>{{ $t('com.operation') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(model, index) in formData.model_mappings"
+                :key="index"
+              >
+                <td>
+                  <Input
+                    :value="model.key"
+                    @on-change="e => changeMappingKey(index, e.target.value)"
+                    :placeholder="$t('gatewayConfig.enterOriginalModelName')"
+                  />
+                </td>
+                <td>
+                  <Select
+                    v-model="model.value"
+                    :placeholder="$t('gatewayConfig.selectTargetModel')"
+                    @on-change="value => changeMappingValue(index, value)"
+                  >
+                    <Option
+                      v-for="(item, idx) in formData.models"
+                      :value="item"
+                      :key="idx"
+                    >
+                      {{ item }}
+                    </Option>
+                  </Select>
+                </td>
+                <td>
+                  <Button
+                    type="error"
+                    size="small"
+                    @click="removeModelMapping(index)"
+                    >{{ $t('com.del') }}</Button
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <Button
+            class="mt20"
+            size="small"
+            type="primary"
+            @click="addModelRedirect"
+            >{{
+                        $t('gatewayConfig.add')
+            }}</Button
+          >
+        </FormItem>
+        <FormItem :label="$t('gatewayConfig.serviceAuthKey')" prop="key">
+          <Input v-model="formData.key" />
+        </FormItem>
+      </div>
+    </Form>
+  </div>
 </template>
 
 <script>
@@ -359,7 +387,7 @@ export default {
                 filteredClusters.forEach(cluster => {
                     if (cluster.instances && Array.isArray(cluster.instances)) {
                         cluster.instances.forEach(instance => {
-                            // 添加 ip:port 格式
+                            // Add ip:port format
                             ipPortList.push(`${instance.Addr}:${instance.Port}`);
                         });
                     }
@@ -529,13 +557,13 @@ export default {
                             });
                         }
                     } else {
-                        console.error('获取模型列表失败，状态码:', data?.status);
-                        this.$Message.error('获取模型列表异常: ' + (error?.message || '网络错误'));
+                        console.error('获取模型列表失败，状态码:', data.status);
+                        this.$Message.error('获取模型列表异常: ' + (error.message || '网络错误'));
                     }
                 })
                 .catch(error => {
                     console.error('获取模型列表异常:', error);
-                   
+
                 })
                 .finally(() => {
                     this.btnLoading = false;

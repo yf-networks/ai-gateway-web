@@ -29,19 +29,26 @@
 * limitations under the License.
 */
 <template>
-    <div v-if="!node.children" class="navItem">
-        <MenuItem :name="node.id"
-            ><Icon :custom="navIcon[node.id]" />{{ $t(`nav.${node.text}`) }}</MenuItem
-        >
-    </div>
-    <div v-else>
-        <Submenu :name="node.id">
-            <template slot="title"
-                ><Icon :custom="navIcon[node.id]" />{{ $t(`nav.${node.text}`) }}</template
-            >
-            <navItem v-for="t in node.children" :key="t.id" :name="t.id" :node="t"></navItem>
-        </Submenu>
-    </div>
+  <div v-if="!node.children" class="navItem">
+    <MenuItem :name="node.id"
+      ><Icon :custom="navIcon[node.id]" />{{ $t(`nav.${node.text}`) }}</MenuItem
+    >
+  </div>
+  <div v-else>
+    <Submenu :name="node.id">
+      <template slot="title"
+        ><Icon
+          :custom="navIcon[node.id]"
+        />{{ $t(`nav.${node.text}`) }}</template
+      >
+      <navItem
+        v-for="t in node.children"
+        :key="t.id"
+        :name="t.id"
+        :node="t"
+      ></navItem>
+    </Submenu>
+  </div>
 </template>
 
 <script>
@@ -61,7 +68,9 @@ export default {
                 'SubCluster.list': 'iconfont icon-cluster',
 
                 'APIKey.list': 'ivu-icon-ios-key',
+                'QuotaControl.list': 'ivu-icon-md-apps',
                 'ai_route.list.admin': 'iconfont icon-zhuanfa',
+                'Entity.list': 'ivu-icon-ios-settings',
 
                 'consumer.admin.list': 'ivu-icon-md-people',
                 'route.admin.list': 'ivu-icon-ios-cube',

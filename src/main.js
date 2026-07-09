@@ -65,13 +65,13 @@ router.beforeEach((to, from, next) => {
     NProgress.start();
     const lang = getLang();
 
-    // 如果是登录页，直接放行
+    // If login page, allow directly
     if (to.name === 'LoginPassword') {
         loadLanguageAsync(lang).then(() => next());
         return;
     }
 
-    // 先加载语言，然后检查权限
+    // Load language first, then check permissions
     loadLanguageAsync(lang).then(() => {
         checkRole(to).then(result => {
             if (result === true) {
@@ -79,7 +79,7 @@ router.beforeEach((to, from, next) => {
                 return;
             }
 
-            // 未登录或其他需要跳转的情况
+            // Not logged in or other redirect cases
             NProgress.done();
 
             let content = i18n.t('login.tipNotLogin');

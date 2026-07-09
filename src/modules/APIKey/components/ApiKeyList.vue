@@ -14,120 +14,137 @@
 * limitations under the License.
 */
 <template>
-    <div>
-        <div class="title">
-            <Button size="small" type="primary" @click="onAdd">{{ $t('com.create') }}</Button>
-        </div>
-        <pageTable :tableData="tableData" :columns="columns" :loading="tableLoading" />
-
-        <Drawer
-            v-model="isHiden"
-            :title="isAdd ? $t('com.create') + ' API-Key' : $t('com.edit') + ' API-Key'"
-            :mask-closable="false"
-            width="50"
-        >
-            <Upsert
-                v-if="isHiden"
-                :currentData="currentData"
-                :isAdd="isAdd"
-                @submit="submitData"
-                @cancel="isHiden = false"
-            />
-        </Drawer>
-
-        <CustomModal
-            :loading="loading"
-            :modal="modal"
-            :content="content"
-            @onCancel="modal = false"
-            @onOk="confirm"
-        />
-        <Modal
-            v-model="keyModal"
-            :title="$t('nav.APIKeyManage') + ' ' + $t('com.detail')"
-            @on-ok="keyModal = false"
-            @on-cancel="keyModal = false"
-        >
-            <div style="word-break: break-all; padding: 20px 0;">
-                <Input v-model="currentKey" readonly style="width: 90%;"></Input>
-                <Icon
-                    type="md-copy"
-                    size="22"
-                    color="#2db7f5"
-                    class="copy-icon"
-                    v-clipboard:copy="currentKey"
-                    v-clipboard:success="onCopy"
-                    v-clipboard:error="onError"
-                />
-            </div>
-            <div slot="footer">
-                <Button type="primary" @click="keyModal = false">{{ $t('com.cancel') }}</Button>
-            </div>
-        </Modal>
-        <Modal
-            v-model="modelsModal"
-            :title="$t('apiKey.modelsList')"
-            @on-ok="modelsModal = false"
-            @on-cancel="modelsModal = false"
-        >
-            <div style="padding: 20px 0; max-height: 400px; overflow-y: auto;">
-                <table class="model-table" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background-color: #f8f8f9;">
-                            <th style="padding: 10px; border: 1px solid #dcdee2; text-align: left;">
-                                {{ $t('apiKey.models') }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(model, index) in currentModels" :key="index">
-                            <td style="padding: 10px; border: 1px solid #dcdee2;">{{ model }}</td>
-                        </tr>
-                        <tr v-if="currentModels.length === 0">
-                            <td
-                                colspan="2"
-                                style="
-                                    padding: 10px;
-                                    border: 1px solid #dcdee2;
-                                    text-align: center;
-                                "
-                            >
-                                {{ $t('apiKey.noData') }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div slot="footer">
-                <Button @click="modelsModal = false">{{ $t('com.close') }}</Button>
-            </div>
-        </Modal>
-        <Modal
-            v-model="actionModal"
-            :title="$t('com.operation') + $t('com.confirmX', { obj: '' })"
-            @on-ok="confirmAction"
-            @on-cancel="actionModal = false"
-        >
-            <p class="modal-content">{{ actionContent }}</p>
-            <div slot="footer">
-                <Button @click="actionModal = false">{{ $t('com.cancel') }}</Button>
-                <Button type="primary" @click="confirmAction" :loading="loading">{{
-                    $t('com.submit')
-                }}</Button>
-            </div>
-        </Modal>
+  <div>
+    <div class="title">
+      <Button
+        size="small"
+        type="primary"
+        @click="onAdd"
+        >{{ $t('com.create') }}</Button
+      >
     </div>
+    <pageTable
+      ref="pageTable"
+      :tableData="tableData"
+      :columns="columns"
+      :loading="tableLoading"
+      @on-row-click="onView"
+    />
+
+    <Drawer
+      v-model="isHiden"
+      :title="drawerTitle"
+      :mask-closable="false"
+      width="60"
+    >
+      <ApiKeyView
+        v-if="isViewMode"
+        :currentData="currentData"
+        @cancel="isHiden = false"
+        @submit="onViewSubmit"
+      />
+
+      <Upsert
+        v-else-if="isHiden"
+        :currentData="currentData"
+        :isAdd="isAdd"
+        @submit="submitData"
+        @cancel="isHiden = false"
+      />
+    </Drawer>
+
+    <CustomModal
+      :loading="loading"
+      :modal="modal"
+      :content="content"
+      @onCancel="modal = false"
+      @onOk="confirm"
+    />
+    <Modal
+      v-model="keyModal"
+      :title="$t('nav.APIKeyManage') + ' ' + $t('com.detail')"
+      @on-ok="keyModal = false"
+      @on-cancel="keyModal = false"
+    >
+      <div style="word-break: break-all; padding: 20px 0;">
+        <Input v-model="currentKey" readonly style="width: 90%;"></Input>
+        <Icon
+          type="md-copy"
+          size="22"
+          color="#2db7f5"
+          class="copy-icon"
+          v-clipboard:copy="currentKey"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onError"
+        />
+      </div>
+      <div slot="footer">
+        <Button
+          type="primary"
+          @click="keyModal = false"
+          >{{ $t('com.cancel') }}</Button
+        >
+      </div>
+    </Modal>
+    <Modal
+      v-model="modelsModal"
+      :title="$t('apiKey.modelsList')"
+      @on-ok="modelsModal = false"
+      @on-cancel="modelsModal = false"
+    >
+      <div style="padding: 20px 0; max-height: 400px; overflow-y: auto;">
+        <table
+          class="model-table"
+          style="width: 100%; border-collapse: collapse;"
+        >
+          <thead>
+            <tr style="background-color: #f8f8f9;">
+              <th
+                style="padding: 10px; border: 1px solid #dcdee2; text-align: left;"
+              >
+                {{ $t('apiKey.models') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(model, index) in currentModels" :key="index">
+              <td style="padding: 10px; border: 1px solid #dcdee2;">
+                {{ model }}
+              </td>
+            </tr>
+            <tr v-if="currentModels.length === 0">
+              <td
+                colspan="2"
+                style="
+                    padding: 10px;
+                    border: 1px solid #dcdee2;
+                    text-align: center;
+                "
+              >
+                {{ $t('apiKey.noData') }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div slot="footer">
+        <Button @click="modelsModal = false">{{ $t('com.close') }}</Button>
+      </div>
+    </Modal>
+  </div>
 </template>
 
 <script>
 import pageTable from '@/components/table/pageTable';
 import CustomModal from '@/components/CustomModal';
 import Upsert from './Upsert.vue';
+import ApiKeyView from './ApiKeyView.vue';
 import { cloneDeep } from 'lodash';
 export default {
     components: {
         pageTable,
         Upsert,
+        ApiKeyView,
         CustomModal
     },
     data() {
@@ -139,18 +156,16 @@ export default {
             tableData: [],
             columns: [
                 {
-                    title: that.$t('com.name'),
-                    key: 'name',
-                    minWidth: 160,
-                    sortable: 'custom',
-                    searchable: true
+                    title: that.$t('apiKey.keyId'),
+                    key: 'id',
+                    minWidth: 120,
+                    sortable: 'custom'
                 },
                 {
-                    title: 'Key',
+                    title: that.$t('apiKey.keyValue'),
                     key: 'key',
                     minWidth: 160,
                     sortable: 'custom',
-                    searchable: true,
                     render(h, params) {
                         const keyValue = params.row.key || '';
 
@@ -170,7 +185,8 @@ export default {
                                     cursor: 'pointer'
                                 },
                                 on: {
-                                    click: () => {
+                                    click: (e) => {
+                                        e.stopPropagation();
                                         that.showKeyModal(params.row.key);
                                     }
                                 }
@@ -180,126 +196,94 @@ export default {
                     }
                 },
                 {
+                    title: that.$t('com.desc'),
+                    key: 'description',
+                    minWidth: 180,
+                    sortable: 'custom',
+                    searchable: true
+                },
+                {
                     title: that.$t('com.state'),
-                    key: 'enable',
-                    minWidth: 160,
+                    key: 'enabled',
+                    minWidth: 120,
                     sortable: 'custom',
                     searchable: true,
+                    searchType: 'select',
+                    searchFilters: [
+                        { label: that.$t('com.enable'), value: 'true' },
+                        { label: that.$t('com.deactivate'), value: 'false' }
+                    ],
                     render(h, params) {
                         const row = params.row;
-
-                        if (!row.enable) {
-                            return h('p', that.$t('com.deactivate'));
-                        }
-
-                        if (row.expired_time) {
-                            const expiredTime = new Date(row.expired_time);
-                            const now = new Date();
-                            if (expiredTime < now) {
-                                return h('p', that.$t('apiKey.expired'));
+                        return h('Tag', {
+                            props: {
+                                color: row.enabled ? 'success' : 'default'
                             }
-                        }
-
-                        if (row.is_limit && row.remaining_quota === 0) {
-                            return h('p', that.$t('apiKey.quotaExhausted'));
-                        }
-
-                        return h('p', that.$t('com.enable'));
+                        }, row.enabled ? that.$t('com.enable') : that.$t('com.deactivate'));
                     }
                 },
                 {
-                    title: that.$t('apiKey.isLimit'),
-                    key: 'is_limit',
-                    minWidth: 160,
+                    title: that.$t('apiKey.quotaType'),
+                    key: 'unlimited_quota',
+                    minWidth: 120,
+                    sortable: 'custom',
+                    searchable: true,
+                    searchType: 'select',
+                    searchFilters: [
+                        { label: that.$t('apiKey.unlimited'), value: 'true' },
+                        { label: that.$t('apiKey.limited'), value: 'false' }
+                    ],
+                    render(h, params) {
+                        return h('Tag', {
+                            props: {
+                                color: params.row.unlimited_quota ? 'default' : 'primary'
+                            }
+                        }, params.row.unlimited_quota ? that.$t('apiKey.unlimited') : that.$t('apiKey.limited'));
+                    }
+                },
+                {
+                    title: that.$t('apiKey.quota'),
+                    key: 'quota_plan',
+                    minWidth: 140,
                     sortable: 'custom',
                     searchable: true,
                     render(h, params) {
-                        return h(
-                            'p',
-                            params.row.is_limit ? that.$t('apiKey.yes') : that.$t('apiKey.no')
-                        );
-                    }
-                },
-                {
-                    title: that.$t('apiKey.totalQuota'),
-                    key: 'total_quota',
-                    minWidth: 160,
-                    sortable: 'custom',
-                    searchable: true,
-                    render(h, params) {
-                        return h('p', params.row.is_limit ? params.row.total_quota : '-');
-                    }
-                },
-                {
-                    title: that.$t('apiKey.remainingQuota'),
-                    key: 'remaining_quota',
-                    minWidth: 160,
-                    sortable: 'custom',
-                    searchable: true,
-                    render(h, params) {
-                        return h('p', params.row.is_limit ? params.row.remaining_quota : '-');
-                    }
-                },
-                {
-                    title: that.$t('apiKey.updateTime'),
-                    key: 'updated_time',
-                    minWidth: 160,
-                    sortable: 'custom',
-                    searchable: true
-                },
-                {
-                    title: that.$t('com.expiredDate'),
-                    key: 'expired_time',
-                    minWidth: 160,
-                    sortable: 'custom',
-                    searchable: true
-                },
-                {
-                    title: that.$t('apiKey.models'),
-                    key: 'allowed_models',
-                    minWidth: 160,
-                    render: (h, params) => {
-                        const models = params.row.allowed_models || [];
-                        if (models.length > 0) {
-                            return h('Icon', {
-                                props: {
-                                    type: 'ios-list-box-outline',
-                                    size: 22
-                                },
-                                style: {
-                                    cursor: 'pointer',
-                                    color: '#2d8cf0'
-                                },
-                                on: {
-                                    click: () => {
-                                        that.showModelsModal(models);
-                                    }
-                                }
-                            });
+                        const quotaPlan = params.row.quota_plan || {};
+                        if (params.row.unlimited_quota || quotaPlan.unlimited) {
+                            return h('span', '-');
                         }
-                        return h('span', '--');
+                        const used = quotaPlan.balance && quotaPlan.balance.used || 0;
+                        const quota = quotaPlan.quota || 0;
+                        return h('span', `${that.formatNumber(used)} / ${that.formatNumber(quota)}`);
                     }
                 },
                 {
-                    title: that.$t('apiKey.subnet'),
-                    key: 'allowed_subnets',
-                    minWidth: 160,
+                    title: that.$t('apiKey.rateLimitStatus'),
+                    key: 'rate_limit_policy',
+                    minWidth: 120,
                     sortable: 'custom',
-                    searchable: true,
-                    sortType: 'cidr',
                     render(h, params) {
-                        if (params.row.allowed_subnets && params.row.allowed_subnets.length > 0) {
-                            return h('div', [
-                                ...params.row.allowed_subnets.map(item => h('p', item))
-                            ]);
-                        } else {
-                            return '';
-                        }
+                        const policy = params.row.rate_limit_policy || {};
+                        return h('Tag', {
+                            props: {
+                                color: policy.enabled ? 'success' : 'default'
+                            }
+                        }, policy.enabled ? that.$t('apiKey.enabled') : that.$t('apiKey.notEnabled'));
+                    }
+                },
+                {
+                    title: that.$t('apiKey.mountedEntity'),
+                    key: 'entity',
+                    minWidth: 120,
+                    sortable: 'custom',
+                    render(h, params) {
+                        const entity = params.row.entity ? params.row.entity : {};
+                        return h('span', entity.name || '-');
                     }
                 },
                 {
                     title: that.$t('com.operation'),
-                    width: 220,
+                    width: 250,
                     render(h, params) {
                         return h('div', [
                             h(
@@ -310,10 +294,11 @@ export default {
                                         size: 'small'
                                     },
                                     style: {
-                                        marginRight: '10px'
+                                        marginRight: '5px'
                                     },
                                     on: {
-                                        click: () => {
+                                        click: (e) => {
+                                            e.stopPropagation();
                                             that.onUpdate(params.row);
                                         }
                                     }
@@ -327,48 +312,15 @@ export default {
                                         type: 'error',
                                         size: 'small'
                                     },
-                                    style: {
-                                        marginRight: '10px'
-                                    },
                                     on: {
-                                        click: () => {
+                                        click: (e) => {
+                                            e.stopPropagation();
                                             that.onDel(params.row);
                                         }
                                     }
                                 },
                                 that.$t('com.del')
-                            ),
-                            params.row.enable
-                                ? h(
-                                      'Button',
-                                      {
-                                          props: {
-                                              type: 'warning',
-                                              size: 'small'
-                                          },
-                                          on: {
-                                              click: () => {
-                                                  that.showActionModal(params.row, 'disable');
-                                              }
-                                          }
-                                      },
-                                      that.$t('com.deactivate')
-                                  )
-                                : h(
-                                      'Button',
-                                      {
-                                          props: {
-                                              type: 'success',
-                                              size: 'small'
-                                          },
-                                          on: {
-                                              click: () => {
-                                                  that.showActionModal(params.row, 'enable');
-                                              }
-                                          }
-                                      },
-                                      that.$t('com.enable')
-                                  )
+                            )
                         ]);
                     }
                 }
@@ -378,20 +330,36 @@ export default {
             currentData: {},
             loading: false,
             modal: false,
-            currentName: '',
+            currentId: '',
             content: '',
             currentKey: '',
-            actionModal: false,
-            actionContent: '',
-            actionType: '',
-            actionRow: null,
-            isAdd: false
+            isAdd: false,
+            isView: false
         };
+    },
+    computed: {
+        isViewMode() {
+            return this.isView && !this.isAdd;
+        },
+        drawerTitle() {
+            if (this.isAdd) return this.$t('com.create') + ' API-Key';
+            if (this.isView) return 'API-Key ' + this.$t('com.detail');
+            return this.$t('com.edit') + ' API-Key';
+        }
     },
     mounted() {
         this.fetchData();
     },
     methods: {
+        formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        },
         showKeyModal(key) {
             this.currentKey = key;
             this.keyModal = true;
@@ -404,33 +372,41 @@ export default {
         },
         onAdd() {
             this.isAdd = true;
+            this.isView = false;
+            this.currentData = {};
             this.isHiden = true;
         },
         onUpdate(row) {
             this.isAdd = false;
-            this.currentName = row.name;
+            this.isView = false;
+            this.currentId = row.id;
             this.currentData = row;
             this.isHiden = true;
         },
+        onView(row) {
+            this.isAdd = false;
+            this.isView = true;
+            this.currentData = row;
+            this.isHiden = true;
+        },
+        onViewSubmit() {
+            this.isHiden = false;
+            this.fetchData();
+        },
         onDel(row) {
-            this.currentName = row.name;
+            this.currentId = row.id;
             this.content = this.$t('com.confirmDelX', {
-                obj: this.$t('nav.APIKeyManage') + ' ' + row.name
+                obj: this.$t('nav.APIKeyManage') + ' ' + row.description
             });
             this.modal = true;
         },
         submitData(data) {
             let tmpData = cloneDeep(data);
-            tmpData.enable = data.enable === 'true';
-            tmpData.is_limit = data.is_limit === 'true';
-            if (!tmpData.is_limit) {
-                delete tmpData.total_quota;
-            }
-            if (data.allowed_subnets) {
-                tmpData.allowed_subnets = data.allowed_subnets.split('\n').map(item => item.trim());
-            } else {
-                tmpData.allowed_subnets = [];
-            }
+
+            // Remove read-only fields
+            delete tmpData.id;
+            delete tmpData.create_time;
+            delete tmpData.updated_time;
 
             if (this.isAdd) {
                 this.addReq(tmpData);
@@ -439,8 +415,9 @@ export default {
             }
         },
         addReq(data) {
+            this.loading = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/api-keys'),
+                url: this.$urlFormat('api-keys'),
                 method: 'post',
                 openapi: true,
                 data: data
@@ -452,27 +429,18 @@ export default {
                     });
                     this.fetchData();
                 }
+            }).finally(() => {
+                this.loading = false;
             });
         },
-        updateReq(data, actions) {
-            let tmpData = {};
-            if (actions) {
-                if (actions === 'disable') {
-                    tmpData.enable = false;
-                } else {
-                    tmpData.enable = true;
-                }
-            } else {
-                tmpData = cloneDeep(data);
-            }
-
+        updateReq(data) {
             this.loading = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/api-keys/{api_key_name}', {
-                    api_key_name: data.name
+                url: this.$urlFormat('api-keys/{id}', {
+                    id: this.currentId
                 }),
                 method: 'patch',
-                data: tmpData,
+                data: data,
                 openapi: true
             })
                 .then(data => {
@@ -491,8 +459,8 @@ export default {
         confirm() {
             this.loading = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/api-keys/{api_key_name}', {
-                    api_key_name: this.currentName
+                url: this.$urlFormat('api-keys/{id}', {
+                    id: this.currentId
                 }),
                 method: 'delete',
                 openapi: true
@@ -513,13 +481,14 @@ export default {
         fetchData() {
             this.tableLoading = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/api-keys'),
+                url: this.$urlFormat('api-keys'),
                 method: 'get',
                 openapi: true
             })
                 .then(res => {
                     if (res.status === 200) {
-                        this.tableData = res.data.Data || [];
+                        const data = res.data.Data;
+                        this.tableData = data.list || data || [];
                     }
                 })
                 .finally(() => {
@@ -529,32 +498,15 @@ export default {
         showModelsModal(models) {
             this.currentModels = models || [];
             this.modelsModal = true;
-        },
-
-        confirmAction() {
-            if (this.actionRow && this.actionType) {
-                this.updateReq(this.actionRow, this.actionType);
-                this.actionModal = false;
-                this.actionType = '';
-                this.actionRow = null;
-            }
-        },
-
-        showActionModal(row, actionType) {
-            this.actionRow = row;
-            this.actionType = actionType;
-            if (actionType === 'enable') {
-                this.actionContent = this.$t('apiKey.confirmEnable', { name: row.name });
-            } else {
-                this.actionContent = this.$t('apiKey.confirmDisable', { name: row.name });
-            }
-            this.actionModal = true;
         }
     }
 };
 </script>
 
 <style lang="less" scoped>
+/deep/ .ivu-table-row {
+    cursor: pointer;
+}
 .copy-icon {
     cursor: pointer;
 }

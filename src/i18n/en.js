@@ -82,6 +82,24 @@ export default {
     currentVersion: 'Current Version Number ',
     welcome: 'welcome',
     expiredDate: 'expiration time',
+    createTime: 'Create Time',
+    updateTime: 'Update Time',
+    used: 'Used',
+    remaining: 'Remaining',
+    usageProgress: 'Usage Progress',
+    create: 'Create',
+    detail: 'Detail',
+    cancel: 'Cancel',
+    close: 'Close',
+    submit: 'Submit',
+    desc: 'Description',
+    state: 'State',
+    enable: 'Enable',
+    deactivate: 'Deactivate',
+    operation: 'Operation',
+    edit: 'Edit',
+    del: 'Delete',
+    confirm: 'Confirm',
 
     tipError: 'Error',
     tipNetworkFail: 'Network Error',
@@ -100,7 +118,8 @@ export default {
     tipRequiredX: 'Please input {obj}(required)',
     tipUploadX: 'Please upload {obj}',
     tipLengthX: 'Should be longer than {len}',
-    tipNameRule: 'Only numbers, letters, dot, under dash, underline are allowed for Name',
+    tipNameRule:
+      'Only numbers, letters, dot, under dash, underline are allowed for Name',
     tipSelectX: 'Please select {obj}',
     tipAlreadyExistsX: '{obj} already exist',
     tipFormatError: 'Wrong format',
@@ -109,15 +128,18 @@ export default {
     tipValidateError: 'Please check if all parameters are input correctly!',
     tipMustStartWithX: '{obj} should be started with / ',
     tipCommonRule:
-      'Starting with a letter or number, allowing combinations of numbers, uppercase and lowercase letters, underscores, and underscores with a length greater than 1'
+      'Starting with a letter or number, allowing combinations of numbers, uppercase and lowercase letters, underscores, and underscores with a length greater than 1',
+    copy: 'Copy',
+    minute: 'min',
+    item: 'items',
   },
   nav: {
     Backend: 'Backend',
     InstancePool: 'Instance Pool',
-    BFEInstancePool: 'BFE Instance Pool',
+    BFEInstancePool: 'AI Gateway Instance Pool',
     SubCluster: 'SubCluster',
     Cluster: 'Cluster',
-    BFECluster: 'BFE Cluster',
+    BFECluster: 'AI Gateway Cluster',
     SubClusterManage: 'SubCluster Manage',
     SubClusterLB: 'SubCluster Balancing',
     Route: 'Route',
@@ -135,10 +157,11 @@ export default {
     DomainManage: 'Domain Manage',
     ConsumerManage: 'Consumer Manage',
     APIKeyManage: 'API Key Manage',
+    EntityManage: 'Entity Manage',
     AIPoolManage: 'AI Pool Manage',
     RouteManage: 'Route Manage',
     DefaultRouteRuleManage: 'Default Route Rule Manage',
-    AdvanceRouteRuleManage: 'Advance Route Rule Manage'
+    AdvanceRouteRuleManage: 'Advance Route Rule Manage',
   },
   instancePool: {
     name: 'Instance Pool',
@@ -157,7 +180,7 @@ export default {
     protValue: 'Port Number',
 
     tipWeightRang: 'Wrong weight, should be between 1 and 100',
-    tipPortRang: 'Wrong port, shoudl be between 1 and 65535'
+    tipPortRang: 'Wrong port, shoudl be between 1 and 65535',
   },
   login: {
     userLogin: 'User Login',
@@ -171,7 +194,8 @@ export default {
     tipNotLogin: 'Please login first',
     tipUrlIllegal: 'URL not exist',
     tipSelectProductLine: 'Please select a product first',
-    tip404: 'Page not found'
+    tip404: 'Page not found',
+    loginFailed: 'Login failed',
   },
   user: {
     relationX: 'Associate {obj}',
@@ -194,13 +218,16 @@ export default {
     tipDisassociate: 'Confirm to {obj} disassociate?',
     tipDisassociateSucc: 'Successfully disassociated！',
     tipAssociationSucc: 'Successfully associated',
-    tipNameRule: 'Only numbers, letters, dot, under dash, underline are allowed for user name',
+    tipNameRule:
+      'Only numbers, letters, dot, under dash, underline are allowed for user name',
     tipConfirmPasswordRule: 'Please confirm password',
-    tipPasswordRule: 'Password should contain letter,number and special character',
+    tipPasswordRule:
+      'Password should contain letter,number and special character',
     tipConfirmError: 'Password entered is inconsist. Please input again',
     tipPasswordModified: 'Passwrod modified. Please login again',
     tipUserDel: 'Current user deleted.',
-    tipUserDisassociateSucc: 'Current user associated product line has been released. Please login again'
+    tipUserDisassociateSucc:
+      'Current user associated product line has been released. Please login again',
   },
   route: {
     routeRule: 'Routing Rule',
@@ -236,7 +263,8 @@ export default {
     action: 'Action',
     selectAction: 'Please select action',
     forwardAction: 'Forward',
-    selectTargetCluster: 'Please select target cluster (search by cluster name)',
+    selectTargetCluster:
+      'Please select target cluster (search by cluster name)',
     targetCluster: 'Target Cluster',
     selectActionRequired: 'Please select an action',
     selectClusterRequired: 'Please select',
@@ -264,16 +292,17 @@ export default {
     deleteRuleConfirm: 'Are you sure to delete rule "{name}"?',
     actionLabel: 'Action',
     forwardAction: 'Forward',
-    selectTargetCluster: 'Please select target cluster (search by cluster name)',
+    selectTargetCluster:
+      'Please select target cluster (search by cluster name)',
     selectActionRequired: 'Please select',
     defaultRule: 'Default Rule',
     exactMatch: 'Exact Match',
     prefixMatch: 'Prefix Match',
-    suffixMatch: 'Suffix Match'
+    suffixMatch: 'Suffix Match',
   },
   cluster: {
     name: 'Cluster',
-    BFE: 'BFE Cluster',
+    BFE: 'AI Gateway Cluster',
     modelConfig: 'large model configuration',
     clusterDescription: 'Description',
     protocol: 'Protocol',
@@ -283,7 +312,8 @@ export default {
     stickySessions: 'Session Sticky Level',
     reqWriteBufferSize: 'Request Write Buffer Size (Byte)',
     reqWriteBuffer: 'Request Write Buffer Size',
-    cancelOnClientClose: 'Close Backend Connection when Client Connection close',
+    cancelOnClientClose:
+      'Close Backend Connection when Client Connection close',
     instanceSessionPersistence: 'Instance',
     subClusterSessionPersistence: 'Sub-Cluster',
     basicConfig: 'Basic Config',
@@ -292,7 +322,8 @@ export default {
     review: 'Review',
     schedulerConfig: 'Sub-Cluster Load Balancing',
     healthCheckInterval: 'Heachcheck interval(ms)',
-    healthCheckFailnum: 'Failure Threshold (Triggers instance unavailable and initiate passive healthcheck)',
+    healthCheckFailnum:
+      'Failure Threshold (Triggers instance unavailable and initiate passive healthcheck)',
     faultThreshold: 'Failure Threshold',
     healthCheckHost: 'Host',
     healthCheckUri: 'Uri',
@@ -319,31 +350,38 @@ export default {
     reqUri: 'Request Uri',
 
     tipSubClusterMounted: 'Please mount at least one Sub-Cluster',
-    tipBfeClusterNotExist: 'BFE Cluster not exist, please config BFE cluster first',
+    tipBfeClusterNotExist:
+      'AI Gateway Cluster not exist, please config AI Gateway cluster first',
     tipAtLeastoneInstance: 'Please add at least one instance',
-    tipSubClusterCapacityTotalRule: 'Sum weight of all sub-cluster should be 100 for each BFE Cluster',
+    tipSubClusterCapacityTotalRule:
+      'Sum weight of all sub-cluster should be 100 for each AI Gateway Cluster',
     tipValueNonnegativeInteger: 'Value should be >=0',
     tipsValueMax: 'Input value too big',
-    tipClusterNameRule: 'Cluster Name can includes characters, numbers, dash, dot, $, +, ~',
-    tipNameRule: 'Name can includes characters, numbers, dash, underline, dot, and length between 1 and 255',
-    tipEppMountedOnlyOnePool: 'When an EPP instance pool is mounted, no other instance pools can be mounted',
-    tipMountEppAfterUnmountOthers: 'Please unmount other mounted instance pools before mounting an EPP instance pool'
+    tipClusterNameRule:
+      'Cluster Name can includes characters, numbers, dash, dot, $, +, ~',
+    tipNameRule:
+      'Name can includes characters, numbers, dash, underline, dot, and length between 1 and 255',
+    tipEppMountedOnlyOnePool:
+      'When an EPP instance pool is mounted, no other instance pools can be mounted',
+    tipMountEppAfterUnmountOthers:
+      'Please unmount other mounted instance pools before mounting an EPP instance pool',
   },
   subCluster: {
     name: 'SubCluster',
 
-    tipNameRule: 'Sub-Cluster Name can includes characters, numbers, dash, underline, dot'
+    tipNameRule:
+      'Sub-Cluster Name can includes characters, numbers, dash, underline, dot',
   },
   gslb: {
     name: 'Sub-Cluster Load Balancing',
     type: 'Method',
-    config: 'Config'
+    config: 'Config',
   },
   bfeClusters: {
-    clusterInstancePool: 'BFE Instance Pool'
+    clusterInstancePool: 'AI Gateway Instance Pool',
   },
   domain: {
-    name: 'Domain Name'
+    name: 'Domain Name',
   },
   apiKey: {
     modelsList: 'Model List',
@@ -361,13 +399,202 @@ export default {
     copySucc: 'Text copied to clipboard!',
     copyError: 'Error copying text, please copy manually.',
     confirmEnable: 'Confirm to enable API-Key {name} ?',
-    confirmDisable: 'Confirm to disable API-Key {name} ?'
+    confirmDisable: 'Confirm to disable API-Key {name} ?',
+    basicInfo: 'Basic Info',
+    description: 'Description',
+    descriptionPlaceholder: 'Please enter API-Key description',
+    enabledStatus: 'Enable Status',
+    quotaCheck: 'Quota Check',
+    allowedModels: 'Allowed Models',
+    allModels: 'All Models',
+    allowedSubnet: 'Allowed Subnet',
+    subnetPlaceholder: 'Default "*" means no restriction',
+    selectEntity: 'Please select',
+    quotaInfo: 'Quota Info',
+    unlimitedQuota: 'Unlimited Quota',
+    passWhenNoQuota: 'Pass when quota insufficient',
+    quotaTotal: 'Quota Total',
+    quotaUnit: 'Quota Unit',
+    resetPeriod: 'Reset Period',
+    resetNever: 'Never Reset',
+    resetWeekly: 'Weekly',
+    resetMonthly: 'Monthly',
+    rateLimitConfig: 'Rate Limit Config',
+    enableRateLimit: 'Enable Rate Limit',
+    tpmRules: 'TPM Rules',
+    rpmRules: 'RPM Rules',
+    ruleName: 'Rule Name',
+    applyModel: 'Apply Model',
+    timeWindow: 'Time Window(min)',
+    maxTokens: 'Max Tokens',
+    stepMinutes: 'Step Minutes',
+    maxRequests: 'Max Requests',
+    addRule: 'Add Rule',
+    maxConcurrency: 'Max Concurrency',
+    maxConcurrencyTip: '-1 means no limit',
+    maxRulesTip: 'Max 3 rules',
+    selectModels: 'Please select models',
+    subnetTip:
+      'Multiple subnets separated by newlines, default is * for no restriction',
+    descriptionLengthError: 'Description cannot exceed 256 characters',
+    quotaRequired: 'Please fill in quota total',
+    quotaRangeError: 'Quota cannot be negative',
+    ruleNameRequired: 'Rule name at index {index} cannot be empty',
+    ruleNameDuplicate: 'Rule name "{name}" is duplicated',
+    windowMinutesInvalid:
+      'Time window at index {index} must be between 1-360 minutes',
+    maxTokensInvalid: 'Max tokens at index {index} must be greater than 0',
+    maxRequestsInvalid: 'Max requests at index {index} must be greater than 0',
+    stepMinutesInvalid:
+      'Step minutes at index {index} cannot exceed time window',
+    stepMinutesRange:
+      'Step minutes at index {index} must be between 1-360 minutes',
+    rateLimitRuleRequired:
+      'When rate limit is enabled, at least one rule (TPM/RPM/Max Concurrency) must be configured',
+    keyId: 'Key ID',
+    keyValue: 'Key Value',
+    status: 'Status',
+    expiredTime: 'Expired Time',
+    neverExpire: 'Never Expire',
+    unlimitedQuotaText: 'Unlimited Quota',
+    limitedQuotaText: 'Limited Quota',
+    used: 'Used',
+    remaining: 'Remaining',
+    usageProgress: 'Usage Progress',
+    resetQuota: 'Reset Quota',
+    newQuotaTotal: 'New Quota Total',
+    resetQuotaTip:
+      'After setting, used amount will be reset to 0 and quota total will be the new value',
+    resetReason: 'Reset Reason',
+    resetReasonPlaceholder: 'Please enter reset reason (optional)',
+    quotaMustBeNonNegative: 'Quota must be a non-negative integer',
+    quotaResetSuccess: 'Quota reset successful',
+    quotaResetFailed: 'Quota reset failed, please try again',
+    unlimitedTip: 'Unlimited',
+    allModelsText: 'All Models',
+    createTime: 'Create Time',
+    updateTime: 'Update Time',
+    close: 'Close',
+    selectExpiredTime: 'Please select expired time',
+    subnetRequired: 'Please enter allowed subnets',
+    subnetCidrConflict:
+      'When "*" is filled to indicate no restriction, other CIDRs cannot be filled',
+    subnetFormatError: 'Line {index} "{cidr}" is not a valid IPv4 CIDR format',
+    subnetDuplicate: 'CIDR "{cidr}" is duplicated',
+    subnetContained: 'CIDR "{cidr}" is contained in "{parent}"',
+    subnetContains: 'CIDR "{cidr}" contains "{child}"',
+  },
+  entity: {
+    typeName: 'Type Name',
+    type: 'Type',
+    level: 'Level',
+    description: 'Description',
+    parentEntity: 'Parent Entity',
+    basicInfo: 'Basic Info',
+    name: 'Name',
+    allowModels: 'Allow Models',
+    allModels: 'All Models',
+    blockModels: 'Block Models',
+    quotaInfo: 'Quota Info',
+    unlimitedQuota: 'Unlimited Quota',
+    passWhenNoQuota: 'Pass when quota insufficient',
+    quotaTotal: 'Quota Total',
+    quotaUnit: 'Quota Unit',
+    resetPeriod: 'Reset Period',
+    resetNever: 'Never Reset',
+    resetWeekly: 'Weekly',
+    resetMonthly: 'Monthly',
+    rateLimitConfig: 'Rate Limit Config',
+    enableRateLimit: 'Enable Rate Limit',
+    tpmRules: 'TPM Rules',
+    rpmRules: 'RPM Rules',
+    ruleName: 'Rule Name',
+    applyModel: 'Apply Model',
+    timeWindow: 'Time Window(min)',
+    maxTokens: 'Max Tokens',
+    stepMinutes: 'Step Minutes',
+    maxRequests: 'Max Requests',
+    addRule: 'Add Rule',
+    maxConcurrency: 'Max Concurrency',
+    maxConcurrencyTip: '-1 means no limit',
+    maxRulesTip: 'Max 3 rules',
+    quota: 'Quota',
+    rateLimitStatus: 'Rate Limit Status',
+    enabled: 'Enabled',
+    notEnabled: 'Not Enabled',
+    yes: 'Yes',
+    no: 'No',
+    createType: 'Create Type',
+    editType: 'Edit Type',
+    deleteType: 'Delete Type',
+    createEntity: 'Create Entity',
+    editEntity: 'Edit Entity',
+    deleteEntity: 'Delete Entity',
+    confirmDeleteType: 'Are you sure to delete Entity type {name}?',
+    confirmDeleteEntity: 'Are you sure to delete Entity {name}?',
+    enterTypeName: 'Please enter type name',
+    typeNamePlaceholder: 'e.g.: dep',
+    typeNameRule:
+      '1-32 characters, only lowercase letters, numbers, underscores, hyphens',
+    typeNameFormatError: 'Type name format is incorrect',
+    enterDescription: 'Please enter description',
+    descriptionPlaceholder: 'e.g.: Level 1 Department',
+    selectLevel: 'Please select level',
+    levelTip: 'Value range 1-5, smaller number means higher level',
+    enterName: 'Please enter Entity name',
+    namePlaceholder: 'Please enter Entity name',
+    selectType: 'Please select type',
+    selectParentEntity: 'Please select parent Entity',
+    noParent: 'None',
+    parentLevelTip:
+      'When selecting parent Entity, the parent Entity level must be lower than current type level',
+    selectAllowModels: 'Select allowed models',
+    selectBlockModels: 'Select blocked models',
+    noData: 'No Data',
+    resetQuota: 'Reset Quota',
+    newQuotaTotal: 'New Quota Total',
+    resetQuotaTip:
+      'After setting, the used amount will be reset to 0, and the quota total will be the newly set value',
+    resetReason: 'Reset Reason',
+    resetReasonPlaceholder: 'Please enter reset reason (optional)',
+    enterQuotaTotal: 'Quota total cannot be empty',
+    quotaMustBeNonNegative: 'Quota total must be a non-negative integer',
+    quotaResetSuccess: 'Quota reset successfully',
+    quotaResetFailed: 'Failed to reset quota, please try again',
+    quotaRangeError: 'Quota cannot be negative',
+    tpmRuleNameRequired: 'Please enter rule name for TPM rule #{index}',
+    tpmRuleNameDuplicate: 'TPM rule name {name} is duplicated',
+    tpmWindowMinutesInvalid:
+      'Time window for TPM rule #{index} must be between 1-360 minutes',
+    tpmMaxTokensRequired: 'Please enter max tokens for TPM rule #{index}',
+    tpmStepMinutesInvalid:
+      'Step minutes cannot exceed time window for TPM rule #{index}',
+    tpmStepMinutesRange:
+      'Step minutes for TPM rule #{index} must be between 1-360 minutes',
+    rpmRuleNameRequired: 'Please enter rule name for RPM rule #{index}',
+    rpmRuleNameDuplicate: 'RPM rule name {name} is duplicated',
+    rpmWindowMinutesInvalid:
+      'Time window for RPM rule #{index} must be between 1-360 minutes',
+    rpmMaxRequestsRequired: 'Please enter max requests for RPM rule #{index}',
+    rpmStepMinutesInvalid:
+      'Step minutes cannot exceed time window for RPM rule #{index}',
+    rpmStepMinutesRange:
+      'Step minutes for RPM rule #{index} must be between 1-360 minutes',
+    maxRulesTip: 'Max 3 rules allowed',
+    ruleNameRequired: 'Please enter rule name',
+    ruleNameDuplicate: 'Rule name {name} is duplicated',
+    rateLimitRuleRequired:
+      'When rate limit is enabled, at least one of TPM/RPM/Max Concurrency must be configured',
+    formValidateError: 'Form validation failed, please check inputs',
+    typeManagement: 'Entity Type Management',
+    orgManagement: 'Entity Organization Management',
   },
   apiForm: {
     nameLabel: 'Name',
     enableStatus: 'Enable Status',
     notEnable: 'Not Enable',
-    keyPlaceholder: 'Format: product name + multiple random code segments, e.g., testproduct-3a51-4289-4c05-c5c5c5',
+    keyPlaceholder:
+      'Format: product name + multiple random code segments, e.g., testproduct-3a51-4289-4c05-c5c5c5',
     quota: 'Quota',
     quotaRange: '(0-100,000,000, unit: pieces)',
     selectTime: 'Please select time',
@@ -387,14 +614,16 @@ export default {
     keyRequired: 'Please fill in!',
     keyPrefixError: 'Key must start with "{prefix}-"',
     keyIncomplete: 'Key format is incomplete',
-    keySuffixError: 'Key suffix cannot start or end with hyphen and cannot contain consecutive hyphens',
-    keySuffixPatternError: 'Key suffix part can only contain lowercase letters and numbers',
+    keySuffixError:
+      'Key suffix cannot start or end with hyphen and cannot contain consecutive hyphens',
+    keySuffixPatternError:
+      'Key suffix part can only contain lowercase letters and numbers',
     quotaRequired: 'Please fill in!',
-    quotaRangeError: 'Value range [0-100000000]',
+    quotaRangeError: 'Value cannot be negative',
     invalidSubnet: 'Invalid IP subnet: {subnet}',
     duplicateSubnet: 'Please do not fill in duplicate IP subnet: "{subnet}"',
     pleaseSelect: 'Please select',
-    modelExists: 'Model with the same name already exists'
+    modelExists: 'Model with the same name already exists',
   },
   gatewayConfig: {
     serviceName: 'Service Name',
@@ -423,11 +652,13 @@ export default {
     getModelListSucc: 'Successfully obtained the model list',
     schemaRequired: 'Please select the protocol for the model list interface',
     uriRequired: 'Please enter the URI for the model list interface',
-    modelMappingKeyRequired: 'The "Original Request Model Name" in line {line} cannot be empty',
-    modelMappingValueRequired: 'The "Forwarded Backend Model Name" in line {line} cannot be empty'
+    modelMappingKeyRequired:
+      'The "Original Request Model Name" in line {line} cannot be empty',
+    modelMappingValueRequired:
+      'The "Forwarded Backend Model Name" in line {line} cannot be empty',
   },
   aiRouteRules: {
-    rulesList: 'Rules List'
+    rulesList: 'Rules List',
   },
   llmConfig: {
     title: 'LLM Configuration',
@@ -436,6 +667,6 @@ export default {
     modelRedirect: 'Model Redirection',
     originalModelName: 'Original Request Model Name',
     backendModelName: 'Backend Model Name',
-    serviceAuthKey: 'Service Auth Key'
-  }
-}
+    serviceAuthKey: 'Service Auth Key',
+  },
+};
