@@ -354,7 +354,7 @@ export default {
             }
 
             if (!CommonNameCheck(value)) {
-                callback(new Error(this.$t('com.tipNameRule')));
+                callback(new Error(this.$t('com.tipCommonRule')));
                 return;
             }
 

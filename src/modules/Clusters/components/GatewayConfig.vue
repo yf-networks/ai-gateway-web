@@ -224,7 +224,7 @@ export default {
             }
 
             if (!CommonNameCheck(value)) {
-                callback(new Error(this.$t('gatewayConfig.formatInvalid')));
+                callback(new Error(this.$t('com.tipCommonRule')));
                 return;
             }
 

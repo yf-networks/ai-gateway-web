@@ -202,7 +202,7 @@ export default {
         },
         drawerTitle() {
             if (this.isAdd) return this.$t('entity.createEntity');
-            if (this.isView) return this.$t('entity.name') + ' ' + this.$t('com.detail');
+            if (this.isView) return this.$t('entity.viewEntity');
             return this.$t('entity.editEntity');
         }
     },

@@ -42,6 +42,15 @@ export function urlFormat(url, data) {
     });
 }
 
+export function getPrefixedNameSuffix(fullName, prefix = 'AI_product') {
+    const prefixWithDot = `${prefix}.`;
+    if (fullName.startsWith(prefixWithDot)) {
+        return fullName.slice(prefixWithDot.length);
+    }
+    const dotIndex = fullName.indexOf('.');
+    return dotIndex >= 0 ? fullName.slice(dotIndex + 1) : fullName;
+}
+
 export function timeFormatFunc(s) {
     if (s < 0) {
         return '';

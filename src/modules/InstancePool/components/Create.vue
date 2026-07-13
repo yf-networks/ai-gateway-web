@@ -158,6 +158,7 @@
 <script>
 import { cloneDeep } from 'lodash';
 import { isIP, isFQDN } from 'validator';
+import { getPrefixedNameSuffix } from '@/utils/tool';
 export default {
     props: {
         isAdd: {
@@ -186,7 +187,7 @@ export default {
             handler(v) {
                 if (!this.isAdd) {
                     this.formData = cloneDeep(v);
-                    this.formData.name = v.name.split('.')[1];
+                    this.formData.name = getPrefixedNameSuffix(v.name, this.prefix);
                     if (this.formData.instances && this.formData.instances.length > 1) {
                         this.deleteAble = true;
                     } else {
