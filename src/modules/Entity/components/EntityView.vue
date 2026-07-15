@@ -224,7 +224,9 @@
           <InputNumber
             v-model="newQuota"
             :min="0"
-            :max="1000000000"
+            :max="INT64_MAX"
+            :precision="0"
+            :step="1"
             style="width: 100%;"
           ></InputNumber>
         </span>
@@ -261,6 +263,8 @@
 </template>
 
 <script>
+const INT64_MAX = 9223372036854775807;
+
 export default {
     props: {
       currentData: {
@@ -278,6 +282,7 @@ export default {
     },
     data() {
         return {
+            INT64_MAX,
             resetModalVisible: false,
             newQuota: 0,
             resetReason: '',
@@ -406,9 +411,16 @@ export default {
                 this.$Message.error(this.$t('entity.enterQuotaTotal'));
                 return;
             }
-            const newQuotaNum = parseInt(this.newQuota);
-            if (isNaN(newQuotaNum) || newQuotaNum < 0) {
+            if (!Number.isInteger(this.newQuota)) {
                 this.$Message.error(this.$t('entity.quotaMustBeNonNegative'));
+                return;
+            }
+            if (this.newQuota < 0) {
+                this.$Message.error(this.$t('entity.quotaRangeError'));
+                return;
+            }
+            if (this.newQuota > INT64_MAX) {
+                this.$Message.error(this.$t('entity.quotaMaxError'));
                 return;
             }
             this.$request({
@@ -416,7 +428,7 @@ export default {
                 method: 'post',
                 openapi: true,
                 data: {
-                    quota: newQuotaNum,
+                    quota: this.newQuota,
                     reason: this.resetReason || undefined
                 }
             }).then(data => {

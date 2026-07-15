@@ -573,21 +573,32 @@ export default {
 
             return false;
         },
+        isBlankFilterValue(value) {
+            return (
+                value === undefined ||
+                value === null ||
+                (typeof value === 'string' && value.trim() === '')
+            );
+        },
         getFormData() {
             const result = cloneDeep(this.formData);
 
             if (
                 !result.path_filter ||
-                (result.path_filter.match_mode === '' && result.path_filter.path === '')
+                (this.isBlankFilterValue(result.path_filter.match_mode) &&
+                    this.isBlankFilterValue(result.path_filter.path))
             ) {
-                result.path_filter = {};
+                result.path_filter = null;
             }
 
             if (
                 !result.header_filters ||
                 result.header_filters.length === 0 ||
                 result.header_filters.every(
-                    h => h.key === '' && h.value === '' && h.match_mode === ''
+                    h =>
+                        this.isBlankFilterValue(h.key) &&
+                        this.isBlankFilterValue(h.value) &&
+                        this.isBlankFilterValue(h.match_mode)
                 )
             ) {
                 result.header_filters = [];
@@ -595,9 +606,10 @@ export default {
 
             if (
                 !result.model_filter ||
-                (result.model_filter.pattern === '' && result.model_filter.name === '')
+                (this.isBlankFilterValue(result.model_filter.pattern) &&
+                    this.isBlankFilterValue(result.model_filter.name))
             ) {
-                result.model_filter = {};
+                result.model_filter = null;
             }
 
             if (result.expect_action && result.expect_action.action) {

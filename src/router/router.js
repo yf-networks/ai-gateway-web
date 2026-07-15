@@ -166,6 +166,11 @@ export default [
         path: 'subcluster',
         name: 'SubCluster.list',
       },
+      {
+        component: r => require.ensure([], () => r(require('../modules/Cert')), 'certs.list'),
+        path: 'cert',
+        name: 'certs.list'
+      }
     ],
   },
   {

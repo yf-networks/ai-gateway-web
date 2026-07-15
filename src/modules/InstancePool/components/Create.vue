@@ -372,6 +372,20 @@ export default {
                     flag = false;
                 }
             });
+            if (flag) {
+                const ipPortSet = new Set();
+                for (const ele of tmpData.instances) {
+                    const ipPort = `${String(ele.ip).trim()}:${ele.ports.Default}`;
+                    if (ipPortSet.has(ipPort)) {
+                        this.$Message.warning({
+                            content: this.$t('instancePool.tipDuplicateIpPort', { ipPort })
+                        });
+                        flag = false;
+                        break;
+                    }
+                    ipPortSet.add(ipPort);
+                }
+            }
             if (!flag) {
                 return;
             }

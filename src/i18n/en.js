@@ -150,6 +150,7 @@ export default {
     ProductManage: 'Product Manage',
     UserManage: 'User Manage',
     CertificateManage: 'Certificate Manage',
+    CertsManage: 'Certificate Manage',
     ResourceManage: 'Resource Manage',
     AIGatewayClusterManage: 'AI Gateway Cluster Manage',
     AIClusterManage: 'AI Cluster Manage',
@@ -181,6 +182,7 @@ export default {
 
     tipWeightRang: 'Wrong weight, should be between 1 and 100',
     tipPortRang: 'Wrong port, shoudl be between 1 and 65535',
+    tipDuplicateIpPort: 'Duplicate IP/domain and port: "{ipPort}"',
   },
   login: {
     userLogin: 'User Login',
@@ -381,6 +383,7 @@ export default {
   },
   domain: {
     name: 'Domain Name',
+    formatInvalid: 'Domain format is invalid',
   },
   apiKey: {
     modelsList: 'Model List',
@@ -431,19 +434,25 @@ export default {
     addRule: 'Add Rule',
     maxConcurrency: 'Max Concurrency',
     maxConcurrencyTip: '-1 means no limit',
+    maxConcurrencyMaxError: 'Max concurrency exceeds the allowed range',
     maxRulesTip: 'Max 3 rules',
     selectModels: 'Please select models',
     subnetTip:
       'Multiple subnets separated by newlines, default is * for no restriction',
-    descriptionLengthError: 'Description cannot exceed 256 characters',
+    descriptionLengthError: 'Description cannot exceed 1024 characters',
     quotaRequired: 'Please fill in quota total',
     quotaRangeError: 'Quota cannot be negative',
+    quotaMaxError: 'Quota total exceeds the allowed range',
     ruleNameRequired: 'Rule name at index {index} cannot be empty',
     ruleNameDuplicate: 'Rule name "{name}" is duplicated',
     windowMinutesInvalid:
       'Time window at index {index} must be between 1-360 minutes',
     maxTokensInvalid: 'Max tokens at index {index} must be greater than 0',
+    maxTokensRequired: 'Please enter max tokens for rule #{index}',
+    maxTokensMaxError: 'Max tokens at index {index} exceeds the allowed range',
     maxRequestsInvalid: 'Max requests at index {index} must be greater than 0',
+    maxRequestsRequired: 'Please enter max requests for rule #{index}',
+    maxRequestsMaxError: 'Max requests at index {index} exceeds the allowed range',
     stepMinutesInvalid:
       'Step minutes at index {index} cannot exceed time window',
     stepMinutesRange:
@@ -516,6 +525,7 @@ export default {
     addRule: 'Add Rule',
     maxConcurrency: 'Max Concurrency',
     maxConcurrencyTip: '-1 means no limit',
+    maxConcurrencyMaxError: 'Max concurrency exceeds the allowed range',
     maxRulesTip: 'Max 3 rules',
     quota: 'Quota',
     rateLimitStatus: 'Rate Limit Status',
@@ -559,6 +569,7 @@ export default {
     resetReasonPlaceholder: 'Please enter reset reason (optional)',
     enterQuotaTotal: 'Quota total cannot be empty',
     quotaMustBeNonNegative: 'Quota total must be a non-negative integer',
+    quotaMaxError: 'Quota total exceeds the allowed range',
     quotaResetSuccess: 'Quota reset successfully',
     quotaResetFailed: 'Failed to reset quota, please try again',
     quotaRangeError: 'Quota cannot be negative',
@@ -567,6 +578,8 @@ export default {
     tpmWindowMinutesInvalid:
       'Time window for TPM rule #{index} must be between 1-360 minutes',
     tpmMaxTokensRequired: 'Please enter max tokens for TPM rule #{index}',
+    tpmMaxTokensInvalid: 'Max tokens for TPM rule #{index} must be greater than 0',
+    maxTokensMaxError: 'Max tokens for TPM rule #{index} exceeds the allowed range',
     tpmStepMinutesInvalid:
       'Step minutes cannot exceed time window for TPM rule #{index}',
     tpmStepMinutesRange:
@@ -576,6 +589,8 @@ export default {
     rpmWindowMinutesInvalid:
       'Time window for RPM rule #{index} must be between 1-360 minutes',
     rpmMaxRequestsRequired: 'Please enter max requests for RPM rule #{index}',
+    rpmMaxRequestsInvalid: 'Max requests for RPM rule #{index} must be greater than 0',
+    maxRequestsMaxError: 'Max requests for RPM rule #{index} exceeds the allowed range',
     rpmStepMinutesInvalid:
       'Step minutes cannot exceed time window for RPM rule #{index}',
     rpmStepMinutesRange:
@@ -584,7 +599,7 @@ export default {
     ruleNameRequired: 'Please enter rule name',
     ruleNameDuplicate: 'Rule name {name} is duplicated',
     rateLimitRuleRequired:
-      'When rate limit is enabled, at least one of TPM/RPM/Max Concurrency must be configured',
+      'When rate limit is enabled, at least one rule (TPM/RPM/Max Concurrency) must be configured',
     formValidateError: 'Form validation failed, please check inputs',
     typeManagement: 'Entity Type Management',
     orgManagement: 'Entity Organization Management',
@@ -664,9 +679,23 @@ export default {
     title: 'LLM Configuration',
     serviceName: 'Service Name',
     group: 'Group',
+    models: 'Models',
     modelRedirect: 'Model Redirection',
     originalModelName: 'Original Request Model Name',
     backendModelName: 'Backend Model Name',
     serviceAuthKey: 'Service Auth Key',
   },
+  cert: {
+    name: 'Certificates',
+    expiredDate: 'Expiration Date',
+    certFile: 'Certificate File',
+    file: 'File',
+    selectFile: 'Select File',
+    privateKeyFile: 'PrivateKey File',
+    globalDefaultCert: 'Global Default Certificate',
+
+    tipCertNameRule: 'Special characters are not allowed in certificate file name',
+    tipSumitCertFile: 'Config the certificate ',
+    tipCofigDefault: ' as Global Default Certificate'
+}
 };

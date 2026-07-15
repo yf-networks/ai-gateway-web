@@ -37,7 +37,7 @@
         <Input
           v-model="formData.description"
           :placeholder="$t('entity.descriptionPlaceholder')"
-          :maxlength="256"
+          :maxlength="1024"
           show-word-limit
         ></Input>
       </FormItem>
@@ -73,6 +73,7 @@ export default {
         }
     },
     data() {
+      const that = this;
         return {
             formData: {
                 type_name: '',
@@ -81,11 +82,14 @@ export default {
             },
             ruleValidate: {
                 type_name: [
-                    { required: true, message: this.$t('entity.enterTypeName'), trigger: 'blur' },
-                    { pattern: /^[a-z0-9_-]{1,32}$/, message: this.$t('entity.typeNameFormatError'), trigger: 'blur' }
+                    { required: true, message: that.$t('entity.enterTypeName'), trigger: 'blur' },
+                    { pattern: /^[a-z0-9_-]{1,32}$/, message: that.$t('entity.typeNameFormatError'), trigger: 'blur' }
+                ],
+                description: [
+                    { max: 1024, message: that.$t('apiKey.descriptionLengthError'), trigger: 'blur' }
                 ],
                 level: [
-                    { required: true, type: 'number', message: this.$t('entity.selectLevel'), trigger: 'change' }
+                    { required: true, type: 'number', message: that.$t('entity.selectLevel'), trigger: 'change' }
                 ]
             }
         };
