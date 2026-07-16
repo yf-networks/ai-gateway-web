@@ -100,7 +100,7 @@ export default {
                     ]
                 },
                 {
-                    title: that.$t('apiKey.updateTime'),
+                    title: that.$t('apiKey.createTime'),
                     key: 'create_time',
                     minWidth: 160,
                     sortable: 'custom',

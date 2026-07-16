@@ -280,12 +280,13 @@ export default {
                 }
             } else {
                 this.showTableData = [];
-                for (let i = 0; i < this.tableData.length; i++) {
+                const sourceData = this.tableData || [];
+                for (let i = 0; i < sourceData.length; i++) {
                     let flag = true;
                     l: for (let key in this.searchMessage) {
                         if (key.indexOf('_render_') === -1) {
                             const searchValue = this.searchMessage[key];
-                            const itemValue = this.tableData[i][key];
+                            const itemValue = sourceData[i][key];
 
                             // Exact match for boolean (supports strings 'true'/'false')
                             if (typeof searchValue === 'boolean' || searchValue === 'true' || searchValue === 'false') {
@@ -314,11 +315,12 @@ export default {
                                 const render = this.searchMessage[key + '_render_'](
                                     this.$createElement,
                                     {
-                                        row: this.tableData[i]
+                                        row: sourceData[i]
                                     }
                                 );
+                                const displayText = this.getRenderSearchText(render, itemValue);
                                 if (
-                                    this.getShowTableChildren(render.children)
+                                    displayText
                                         .toUpperCase()
                                         .indexOf(searchValue.toUpperCase()) === -1
                                 ) {
@@ -331,14 +333,14 @@ export default {
                         }
                     }
                     for (let key in this.filterMessage) {
-                        if (this.filterMessage[key].indexOf(this.tableData[i][key]) === -1) {
+                        if (this.filterMessage[key].indexOf(sourceData[i][key]) === -1) {
                             flag = false;
                             break;
                         }
                     }
 
                     if (flag) {
-                        this.showTableData.push(this.tableData[i]);
+                        this.showTableData.push(sourceData[i]);
                     }
                 }
                 if (this.page.currentPage !== 1) {
@@ -349,13 +351,44 @@ export default {
                 this.cloneShowData = cloneDeep(this.showTableData);
             }
         },
-        getShowTableChildren(arr, content = []) {
-            for (let i = 0; i < arr.length; i++) {
-                if (arr[i].text) {
-                    content.push(arr[i].text);
+        getRenderSearchText(render, fallbackValue) {
+            const text = this.getShowTableChildren(render && render.children);
+            if (text) {
+                return text;
+            }
+            if (render && render.componentOptions && render.componentOptions.children) {
+                const componentText = this.getShowTableChildren(render.componentOptions.children);
+                if (componentText) {
+                    return componentText;
                 }
-                if (arr[i].children && arr[i].children.length > 0) {
-                    this.getShowTableChildren(arr[i].children, content);
+            }
+            if (fallbackValue !== null && fallbackValue !== undefined) {
+                return fallbackValue + '';
+            }
+            return '';
+        },
+        getShowTableChildren(node, content = []) {
+            if (node == null) {
+                return content.join(',').replace(/(^\s*)|(\s*$)/g, '');
+            }
+            const nodes = Array.isArray(node) ? node : [node];
+            for (let i = 0; i < nodes.length; i++) {
+                const item = nodes[i];
+                if (item == null) {
+                    continue;
+                }
+                if (typeof item === 'string' || typeof item === 'number') {
+                    content.push(String(item));
+                    continue;
+                }
+                if (item.text) {
+                    content.push(item.text);
+                }
+                if (item.children && item.children.length > 0) {
+                    this.getShowTableChildren(item.children, content);
+                }
+                if (item.componentOptions && item.componentOptions.children) {
+                    this.getShowTableChildren(item.componentOptions.children, content);
                 }
             }
             return content.join(',').replace(/(^\s*)|(\s*$)/g, '');

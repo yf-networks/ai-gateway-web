@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 import Vue from 'vue';
-import { Icon, Pagination, Select, Option, Button } from 'element-ui';
+import { Icon, Pagination, Select, Option, OptionGroup, Button } from 'element-ui';
 import VueI18n from 'vue-i18n';
 import enLocale from 'element-ui/lib/locale/lang/en';
 import zhLocale from 'element-ui/lib/locale/lang/zh-CN';
@@ -26,6 +26,7 @@ Vue.use(Icon);
 Vue.use(Button);
 Vue.use(Select);
 Vue.use(Option);
+Vue.use(OptionGroup);
 Vue.use(Pagination);
 
 const messages = {

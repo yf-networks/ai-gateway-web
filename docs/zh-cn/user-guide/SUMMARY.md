@@ -7,6 +7,7 @@
   * [子集群管理](resource-management/sub-cluster.md)
   * [子集群负载](resource-management/sub-cluster-load.md)
   * [域名管理](resource-management/domain.md)
+  * [证书管理](resource-management/certificate.md)
 * [路由管理](route-management.md)
   * [默认转发规则](route-management/default-rule.md)
   * [路由规则](route-management/route-rule.md)

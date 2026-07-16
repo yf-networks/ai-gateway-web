@@ -116,6 +116,7 @@ export default {
                     key: 'quota_plan',
                     minWidth: 140,
                     sortable: 'custom',
+                    searchable: true,
                     render(h, params) {
                         const quotaPlan = params.row.quota_plan || {};
                         let text = '-';
@@ -129,9 +130,15 @@ export default {
                 },
                 {
                     title: that.$t('entity.rateLimitStatus'),
-                    key: 'rate_limit_policy',
+                    key: 'rate_limit_policy_enabled',
                     minWidth: 100,
                     sortable: 'custom',
+                    searchable: true,
+                    searchType: 'select',
+                    searchFilters: [
+                        { label: that.$t('entity.enabled'), value: 'true' },
+                        { label: that.$t('entity.notEnabled'), value: 'false' }
+                    ],
                     render(h, params) {
                         const policy = params.row.rate_limit_policy || {};
                         return h('Tag', {
@@ -202,7 +209,7 @@ export default {
         },
         drawerTitle() {
             if (this.isAdd) return this.$t('entity.createEntity');
-            if (this.isView) return this.$t('entity.name') + ' ' + this.$t('com.detail');
+            if (this.isView) return this.$t('entity.viewEntity');
             return this.$t('entity.editEntity');
         }
     },
@@ -319,7 +326,10 @@ export default {
                     if (res.status === 200) {
                         const data = res.data.Data;
                         const list = data && data.list || data || [];
-                        this.tableData = list;
+                        this.tableData = list.map(item => ({
+                            ...item,
+                            rate_limit_policy_enabled: !!(item.rate_limit_policy && item.rate_limit_policy.enabled)
+                        }));
                     }
                 })
                 .finally(() => {
