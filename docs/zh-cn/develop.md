@@ -23,6 +23,7 @@
     │   ├── APIKey          // API Key管理
     │   ├── AIClusters     // AI网关集群
     │   ├── AIInstancePool // AI网关实例池
+    │   ├── Cert            // 证书管理
     │   ├── Clusters        // AI业务集群
     │   ├── Domains         // 域名管理
     │   ├── Entity          // Entity管理

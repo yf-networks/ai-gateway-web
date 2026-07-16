@@ -59,7 +59,7 @@ export default {
             navIcon: {
                 'AIGatewayInstancePool.list': 'iconfont icon-instancePool',
 
-                'cert.list': 'iconfont icon-cert',
+                'certs.list': 'iconfont icon-cert',
                 'user.list': 'iconfont icon-user',
 
                 'AIPool.list': 'iconfont icon-instancePool',

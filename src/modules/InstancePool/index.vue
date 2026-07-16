@@ -199,12 +199,11 @@ export default {
             }
         },
         getProductInstancePoolInfo(name, mode) {
-            let tmpName = name.split('.')[1];
             this.$request({
                 url: this.$urlFormat(
                     'products/{product_name}/instance-pools/{instance_pool_name}',
                     {
-                        instance_pool_name: tmpName
+                        instance_pool_name: name
                     }
                 ),
                 method: 'get'
@@ -258,12 +257,11 @@ export default {
             });
         },
         onUpdatetInstancePool(data) {
-            let tmpName = this.currentData.name.split('.')[1];
             this.$request({
                 url: this.$urlFormat(
                     'products/{product_name}/instance-pools/{instance_pool_name}',
                     {
-                        instance_pool_name: tmpName
+                        instance_pool_name: this.currentData.name
                     }
                 ),
                 method: 'patch',

@@ -224,7 +224,7 @@ export default {
             }
 
             if (!CommonNameCheck(value)) {
-                callback(new Error(this.$t('gatewayConfig.formatInvalid')));
+                callback(new Error(this.$t('com.tipCommonRule')));
                 return;
             }
 
@@ -450,6 +450,7 @@ export default {
                                 }
                             ]);
                         }
+                        this.mergeSelectedModelsIntoList();
                     }
                 }
             },
@@ -499,6 +500,24 @@ export default {
                 }
             });
             return headers;
+        },
+        mergeSelectedModelsIntoList() {
+            const selected = Array.isArray(this.formData.models) ? this.formData.models : [];
+            const list = Array.isArray(this.modelsList) ? [...this.modelsList] : [];
+            const existingIds = new Set(
+                list.map(item => (item && item.id != null ? String(item.id) : ''))
+            );
+            selected.forEach(modelId => {
+                if (modelId == null || modelId === '') {
+                    return;
+                }
+                const id = String(modelId);
+                if (!existingIds.has(id)) {
+                    list.push({ id });
+                    existingIds.add(id);
+                }
+            });
+            this.modelsList = list;
         },
         addModelRedirect() {
             this.formData.model_mappings.push({
@@ -551,6 +570,7 @@ export default {
                 .then(data => {
                     if (data.status === 200) {
                         this.modelsList = data.data.Data || [];
+                        this.mergeSelectedModelsIntoList();
                         if (val) {
                             this.$Message.success({
                                 content: this.$t('gatewayConfig.getModelListSucc')

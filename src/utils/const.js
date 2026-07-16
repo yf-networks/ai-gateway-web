@@ -241,7 +241,7 @@ export function intToIp(int) {
 export function cidrToNetwork(cidr) {
   const [ip, prefix] = cidr.split('/');
   const mask = (0xffffffff << (32 - parseInt(prefix, 10))) >>> 0;
-  return intToIp(ipToInt(ip) & mask);
+  return intToIp((ipToInt(ip) & mask) >>> 0);
 }
 
 export function cidrToMask(cidr) {
@@ -273,7 +273,7 @@ export function isCidrContained(cidr1, cidr2) {
   const network2 = ipToInt(cidrToNetwork(cidr2));
   const mask2 = (0xffffffff << (32 - prefix2)) >>> 0;
 
-  return (network1 & mask2) === network2;
+  return ((network1 & mask2) >>> 0) === network2;
 }
 
 export function isIpv6Cidr(value) {

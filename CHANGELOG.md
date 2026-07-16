@@ -38,6 +38,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [v0.0.4] - 2026-07-15
+
+### Added
+
+- **Certificate management** module
+- Grouped model selector (Entity & API Key)
+- LLM models display in cluster review
+- Instance pool and domain validation
+- Certificate user guide and expanded i18n (en/zh)
+
+### Fixed
+
+- Route rules empty filter submission
+- `pageTable` search compatibility
+- Gateway config model list when editing
+- Certificate sidebar nav icon
+- Entity parent selector clear behavior
+
+### Changed
+
+- Entity & API Key: grouped model selectors, description limit 1024
+- Entity type list column and validation tweaks
+- Quota and rate limit validation (INT64 bounds, field-level checks)
+- AI business cluster list action button order
+- Minor UI and docs updates
+
 ## [v0.0.3] - 2026-07-08
 
 ### Added
@@ -97,6 +123,7 @@ AI Gateway Web v0.0.2 — Instance pool & build refresh. Focuses on EPP instance
 - Consumer management: API Key lifecycle with model allowlist, token quota, expiry, IP whitelist
 - User & access: system/tenant views, user management, token management
 
-[v0.1.0]: https://github.com/yf-networks/ai-gateway-web/releases/tag/v0.1.0
+[v0.0.4]: https://github.com/yf-networks/ai-gateway-web/releases/tag/v0.0.4
+[v0.0.3]: https://github.com/yf-networks/ai-gateway-web/releases/tag/v0.0.3
 [v0.0.2]: https://github.com/yf-networks/ai-gateway-web/releases/tag/v0.0.2
 [v0.0.1]: https://github.com/yf-networks/ai-gateway-web/releases/tag/v0.0.1

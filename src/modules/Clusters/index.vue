@@ -106,6 +106,24 @@ export default {
                                 'Button',
                                 {
                                     props: {
+                                        type: 'success',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            that.onDetails(params);
+                                        }
+                                    }
+                                },
+                                that.$t('com.detail')
+                            ),
+                            h(
+                                'Button',
+                                {
+                                    props: {
                                         type: 'primary',
                                         size: 'small'
                                     },
@@ -127,9 +145,6 @@ export default {
                                         type: 'error',
                                         size: 'small'
                                     },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
                                     on: {
                                         click: () => {
                                             that.onDel(params);
@@ -137,21 +152,6 @@ export default {
                                     }
                                 },
                                 that.$t('com.del')
-                            ),
-                            h(
-                                'Button',
-                                {
-                                    props: {
-                                        type: 'info',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            that.onDetails(params);
-                                        }
-                                    }
-                                },
-                                that.$t('com.detail')
                             )
                         ]);
                     }

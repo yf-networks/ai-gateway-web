@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { DominNameRegCheck } from '@/utils/const';
+import { isFQDN } from 'validator';
 export default {
     data() {
         const validateName = (rule, value, callback) => {
@@ -51,8 +51,8 @@ export default {
                 );
                 return;
             }
-            if (!DominNameRegCheck(value)) {
-                callback(new Error(this.$t('com.tipNameRule')));
+            if (!isFQDN(value)) {
+                callback(new Error(this.$t('domain.formatInvalid')));
                 return;
             }
             if (value.length < 2) {

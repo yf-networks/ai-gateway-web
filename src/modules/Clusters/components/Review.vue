@@ -179,6 +179,19 @@
                         </li>
                     </ul>
                     <ul class="clearFloat">
+                        <li class="title">{{ $t('llmConfig.models') }}:</li>
+                        <li class="value">
+                            <template v-if="displayModels.length">
+                                <span
+                                    v-for="model in displayModels"
+                                    :key="model"
+                                    class="model-tag"
+                                >{{ model }}</span>
+                            </template>
+                            <span v-else>-</span>
+                        </li>
+                    </ul>
+                    <ul class="clearFloat">
                         <li class="title">{{ $t('llmConfig.modelRedirect') }}:</li>
                         <li class="value">
                             <table>
@@ -364,6 +377,22 @@ export default {
             ]
         };
     },
+    computed: {
+        displayModels() {
+            const models = this.llmConfigData && this.llmConfigData.models;
+            if (!Array.isArray(models)) {
+                return [];
+            }
+            return models
+                .map(model => {
+                    if (model && typeof model === 'object') {
+                        return model.id || model.name || model.value || '';
+                    }
+                    return model;
+                })
+                .filter(model => model !== '' && model !== null && model !== undefined);
+        }
+    },
     methods: {
         handleSubmit() {
             this.$emit('submitData');
@@ -386,6 +415,15 @@ export default {
 }
 .panel .panel-body ul .title {
     width: 400px;
+}
+.model-tag {
+    display: inline-block;
+    margin: 0 8px 8px 0;
+    padding: 2px 8px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    font-size: 12px;
+    line-height: 20px;
 }
 table {
     @tableBorder: 1px solid #f4f4f4;
@@ -444,5 +482,14 @@ table {
         margin: 3px 0;
     }
     margin-bottom: 10px;
+}
+
+.model-tag {
+    display: inline-block;
+    margin: 0 8px 8px 0;
+    padding: 2px 8px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    font-weight: normal;
 }
 </style>

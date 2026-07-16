@@ -277,7 +277,11 @@ export default {
         },
 
         cleanEmptyValues(obj) {
-            if (obj === null || obj === undefined || obj === '') {
+            if (obj === null) {
+                return null;
+            }
+
+            if (obj === undefined || obj === '') {
                 return undefined;
             }
 
