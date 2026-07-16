@@ -313,7 +313,8 @@ export default {
         },
         blockModelsText() {
             const blockModels = this.displayData.block_models || [];
-            return blockModels.length > 0 ? blockModels.join(', ') : '-';
+            const models = blockModels.filter(model => model !== '*');
+            return models.length > 0 ? models.join(', ') : '-';
         },
         quotaPlanUnlimited() {
             return this.displayData.quota_plan && this.displayData.quota_plan.unlimited;

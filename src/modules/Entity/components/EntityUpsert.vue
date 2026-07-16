@@ -113,7 +113,6 @@
               size="small"
               :placeholder="$t('entity.selectBlockModels')"
             >
-              <el-option value="*" :label="$t('entity.allModels')" />
               <el-option-group
                 v-for="group in modelGroups"
                 :key="group.label"
@@ -646,22 +645,6 @@ export default {
                 }
             },
             deep: true
-        },
-        'formData.block_models': {
-            handler(val) {
-                if (!val || val.length === 0) return;
-                const hasStar = val.includes('*');
-                const hasOthers = val.length > 1;
-                if (hasStar && hasOthers) {
-                    const lastIndex = val.length - 1;
-                    if (val[lastIndex] === '*') {
-                        this.formData.block_models = ['*'];
-                    } else {
-                        this.formData.block_models = val.filter(v => v !== '*');
-                    }
-                }
-            },
-            deep: true
         }
     },
     mounted() {
@@ -720,7 +703,7 @@ export default {
             if (!this.formData.allow_models || this.formData.allow_models.length === 0) {
                 this.formData.allow_models = ['*'];
             }
-            if (!this.formData.block_models) {
+            if (!this.formData.block_models || (this.formData.block_models.length === 1 && this.formData.block_models[0] === '*')) {
                 this.formData.block_models = [];
             }
         },
@@ -768,11 +751,7 @@ export default {
             }
             if (this.formData.block_models && this.formData.block_models.length > 0) {
                 const models = [...this.formData.block_models];
-                if (models.includes('*')) {
-                    this.formData.block_models = ['*'];
-                } else {
-                    this.formData.block_models = models;
-                }
+                this.formData.block_models = models.includes('*') ? [] : models;
             }
         },
 
@@ -1012,6 +991,10 @@ export default {
                             rpm: [],
                             max_concurrency: -1
                         };
+                    }
+
+                    if (!submitData.block_models || submitData.block_models.length === 0) {
+                        submitData.block_models = ['*'];
                     }
 
                     this.$emit('submit', submitData);
