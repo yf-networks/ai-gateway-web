@@ -250,44 +250,165 @@ export function cidrToMask(cidr) {
   return intToIp(mask);
 }
 
+export function isIpv4Address(value) {
+  const reg =
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  return reg.test(value);
+}
+
+function parseIpv6Part(part) {
+  if (part === '') {
+    return null;
+  }
+  if (!/^[0-9a-fA-F]{1,4}$/.test(part)) {
+    return null;
+  }
+  return part.toLowerCase().padStart(4, '0');
+}
+
+export function expandIpv6(ip) {
+  if (!ip || typeof ip !== 'string') {
+    return null;
+  }
+
+  let normalizedIp = ip;
+  const ipv4TailMatch = normalizedIp.match(/^(.*:)(\d+\.\d+\.\d+\.\d+)$/);
+  if (ipv4TailMatch) {
+    const ipv4 = ipv4TailMatch[2];
+    if (!isIpv4Address(ipv4)) {
+      return null;
+    }
+    const octets = ipv4.split('.').map((octet) => parseInt(octet, 10));
+    const hexTail =
+      octets[0].toString(16).padStart(2, '0') +
+      octets[1].toString(16).padStart(2, '0') +
+      ':' +
+      octets[2].toString(16).padStart(2, '0') +
+      octets[3].toString(16).padStart(2, '0');
+    normalizedIp = `${ipv4TailMatch[1]}${hexTail}`;
+  }
+
+  let parts;
+  if (normalizedIp.includes('::')) {
+    if (normalizedIp.indexOf('::') !== normalizedIp.lastIndexOf('::')) {
+      return null;
+    }
+    const [head, tail] = normalizedIp.split('::');
+    const headParts = head ? head.split(':').filter(Boolean) : [];
+    const tailParts = tail ? tail.split(':').filter(Boolean) : [];
+    if (headParts.length + tailParts.length >= 8) {
+      return null;
+    }
+    parts = headParts.concat(Array(8 - headParts.length - tailParts.length).fill('0'), tailParts);
+  } else {
+    parts = normalizedIp.split(':');
+    if (parts.length !== 8) {
+      return null;
+    }
+  }
+
+  const expanded = parts.map(parseIpv6Part);
+  if (expanded.some((part) => part === null)) {
+    return null;
+  }
+  return expanded;
+}
+
+function ipv6ToBigInt(ip) {
+  const parts = expandIpv6(ip);
+  if (!parts) {
+    return null;
+  }
+  return parts.reduce((acc, part) => (acc << 16n) + BigInt(parseInt(part, 16)), 0n);
+}
+
+function cidrToNetworkIpv6(cidr) {
+  const [ip, prefixStr] = cidr.split('/');
+  const prefix = parseInt(prefixStr, 10);
+  const ipInt = ipv6ToBigInt(ip);
+  if (ipInt === null) {
+    return null;
+  }
+  if (prefix === 0) {
+    return 0n;
+  }
+  const mask = ((1n << 128n) - 1n) << BigInt(128 - prefix);
+  return ipInt & mask;
+}
+
+export function getCidrIpVersion(cidr) {
+  if (isIpv4Cidr(cidr)) {
+    return 'ipv4';
+  }
+  if (isIpv6Cidr(cidr)) {
+    return 'ipv6';
+  }
+  return null;
+}
+
+export function isCidr(value) {
+  return getCidrIpVersion(value) !== null;
+}
+
 export function isCidrEqual(cidr1, cidr2) {
+  const version1 = getCidrIpVersion(cidr1);
+  const version2 = getCidrIpVersion(cidr2);
+  if (!version1 || version1 !== version2) {
+    return false;
+  }
+
+  if (version1 === 'ipv4') {
+    return (
+      cidrToNetwork(cidr1) === cidrToNetwork(cidr2) &&
+      cidr1.split('/')[1] === cidr2.split('/')[1]
+    );
+  }
+
   return (
-    cidrToNetwork(cidr1) === cidrToNetwork(cidr2) &&
+    cidrToNetworkIpv6(cidr1) === cidrToNetworkIpv6(cidr2) &&
     cidr1.split('/')[1] === cidr2.split('/')[1]
   );
 }
 
 export function isCidrContained(cidr1, cidr2) {
-  const [ip1, prefix1] = cidr1
-    .split('/')
-    .map((v, i) => (i === 1 ? parseInt(v, 10) : v));
-  const [ip2, prefix2] = cidr2
-    .split('/')
-    .map((v, i) => (i === 1 ? parseInt(v, 10) : v));
+  const version1 = getCidrIpVersion(cidr1);
+  const version2 = getCidrIpVersion(cidr2);
+  if (!version1 || version1 !== version2) {
+    return false;
+  }
 
+  const prefix1 = parseInt(cidr1.split('/')[1], 10);
+  const prefix2 = parseInt(cidr2.split('/')[1], 10);
   if (prefix1 < prefix2) {
     return false;
   }
 
-  const network1 = ipToInt(cidrToNetwork(cidr1));
-  const network2 = ipToInt(cidrToNetwork(cidr2));
-  const mask2 = (0xffffffff << (32 - prefix2)) >>> 0;
+  if (version1 === 'ipv4') {
+    const network1 = ipToInt(cidrToNetwork(cidr1));
+    const network2 = ipToInt(cidrToNetwork(cidr2));
+    const mask2 = (0xffffffff << (32 - prefix2)) >>> 0;
+    return ((network1 & mask2) >>> 0) === network2;
+  }
 
-  return ((network1 & mask2) >>> 0) === network2;
+  const network1 = cidrToNetworkIpv6(cidr1);
+  const network2 = cidrToNetworkIpv6(cidr2);
+  const mask2 = prefix2 === 0 ? 0n : ((1n << 128n) - 1n) << BigInt(128 - prefix2);
+  return (network1 & mask2) === network2;
 }
 
 export function isIpv6Cidr(value) {
-  const reg =
-    /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::1|::|([0-9a-fA-F]{1,4}:)*::([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:)*::[0-9a-fA-F]{1,4}|[0-9a-fA-F]{1,4}::([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
-  return reg.test(value);
+  if (typeof value !== 'string' || !value.includes('/')) {
+    return false;
+  }
+  const slashIndex = value.lastIndexOf('/');
+  const ip = value.slice(0, slashIndex);
+  const prefixStr = value.slice(slashIndex + 1);
+  if (!/^\d+$/.test(prefixStr)) {
+    return false;
+  }
+  const prefix = parseInt(prefixStr, 10);
+  if (prefix < 0 || prefix > 128) {
+    return false;
+  }
+  return expandIpv6(ip) !== null;
 }
-export const roleUndefined = -1;
-export const roleProduct = 0;
-export const roleAdmin = 1;
-export const systemProduct = {
-  name: 'AI_product',
-};
-export const role2name = {
-  0: 'normal',
-  1: 'admin',
-};

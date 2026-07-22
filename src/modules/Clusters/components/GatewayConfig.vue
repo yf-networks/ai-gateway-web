@@ -182,16 +182,11 @@
 <script>
 import { cloneDeep, isEmpty } from 'lodash';
 import { CommonNameCheck } from '@/utils/const';
+import { parseInstancePool } from './InstancePool';
 export default {
     components: {},
     props: {
-        subClustersData: {
-            type: Array,
-            default() {
-                return [];
-            }
-        },
-        subClusterProductList: {
+        instancePoolData: {
             type: Array,
             default() {
                 return [];
@@ -350,7 +345,6 @@ export default {
             selectData: [],
             ipStr: '',
             formData: {
-                enable: true,
                 service_name: '',
                 group: 'default',
                 provider_type: '',
@@ -376,28 +370,19 @@ export default {
         };
     },
     watch: {
-        subClustersData: {
+        instancePoolData: {
             handler(v) {
                 this.ipStr = '';
-
-                const filteredClusters = this.subClusterProductList.filter(cluster =>
-                    v.includes(cluster.name)
-                );
-                const ipPortList = [];
-                filteredClusters.forEach(cluster => {
-                    if (cluster.instances && Array.isArray(cluster.instances)) {
-                        cluster.instances.forEach(instance => {
-                            // Add ip:port format
-                            ipPortList.push(`${instance.Addr}:${instance.Port}`);
-                        });
-                    }
+                const ipPortList = parseInstancePool(v).map(instance => {
+                    const port = instance.ports && instance.ports.Default != null
+                        ? instance.ports.Default
+                        : 80;
+                    return `${instance.ip}:${port}`;
                 });
-
-                const uniqueIpPortList = [...new Set(ipPortList)];
-
-                this.ipStr = uniqueIpPortList.join('\n');
+                this.ipStr = [...new Set(ipPortList)].join('\n');
             },
-            immediate: true
+            immediate: true,
+            deep: true
         },
         reportFlag: {
             handler(v) {
@@ -409,7 +394,6 @@ export default {
                 if (!this.isAdd) {
                     if (!data || Object.keys(data).length === 0) {
                         this.formData = {
-                            enable: true,
                             service_name: '',
                             group: 'default',
                             model_endpoint: {
@@ -556,7 +540,7 @@ export default {
             this.modelsList = [];
             this.btnLoading = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/models'),
+                url: 'models',
                 method: 'post',
                 data: {
                     schema: this.formData.model_endpoint.schema,
@@ -591,7 +575,7 @@ export default {
         },
         getProviders() {
             this.$request({
-                url: this.$urlFormat('products/{product_name}/model-providers'),
+                url: 'model-providers',
                 method: 'get',
                 openapi: true
             }).then(data => {

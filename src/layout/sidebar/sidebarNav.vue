@@ -31,17 +31,18 @@
 <template>
     <div>
         <Menu
+            :key="menuKey"
             theme="dark"
             width="auto"
             class="menu_list"
-            :active-name="activeName"
+            :active-name="menuActiveName"
             @on-select="onSelect"
-            v-if="navs && role2name[role]"
+            v-if="navRoot"
             :open-names="openNames"
             ref="Menu"
         >
             <navItem
-                v-for="node in navs[role2name[role]].children"
+                v-for="node in navRoot.children"
                 :node="node"
                 :key="node.id"
                 :name="node.id"
@@ -51,8 +52,8 @@
 </template>
 
 <script>
-import { role2name } from '@/utils/const';
 import navItem from './navItem';
+import { NAVIGATION_CANCELLED } from '@/utils/navigation';
 
 export default {
     name: 'sidebarNav',
@@ -60,50 +61,56 @@ export default {
         navItem
     },
     computed: {
-        navs() {
-            return this.$store.getNav();
-        },
-        activeName() {
-            return this.$route.name;
-        },
-        role() {
-            return this.$store.getCurRole();
+        navRoot() {
+            return this.$store.getNavRoot();
         }
     },
     data() {
         return {
-            role2name: role2name,
+            menuActiveName: this.$route.name,
+            menuKey: 0,
             openNames: []
         };
     },
     mounted() {
         this.openDefauleMenu();
+        this.$root.$on(NAVIGATION_CANCELLED, this.resetMenuActive);
+    },
+    beforeDestroy() {
+        this.$root.$off(NAVIGATION_CANCELLED, this.resetMenuActive);
     },
     watch: {
-        role() {
+        navRoot() {
             this.openDefauleMenu();
+        },
+        '$route.name'(name) {
+            this.menuActiveName = name;
         }
     },
 
     methods: {
+        resetMenuActive() {
+            this.menuActiveName = this.$route.name;
+            this.menuKey += 1;
+            this.$nextTick(() => {
+                this.openDefauleMenu();
+            });
+        },
         onSelect: function (name) {
             if (this.$route.name !== name) {
-                this.$router.push({
-                    name: name,
-                    query: {
-                        role: this.$route.query.role
-                    }
-                });
+                this.$router.push({ name });
             }
         },
         openDefauleMenu() {
             this.openNames = [];
-            if (this.navs) {
-                this.navs[this.role2name[this.role]].children.forEach(item => {
+            if (this.navRoot && this.navRoot.children) {
+                this.navRoot.children.forEach(item => {
                     this.openNames.push(item.id);
                 });
                 this.$nextTick(() => {
-                    this.$refs.Menu.updateOpened();
+                    if (this.$refs.Menu && this.$refs.Menu.updateOpened) {
+                        this.$refs.Menu.updateOpened();
+                    }
                 });
             }
         }

@@ -16,11 +16,11 @@
 <template>
     <div>
         <Tabs v-model="val" :animated="false">
-            <TabPane :label="$t('entity.typeManagement')" name="entityType">
-                <EntityTypeList v-if="val === 'entityType'" />
-            </TabPane>
             <TabPane :label="$t('entity.orgManagement')" name="entity">
                 <EntityList v-if="val === 'entity'" />
+            </TabPane>
+            <TabPane :label="$t('entity.typeManagement')" name="entityType">
+                <EntityTypeList v-if="val === 'entityType'" />
             </TabPane>
         </Tabs>
     </div>
@@ -36,7 +36,7 @@ export default {
     },
     data() {
         return {
-            val: 'entityType'
+            val: 'entity'
         };
     }
 };

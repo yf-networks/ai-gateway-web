@@ -1,5 +1,5 @@
 /**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,8 +49,6 @@
                 v-if="upsertVisible"
                 :currentCluster="currentCluster"
                 :clusterNames="clusterNames"
-                :subClusterProductList="subClusterProductList"
-                :mountedSubCluster="mountedSubCluster"
                 :isAdd="isAdd"
                 @submit="upsertSubmit"
             />
@@ -60,11 +58,9 @@
             <Review
                 :showFooter="false"
                 :baseConfigData="baseConfigData"
-                :subClustersData="subClustersData"
+                :instancePoolData="instancePoolData"
                 :passiveHealthData="passiveHealthData"
                 :llmConfigData="llmConfigData"
-                :scheduler="scheduler"
-                :subClusterProductList="subClusterProductList"
             />
         </Drawer>
     </div>
@@ -73,6 +69,7 @@
 import pageTable from '@/components/table/pageTable';
 import Upsert from './components';
 import Review from './components/Review';
+import { parseInstancePool } from './components/InstancePool';
 import { cloneDeep } from 'lodash';
 export default {
     name: 'Clusters',
@@ -162,7 +159,6 @@ export default {
 
     mounted() {
         this.getClusters();
-        this.getSubClusters();
     },
 
     data() {
@@ -176,44 +172,25 @@ export default {
             clusterNames: [],
             baseConfigData: {},
             passiveHealthData: {},
-            subClustersData: [],
-            llmConfigData: {},
-            scheduler: {},
-            subClusterProductList: [],
-            mountedSubCluster: []
+            instancePoolData: [],
+            llmConfigData: {}
         };
     },
 
     methods: {
-        getSubClusters() {
-            this.$request({
-                url: this.$urlFormat('products/{product_name}/sub-clusters'),
-                method: 'get'
-            }).then(data => {
-                if (data.status === 200) {
-                    this.subClusterProductList = data.data.Data ? data.data.Data : [];
-                }
-            });
-        },
         getClusters() {
             this.tableLoading = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/clusters'),
+                url: 'clusters',
                 method: 'get'
             })
                 .then(data => {
                     if (data.status === 200) {
                         this.tableData = data.data.Data;
                         this.clusterNames = [];
-                        this.mountedSubCluster = [];
                         if (this.tableData && this.tableData.length > 0) {
                             this.tableData.forEach(item => {
                                 this.clusterNames.push(item.name);
-                                if (item.sub_clusters && item.sub_clusters.length > 0) {
-                                    this.mountedSubCluster = this.mountedSubCluster.concat(
-                                        item.sub_clusters
-                                    );
-                                }
                             });
                         }
                     }
@@ -228,13 +205,29 @@ export default {
             this.upsertVisible = true;
         },
         onEdit(row) {
-            this.currentCluster = row;
             this.isAdd = false;
-            this.upsertVisible = true;
+            this.$request({
+                url: this.$urlFormat('clusters/{cluster_name}', {
+                    cluster_name: row.name
+                }),
+                method: 'get'
+            })
+                .then(res => {
+                    if (res.status === 200 && res.data.Data) {
+                        this.currentCluster = res.data.Data;
+                    } else {
+                        this.currentCluster = row;
+                    }
+                    this.upsertVisible = true;
+                })
+                .catch(() => {
+                    this.currentCluster = row;
+                    this.upsertVisible = true;
+                });
         },
         onDetails(data) {
             const tmpData = cloneDeep(data.row);
-            (this.baseConfigData = {
+            this.baseConfigData = {
                 name: tmpData.name,
                 description: tmpData.description,
                 protocol: tmpData.basic.protocol,
@@ -243,13 +236,13 @@ export default {
                 retries: tmpData.basic.retries,
                 timeouts: tmpData.basic.timeouts,
                 sticky_sessions: tmpData.sticky_sessions
-            }),
-                (this.baseConfigData.connection.cancel_on_client_close =
-                    tmpData.basic.connection.cancel_on_client_close + '');
+            };
+            this.baseConfigData.connection.cancel_on_client_close =
+                tmpData.basic.connection.cancel_on_client_close + '';
             this.passiveHealthData = tmpData.passive_health_check;
             this.llmConfigData = tmpData.llm_config;
-            this.subClustersData = tmpData.sub_clusters ? tmpData.sub_clusters : [];
-            (this.scheduler = tmpData.scheduler), (this.infoVisible = true);
+            this.instancePoolData = parseInstancePool(tmpData.instance_pool);
+            this.infoVisible = true;
         },
         onDel(params) {
             this.$Modal.confirm({
@@ -258,7 +251,7 @@ export default {
                 loading: true,
                 onOk: () => {
                     this.$request({
-                        url: this.$urlFormat('products/{product_name}/clusters/{cluster_name}', {
+                        url: this.$urlFormat('clusters/{cluster_name}', {
                             cluster_name: params.row.name
                         }),
                         method: 'delete'
@@ -266,7 +259,6 @@ export default {
                         .then(data => {
                             if (data.status === 200) {
                                 this.getClusters();
-                                this.getSubClusters();
                                 this.tableData.splice(params.index, 1);
                                 this.$Message.success({
                                     content: this.$t('com.tipDelSucc')
@@ -281,7 +273,6 @@ export default {
         },
         upsertSubmit() {
             this.getClusters();
-            this.getSubClusters();
             this.upsertVisible = false;
         }
     }

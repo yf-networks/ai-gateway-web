@@ -65,7 +65,7 @@ export default {
         submitRules() {
             this.isSubmitting = true;
             this.$request({
-                url: this.$urlFormat('products/{product_name}/ai-route-rules'),
+                url: 'ai-route-rules',
                 method: 'patch',
                 openapi: true,
                 data: {
@@ -92,7 +92,7 @@ export default {
 
         fetchRules() {
             this.$request({
-                url: this.$urlFormat('products/{product_name}/ai-route-rules'),
+                url: 'ai-route-rules',
                 method: 'get',
                 openapi: true
             })

@@ -132,9 +132,19 @@ export default {
                     }
                 },
                 {
-                    title: that.$t('route.action'),
-                    key: 'name',
-                    searchable: true
+                    title: that.$t('route.targetCluster'),
+                    searchable: true,
+                    render(h, params) {
+                        return (
+                            <div>
+                                {(params.row.basic &&
+                                    params.row.basic.expect_action &&
+                                    params.row.basic.expect_action.forward &&
+                                    params.row.basic.expect_action.forward.cluster_name) ||
+                                    ''}
+                            </div>
+                        );
+                    }
                 },
                 {
                     title: this.$t('com.operation'),

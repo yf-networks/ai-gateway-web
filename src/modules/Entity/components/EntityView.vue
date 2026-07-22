@@ -57,18 +57,23 @@
 
     <Card :title="$t('entity.quotaInfo')" class="form-card">
       <div class="info-row">
-        <span class="info-label">{{ $t('entity.quota') }}</span>
-        <span
-          class="info-value"
-          >{{ quotaPlanUnlimited ? $t('entity.unlimitedQuota') : $t('entity.quotaTotal') }}</span
-        >
+        <span class="info-label">{{ $t('entity.unlimitedQuota') }}</span>
+        <span class="info-value">{{ quotaPlanUnlimited ? $t('entity.yes') : $t('entity.no') }}</span>
       </div>
       <div v-if="!quotaPlanUnlimited">
+        <div class="info-row">
+          <span class="info-label">{{ $t('entity.passWhenNoQuota') }}</span>
+          <span class="info-value">{{ passWhenNoEnoughQuota ? $t('entity.yes') : $t('entity.no') }}</span>
+        </div>
         <div class="info-row">
           <span class="info-label">{{ $t('entity.quotaTotal') }}</span>
           <span class="info-value"
             >{{ formatNumber(quotaPlanQuota) }} tokens</span
           >
+        </div>
+        <div class="info-row">
+          <span class="info-label">{{ $t('entity.quotaUnit') }}</span>
+          <span class="info-value">{{ quotaPlanUnit }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">{{ $t('com.used') }}</span>
@@ -317,7 +322,17 @@ export default {
             return models.length > 0 ? models.join(', ') : '-';
         },
         quotaPlanUnlimited() {
-            return this.displayData.quota_plan && this.displayData.quota_plan.unlimited;
+            const unlimited = this.displayData.quota_plan && this.displayData.quota_plan.unlimited;
+            return unlimited === true || unlimited === 'true';
+        },
+        passWhenNoEnoughQuota() {
+            const pass = this.displayData.quota_plan && this.displayData.quota_plan.pass_when_no_enough_quota;
+            return pass === true || pass === 'true';
+        },
+        quotaPlanUnit() {
+            return this.displayData.quota_plan && this.displayData.quota_plan.unit
+                ? this.displayData.quota_plan.unit
+                : '-';
         },
         quotaPlanQuota() {
             return this.displayData.quota_plan ? this.displayData.quota_plan.quota || 0 : 0;

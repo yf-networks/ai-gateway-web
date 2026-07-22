@@ -1,5 +1,5 @@
 /**
-* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd. 
+* Copyright(c) 2026 Beijing Yingfei Networks Technology Co.Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,12 +53,10 @@
             :submitName="submitName"
             @submitData="acceptDataHandler"
         />
-        <SubClusters
+        <InstancePool
             v-show="currentStepIndex === 3"
-            :mountedSubCluster="mountedSubCluster"
-            :subClustersData="subClustersData"
-            :reportFlag="subClustersFlag"
-            :subClusterProductList="subClusterProductList"
+            :instancePoolData="instancePoolData"
+            :reportFlag="instancePoolFlag"
             @submitData="acceptDataHandler"
         />
         <GatewayConfig
@@ -66,29 +64,17 @@
             :llmConfigData="llmConfigData"
             :isAdd="isAdd"
             :stepsCurrentState="currentStepIndex"
-            :subClusterProductList="subClusterProductList"
-            :subClustersData="subClustersData"
+            :instancePoolData="instancePoolData"
             :reportFlag="llmConfigFlag"
             @submitData="acceptDataHandler"
-        />
-        <Scheduler
-            v-show="currentStepIndex === 5 && isAdd"
-            :scheduler="scheduler"
-            :isAdd="isAdd"
-            :subClustersData="subClustersData"
-            :reportFlag="schedulerSubmitFlag"
-            @submitData="acceptDataHandler"
-            @disable="onChangeDisable"
         />
 
         <Review
             v-show="currentStepIndex === reviewStepIndex"
             :baseConfigData="baseConfigData"
-            :subClustersData="subClustersData"
+            :instancePoolData="instancePoolData"
             :passiveHealthData="passiveHealthData"
             :llmConfigData="llmConfigData"
-            :scheduler="scheduler"
-            :subClusterProductList="subClusterProductList"
             :isAdd="isAdd"
             :reportFlag="reviewSubmitFlag"
             v-on="$listeners"
@@ -132,8 +118,10 @@
 <script>
 import BaseConfig from './BaseConfig';
 import Timeout from './Timeout';
-import SubClusters from './SubClusters';
-import Scheduler from './Scheduler';
+import InstancePool, {
+    parseInstancePool,
+    formatInstancePoolForApi
+} from './InstancePool';
 import PassiveHealthCheck from './PassiveHealthCheck';
 import { cloneDeep } from 'lodash';
 import Review from './Review';
@@ -147,8 +135,7 @@ export default {
         Timeout,
         PassiveHealthCheck,
         GatewayConfig,
-        SubClusters,
-        Scheduler,
+        InstancePool,
         Review
     },
     props: {
@@ -166,24 +153,23 @@ export default {
         },
         isAdd: {
             type: Boolean
-        },
-        subClusterProductList: {
-            type: Array,
-            default() {
-                return [];
-            }
-        },
-        mountedSubCluster: {
-            type: Array,
-            default() {
-                return [];
-            }
         }
     },
 
     mounted() {
         if (!this.isAdd) {
             this.changeData();
+        }
+    },
+
+    watch: {
+        currentCluster: {
+            handler() {
+                if (!this.isAdd) {
+                    this.changeData();
+                }
+            },
+            deep: true
         }
     },
 
@@ -194,32 +180,25 @@ export default {
             baseConfigData: {},
             llmConfigData: {},
             passiveHealthData: {},
-            scheduler: {},
             baseSubmitFlag: false,
             timeoutSubmitFlag: false,
             passiveHealthSubmitFlag: false,
-            subClustersFlag: false,
+            instancePoolFlag: false,
             llmConfigFlag: false,
-            schedulerSubmitFlag: false,
             reviewSubmitFlag: false,
             disabled: false,
-            subClustersData: []
+            instancePoolData: []
         };
     },
 
     computed: {
-        // Define all possible steps
         allSteps() {
             return [
                 { content: this.$t('cluster.basicConfig'), visible: true },
                 { content: this.$t('cluster.timeoutAndRetransmission'), visible: true },
                 { content: this.$t('cluster.passiveHealthCheck'), visible: true },
-                {
-                    content: this.$t('com.createX', { obj: this.$t('subCluster.name') }),
-                    visible: true
-                },
+                { content: this.$t('instancePool.list'), visible: true },
                 { content: this.$t('cluster.modelConfig'), visible: true },
-                { content: this.$t('cluster.schedulerConfig'), visible: this.isAdd },
                 { content: this.$t('cluster.review'), visible: true }
             ];
         },
@@ -232,24 +211,24 @@ export default {
     },
 
     methods: {
-        onChangeDisable(v) {
-            this.disabled = true;
-        },
         submit() {
             let params = this.handelData();
             if (!this.isAdd) {
-                Promise.all([
-                    this.updateSubClusters(params.sub_clusters),
-                    this.updataClusterBasicData(params)
-                ]).then(data => {
-                    if (data.every(item => item.status === 200)) {
+                this.$request({
+                    url: this.$urlFormat('clusters/{cluster_name}', {
+                        cluster_name: params.name
+                    }),
+                    method: 'patch',
+                    data: params
+                }).then(data => {
+                    if (data.status === 200) {
                         this.$Message.success({ content: this.$t('com.tipSubmitSucc') });
                         this.$emit('submit');
                     }
                 });
             } else {
                 this.$request({
-                    url: this.$urlFormat('products/{product_name}/clusters'),
+                    url: 'clusters',
                     method: 'post',
                     data: params
                 }).then(data => {
@@ -260,17 +239,6 @@ export default {
                 });
             }
         },
-        updataClusterBasicData(params) {
-            delete params.scheduler;
-            delete params.sub_clusters;
-            return this.$request({
-                url: this.$urlFormat('products/{product_name}/clusters/{cluster_name}', {
-                    cluster_name: params.name
-                }),
-                method: 'patch',
-                data: params
-            });
-        },
         acceptDataHandler(data) {
             this[data.topic] = data.data;
             this.submitName = this.baseConfigData.name;
@@ -278,19 +246,6 @@ export default {
             if (this.currentStepIndex < this.reviewStepIndex) {
                 this.currentStepIndex += 1;
             }
-        },
-        updateSubClusters(data) {
-            return this.$request({
-                url: this.$urlFormat(
-                    'products/{product_name}/clusters/{cluster_name}/sub-clusters',
-                    { cluster_name: this.baseConfigData.name }
-                ),
-                method: 'patch',
-                data: {
-                    name: this.baseConfigData.name,
-                    sub_clusters: data
-                }
-            });
         },
         handelData() {
             let data = {
@@ -303,11 +258,10 @@ export default {
                     buffers: this.baseConfigData.buffers,
                     timeouts: this.baseConfigData.timeouts
                 },
-                sub_clusters: this.subClustersData,
+                instance_pool: formatInstancePoolForApi(this.instancePoolData),
                 sticky_sessions: this.baseConfigData.sticky_sessions,
                 passive_health_check: this.passiveHealthData,
-                llm_config: this.llmConfigData,
-                scheduler: this.scheduler
+                llm_config: this.llmConfigData
             };
             data.basic.connection.cancel_on_client_close =
                 this.baseConfigData.connection.cancel_on_client_close === 'true';
@@ -342,19 +296,12 @@ export default {
                     this.passiveHealthSubmitFlag = !this.passiveHealthSubmitFlag;
                     break;
                 case 3:
-                    this.subClustersFlag = !this.subClustersFlag;
+                    this.instancePoolFlag = !this.instancePoolFlag;
                     break;
                 case 4:
                     this.llmConfigFlag = !this.llmConfigFlag;
                     break;
                 case 5:
-                    if (this.isAdd) {
-                        this.schedulerSubmitFlag = !this.schedulerSubmitFlag;
-                    } else {
-                        this.reviewSubmitFlag = !this.reviewSubmitFlag;
-                    }
-                    break;
-                case 6:
                     this.reviewSubmitFlag = !this.reviewSubmitFlag;
             }
         },
@@ -371,9 +318,8 @@ export default {
                 sticky_sessions: tmpData.sticky_sessions
             };
             this.passiveHealthData = tmpData.passive_health_check;
-            this.llmConfigData = tmpData.llm_config;
-            this.subClustersData = tmpData.sub_clusters ? tmpData.sub_clusters : [];
-            this.scheduler = tmpData.scheduler;
+            this.llmConfigData = tmpData.llm_config || {};
+            this.instancePoolData = parseInstancePool(tmpData.instance_pool);
         },
         back() {
             if (this.currentStepIndex > 0) {

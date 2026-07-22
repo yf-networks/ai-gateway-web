@@ -164,12 +164,13 @@ export default {
         .title {
             color: #333;
             margin-right: 5px;
-            width: 140px;
+            min-width: 140px;
+            flex-shrink: 0;
             text-align: right;
-            height: 25px;
             line-height: 25px;
             font-weight: 500;
             font-size: 15px;
+            white-space: nowrap;
         }
         .content {
             .vars-expression-show {

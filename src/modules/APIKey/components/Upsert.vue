@@ -27,8 +27,6 @@
           <Input
             v-model="formData.description"
             :placeholder="$t('apiKey.descriptionPlaceholder')"
-            :maxlength="1024"
-            show-word-limit
           ></Input>
         </FormItem>
         <Row :gutter="24">
@@ -159,6 +157,8 @@
                   :max="INT64_MAX"
                   :precision="0"
                   :step="1"
+                  :formatter="formatNumberInput"
+                  :parser="parseNumberInput"
                   style="width: 100%"
                 ></InputNumber>
               </FormItem>
@@ -253,6 +253,8 @@
                       :min="1"
                       :max="360"
                       :precision="0"
+                      :formatter="formatNumberInput"
+                      :parser="parseNumberInput"
                       style="width: 100%"
                       @on-change="onTpmWindowChange(index)"
                     ></InputNumber>
@@ -269,6 +271,8 @@
                       :min="1"
                       :max="INT64_MAX"
                       :precision="0"
+                      :formatter="formatNumberInput"
+                      :parser="parseNumberInput"
                       style="width: 100%"
                     ></InputNumber>
                   </FormItem>
@@ -277,14 +281,17 @@
                   <FormItem
                     :label="$t('apiKey.stepMinutes')"
                     :prop="'rate_limit_policy.rules.tpm.' + index + '.step_minutes'"
-                    :rules="[{ validator: validateTpmStepMinutes }]"
+                    :rules="[{ validator: validateTpmStepMinutes, trigger: 'change' }]"
                   >
                     <InputNumber
                       v-model="rule.step_minutes"
                       :min="1"
                       :max="rule.window_minutes"
                       :precision="0"
+                      :formatter="formatNumberInput"
+                      :parser="parseNumberInput"
                       style="width: 100%"
+                      @on-change="validateTpmStepMinutesField(index)"
                     ></InputNumber>
                   </FormItem>
                 </Col>
@@ -349,6 +356,8 @@
                       :min="1"
                       :max="360"
                       :precision="0"
+                      :formatter="formatNumberInput"
+                      :parser="parseNumberInput"
                       style="width: 100%"
                     ></InputNumber>
                   </FormItem>
@@ -364,6 +373,8 @@
                       :min="1"
                       :max="INT64_MAX"
                       :precision="0"
+                      :formatter="formatNumberInput"
+                      :parser="parseNumberInput"
                       style="width: 100%"
                     ></InputNumber>
                   </FormItem>
@@ -393,15 +404,17 @@
               <FormItem
                 :label="$t('apiKey.maxConcurrency')"
                 prop="rate_limit_policy.rules.max_concurrency"
-                :rules="[{ validator: validateMaxConcurrency }]"
+                :rules="[{ validator: validateMaxConcurrency, trigger: 'change' }]"
               >
                 <InputNumber
                   v-model="formData.rate_limit_policy.rules.max_concurrency"
                   :min="-1"
                   :max="INT64_MAX"
                   :precision="0"
+                  :formatter="formatNumberInput"
+                  :parser="parseNumberInput"
                   style="width: 100%"
-                  @on-change="validateRateLimitEnabledField"
+                  @on-change="validateMaxConcurrencyField"
                 ></InputNumber>
                 <p class="form-tip">{{ $t('apiKey.maxConcurrencyTip') }}</p>
               </FormItem>
@@ -426,10 +439,11 @@
 <script>
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
-import { isIpv4Cidr, isCidrEqual, isCidrContained } from '@/utils/const';
+import { isCidr, isCidrEqual, isCidrContained } from '@/utils/const';
 import { getModelGroupsFromServices } from '@/utils/model';
 
 const INT64_MAX = 9223372036854775807;
+const DESCRIPTION_MAX_LENGTH = 512;
 
 export default {
   props: {
@@ -453,7 +467,7 @@ export default {
         callback(new Error(this.$t('apiForm.nameRequired')));
         return;
       }
-      if (value.length > 1024) {
+      if (value.length > DESCRIPTION_MAX_LENGTH) {
         callback(new Error(this.$t('apiKey.descriptionLengthError')));
         return;
       }
@@ -508,7 +522,7 @@ export default {
       for (let i = 0; i < subnets.length; i++) {
         const cidr = subnets[i];
         if (cidr === '*') continue;
-        if (!isIpv4Cidr(cidr)) {
+        if (!isCidr(cidr)) {
           callback(new Error(this.$t('apiKey.subnetFormatError', { index: i + 1, cidr: cidr })));
           return;
         }
@@ -543,7 +557,8 @@ export default {
         const maxConcurrency = that.formData.rate_limit_policy.rules.max_concurrency;
         const hasTpmRules = tpm.length > 0;
         const hasRpmRules = rpm.length > 0;
-        const hasMaxConcurrency = Number.isFinite(maxConcurrency);
+        const hasMaxConcurrency =
+          Number.isFinite(maxConcurrency) && maxConcurrency >= 0;
         if (!hasTpmRules && !hasRpmRules && !hasMaxConcurrency) {
           callback(new Error(this.$t('apiKey.rateLimitRuleRequired')));
           return;
@@ -554,6 +569,7 @@ export default {
 
     return {
       INT64_MAX,
+      DESCRIPTION_MAX_LENGTH,
       neverExpire: true,
       subnetInput: '*',
       formRenderKey: 0,
@@ -594,13 +610,11 @@ export default {
           {
             required: true,
             validator: validateDescription,
-            trigger: 'blur'
           }
         ],
         expired_time: [
           {
-            validator: validateExpiredTime,
-            trigger: 'change'
+            validator: validateExpiredTime
           }
         ],
         subnet: [
@@ -625,9 +639,15 @@ export default {
   computed: {
     modelGroups() {
       return getModelGroupsFromServices(this.modelServices);
+    },
+    descriptionLength() {
+      return (this.formData.description || '').length;
     }
   },
   watch: {
+    'formData.description'() {
+      this.validateDescriptionField();
+    },
     currentData: {
       handler(data) {
         if (!this.isAdd && data && data.id) {
@@ -671,6 +691,15 @@ export default {
     this.fetchModelServices();
   },
   methods: {
+    formatNumberInput(value) {
+      if (value === null || value === undefined || value === '') {
+        return '';
+      }
+      return Number(value).toLocaleString();
+    },
+    parseNumberInput(value) {
+      return String(value).replace(/,/g, '');
+    },
     normalizeSelectBool(value, defaultValue = true) {
       if (value === true || value === 'true') return 'true';
       if (value === false || value === 'false') return 'false';
@@ -761,6 +790,8 @@ export default {
       if (this.modelServices.length > 0) {
         this.normalizeModelsField();
       }
+
+      this.validateDescriptionField();
     },
 
     fetchEntityList() {
@@ -782,7 +813,7 @@ export default {
 
     fetchModelServices() {
       this.$request({
-        url: this.$urlFormat('models'),
+        url: this.$urlFormat('global-models'),
         method: 'get',
         openapi: true
       })
@@ -857,6 +888,14 @@ export default {
       });
     },
 
+    validateMaxConcurrencyField() {
+      this.$nextTick(() => {
+        if (!this.$refs.formData) return;
+        this.$refs.formData.validateField('rate_limit_policy.rules.max_concurrency');
+        this.validateRateLimitEnabledField();
+      });
+    },
+
     validateMaxConcurrency(rule, value, callback) {
       if (this.formData.rate_limit_policy.enabled === 'false') {
         callback();
@@ -868,6 +907,10 @@ export default {
       }
       if (!Number.isInteger(value)) {
         callback(new Error(this.$t('apiKey.quotaMustBeNonNegative')));
+        return;
+      }
+      if (value < -1) {
+        callback(new Error(this.$t('apiKey.maxConcurrencyMinError')));
         return;
       }
       if (value > INT64_MAX) {
@@ -891,6 +934,13 @@ export default {
     },
 
     onTpmWindowChange(index) {
+      this.$nextTick(() => {
+        if (!this.$refs.formData) return;
+        this.$refs.formData.validateField(`rate_limit_policy.rules.tpm.${index}.step_minutes`);
+      });
+    },
+
+    validateTpmStepMinutesField(index) {
       this.$nextTick(() => {
         if (!this.$refs.formData) return;
         this.$refs.formData.validateField(`rate_limit_policy.rules.tpm.${index}.step_minutes`);
@@ -942,7 +992,7 @@ export default {
       const tpmRule = tpmRules[ruleIndex];
       const windowMinutes = tpmRule ? tpmRule.window_minutes : undefined;
       if (value === null || value === undefined || value === '') {
-        callback();
+        callback(new Error(this.$t('apiKey.stepMinutesRequired', { index })));
         return;
       }
       if (!Number.isFinite(value) || value < 1 || value > 360) {
@@ -1026,6 +1076,14 @@ export default {
         return;
       }
       callback();
+    },
+
+    validateDescriptionField() {
+      this.$nextTick(() => {
+        if (this.$refs.formData) {
+          this.$refs.formData.validateField('description');
+        }
+      });
     },
 
     validateSubnetRules() {
@@ -1130,6 +1188,10 @@ export default {
   font-size: 12px;
   color: #999;
   margin-top: 4px;
+}
+
+.form-tip-error {
+  color: #ed4014;
 }
 
 .btn-box-del {

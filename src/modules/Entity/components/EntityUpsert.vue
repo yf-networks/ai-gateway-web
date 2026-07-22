@@ -167,6 +167,8 @@
                 :max="INT64_MAX"
                 :precision="0"
                 :step="1"
+                :formatter="formatNumberInput"
+                :parser="parseNumberInput"
                 style="width: 100%;"
               ></InputNumber>
             </FormItem>
@@ -274,6 +276,8 @@
                     :min="1"
                     :max="360"
                     :precision="0"
+                    :formatter="formatNumberInput"
+                    :parser="parseNumberInput"
                     style="width: 100%;"
                     @on-change="onTpmWindowChange(index)"
                   ></InputNumber>
@@ -289,6 +293,8 @@
                     v-model="rule.max_tokens"
                     :min="1"
                     :precision="0"
+                    :formatter="formatNumberInput"
+                    :parser="parseNumberInput"
                     style="width: 100%;"
                   ></InputNumber>
                 </FormItem>
@@ -304,7 +310,10 @@
                     :min="1"
                     :max="rule.window_minutes"
                     :precision="0"
+                    :formatter="formatNumberInput"
+                    :parser="parseNumberInput"
                     style="width: 100%;"
+                    @on-change="validateTpmStepMinutesField(index)"
                   ></InputNumber>
                 </FormItem>
               </Col>
@@ -381,6 +390,8 @@
                     :min="1"
                     :max="360"
                     :precision="0"
+                    :formatter="formatNumberInput"
+                    :parser="parseNumberInput"
                     style="width: 100%;"
                   ></InputNumber>
                 </FormItem>
@@ -396,6 +407,8 @@
                     :min="1"
                     :max="INT64_MAX"
                     :precision="0"
+                    :formatter="formatNumberInput"
+                    :parser="parseNumberInput"
                     style="width: 100%;"
                   ></InputNumber>
                 </FormItem>
@@ -427,15 +440,17 @@
             <FormItem
               :label="$t('entity.maxConcurrency')"
               prop="rate_limit_policy.rules.max_concurrency"
-              :rules="[{ validator: validateMaxConcurrency }]"
+              :rules="[{ validator: validateMaxConcurrency, trigger: 'change' }]"
             >
               <InputNumber
                 v-model="formData.rate_limit_policy.rules.max_concurrency"
                 :min="-1"
                 :max="INT64_MAX"
                 :precision="0"
+                :formatter="formatNumberInput"
+                :parser="parseNumberInput"
                 style="width: 100%;"
-                @on-change="validateRateLimitEnabledField"
+                @on-change="validateMaxConcurrencyField"
               ></InputNumber>
               <p class="form-tip">{{ $t('entity.maxConcurrencyTip') }}</p>
             </FormItem>
@@ -535,7 +550,8 @@ export default {
                 const maxConcurrency = that.formData.rate_limit_policy.rules.max_concurrency;
                 const hasTpmRules = tpm.length > 0;
                 const hasRpmRules = rpm.length > 0;
-                const hasMaxConcurrency = Number.isFinite(maxConcurrency);
+                const hasMaxConcurrency =
+                    Number.isFinite(maxConcurrency) && maxConcurrency >= 0;
                 if (!hasTpmRules && !hasRpmRules && !hasMaxConcurrency) {
                     callback(new Error(this.$t('entity.rateLimitRuleRequired')));
                     return;
@@ -652,6 +668,15 @@ export default {
         this.fetchModelServices();
     },
     methods: {
+        formatNumberInput(value) {
+            if (value === null || value === undefined || value === '') {
+                return '';
+            }
+            return Number(value).toLocaleString();
+        },
+        parseNumberInput(value) {
+            return String(value).replace(/,/g, '');
+        },
         initFormData(data) {
             this.formData = cloneDeep(data);
 
@@ -724,7 +749,7 @@ export default {
 
         fetchModelServices() {
             this.$request({
-                url: 'models',
+                url: 'global-models',
                 method: 'get',
                 openapi: true
             }).then(data => {
@@ -801,6 +826,14 @@ export default {
             });
         },
 
+        validateMaxConcurrencyField() {
+            this.$nextTick(() => {
+                if (!this.$refs.formData) return;
+                this.$refs.formData.validateField('rate_limit_policy.rules.max_concurrency');
+                this.validateRateLimitEnabledField();
+            });
+        },
+
         validateMaxConcurrency(rule, value, callback) {
             if (this.formData.rate_limit_policy.enabled === 'false') {
                 callback();
@@ -812,6 +845,10 @@ export default {
             }
             if (!Number.isInteger(value)) {
                 callback(new Error(this.$t('entity.quotaMustBeNonNegative')));
+                return;
+            }
+            if (value < -1) {
+                callback(new Error(this.$t('entity.maxConcurrencyMinError')));
                 return;
             }
             if (value > INT64_MAX) {
@@ -835,6 +872,13 @@ export default {
         },
 
         onTpmWindowChange(index) {
+            this.$nextTick(() => {
+                if (!this.$refs.formData) return;
+                this.$refs.formData.validateField(`rate_limit_policy.rules.tpm.${index}.step_minutes`);
+            });
+        },
+
+        validateTpmStepMinutesField(index) {
             this.$nextTick(() => {
                 if (!this.$refs.formData) return;
                 this.$refs.formData.validateField(`rate_limit_policy.rules.tpm.${index}.step_minutes`);
@@ -887,7 +931,7 @@ export default {
             const tpmRule = tpmRules[ruleIndex];
             const windowMinutes = tpmRule ? tpmRule.window_minutes : undefined;
             if (value === null || value === undefined || value === '') {
-                callback();
+                callback(new Error(this.$t('entity.tpmStepMinutesRequired', { index })));
                 return;
             }
             if (!Number.isFinite(value) || value < 1 || value > 360) {
