@@ -146,9 +146,22 @@
             </div>
         </div>
         <div class="panel">
-            <div class="panel-header">{{ $t('instancePool.list') }}</div>
+            <div class="panel-header">{{ $t('instancePool.config') }}</div>
             <div class="panel-body">
-                <pageTable :columns="columns" :tableData="instancePoolUsed" />
+                <ul class="clearFloat">
+                    <li class="title">{{ $t('instancePool.instanceMode') }}:</li>
+                    <li class="value">{{ instanceModeText }}</li>
+                </ul>
+                <ul v-if="isDomainMode" class="clearFloat">
+                    <li class="title">{{ $t('instancePool.domain') }}:</li>
+                    <li class="value">{{ providerDomain || '-' }}</li>
+                </ul>
+                <ul v-else class="clearFloat detail-row detail-row-block instance-ip-list-row">
+                    <li class="title">{{ $t('instancePool.list') }}:</li>
+                    <li class="value">
+                        <pageTable :columns="ipColumns" :tableData="instancePoolUsed" />
+                    </li>
+                </ul>
             </div>
         </div>
         <!-- 大模型 -->
@@ -223,7 +236,7 @@
 </template>
 <script>
 import pageTable from '@/components/table/pageTable';
-import { parseInstancePool } from './InstancePool';
+import { parseInstancePool, detectInstanceMode } from './InstancePool';
 export default {
     name: 'Review',
 
@@ -261,6 +274,9 @@ export default {
         instancePoolData: {
             handler(v) {
                 this.instancePoolUsed = parseInstancePool(v);
+                const { mode, domain } = detectInstanceMode(this.instancePoolUsed);
+                this.instanceMode = mode;
+                this.providerDomain = domain;
                 this.ipStr = this.instancePoolUsed
                     .map(instance => {
                         const port = instance.ports && instance.ports.Default != null
@@ -282,16 +298,30 @@ export default {
     data() {
         return {
             instancePoolUsed: [],
+            instanceMode: 'ip',
+            providerDomain: '',
             spinShow: false,
             productName: '',
-            ipStr: '',
-            columns: [
+            ipStr: ''
+        };
+    },
+    computed: {
+        isDomainMode() {
+            return this.instanceMode === 'domain';
+        },
+        instanceModeText() {
+            return this.isDomainMode
+                ? this.$t('instancePool.modeDomain')
+                : this.$t('instancePool.modeIp');
+        },
+        ipColumns() {
+            return [
                 {
                     title: this.$t('instancePool.machineName'),
                     key: 'hostname'
                 },
                 {
-                    title: 'ip/' + this.$t('nav.Domain'),
+                    title: this.$t('instancePool.ipAddress'),
                     key: 'ip'
                 },
                 {
@@ -302,10 +332,8 @@ export default {
                         return h('span', ports.Default != null ? String(ports.Default) : '-');
                     }
                 }
-            ]
-        };
-    },
-    computed: {
+            ];
+        },
         displayModels() {
             const models = this.llmConfigData && this.llmConfigData.models;
             if (!Array.isArray(models)) {
@@ -370,11 +398,26 @@ export default {
         }
     }
 
-    .detail-row-block {
+    .panel-body ul.clearFloat.detail-row-block,
+    .panel-body ul.clearFloat.instance-ip-list-row {
         align-items: flex-start;
+    }
 
+    .detail-row-block {
         .title {
             padding-top: 8px;
+        }
+    }
+
+    .instance-ip-list-row {
+        .value {
+            /deep/ .page-table {
+                margin-top: 0;
+            }
+
+            /deep/ .page-table .page {
+                margin-top: 12px;
+            }
         }
     }
 }

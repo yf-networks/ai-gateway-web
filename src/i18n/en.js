@@ -167,6 +167,7 @@ export default {
   instancePool: {
     name: 'Instance Pool',
     list: 'Instance IP List',
+    config: 'Instance Configuration',
     machineName: 'Instance Name',
     machineOrDomain: 'Host/Domain',
     ipOrDomain: 'IP/Domain',

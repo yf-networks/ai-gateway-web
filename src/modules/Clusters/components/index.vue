@@ -197,7 +197,7 @@ export default {
                 { content: this.$t('cluster.basicConfig'), visible: true },
                 { content: this.$t('cluster.timeoutAndRetransmission'), visible: true },
                 { content: this.$t('cluster.passiveHealthCheck'), visible: true },
-                { content: this.$t('instancePool.list'), visible: true },
+                { content: this.$t('instancePool.config'), visible: true },
                 { content: this.$t('cluster.modelConfig'), visible: true },
                 { content: this.$t('cluster.review'), visible: true }
             ];

@@ -166,6 +166,7 @@ export default {
   instancePool: {
     name: '实例池',
     list: '实例IP列表',
+    config: '实例配置',
     machineName: '机器名',
     machineOrDomain: '机器名/域名',
     ipOrDomain: 'IP/域名',
