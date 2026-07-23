@@ -39,7 +39,6 @@
                 <Select
                     v-model="formData.instanceMode"
                     style="width: 240px;"
-                    @on-change="handleInstanceModeChange"
                 >
                     <Option value="ip">{{ $t('instancePool.modeIp') }}</Option>
                     <Option value="domain">{{ $t('instancePool.modeDomain') }}</Option>
@@ -70,7 +69,6 @@
                 <div class="formBox">
                     <table border="0" cellspacing="0" cellpadding="0">
                         <tr>
-                            <th>{{ $t('instancePool.machineName') }}</th>
                             <th>{{ $t('instancePool.ipAddress') }}</th>
                             <th>{{ $t('instancePool.port') }}</th>
                             <th>{{ $t('com.operation') }}</th>
@@ -78,20 +76,12 @@
                         <tr v-for="(item, ind) in formData.instances" :key="ind">
                             <td>
                                 <Input
-                                    v-model="item.hostname"
-                                    type="text"
-                                    :placeholder="
-                                        $t('com.tipEnterX', { obj: $t('instancePool.machineName') })
-                                    "
-                                />
-                            </td>
-                            <td>
-                                <Input
                                     v-model="item.ip"
                                     type="text"
                                     :placeholder="
                                         $t('com.tipEnterX', { obj: $t('instancePool.ipAddress') })
                                     "
+                                    @on-change="syncInstanceHostname(item)"
                                 />
                             </td>
                             <td>
@@ -176,32 +166,100 @@ export function validateDomainName(value) {
     return getDomainValidationError(value) === null;
 }
 
+function getInstanceAddressCandidates(instance) {
+    const item = instance || {};
+    return [
+        item.hostname,
+        item.ip,
+        item.Name,
+        item.Addr,
+        item.Hostname,
+        item.name,
+        item.addr
+    ]
+        .map(value => String(value || '').trim())
+        .filter(Boolean);
+}
+
 export function parseInstancePool(instancePool) {
     if (!instancePool) {
         return [];
     }
-    let list = [];
     if (Array.isArray(instancePool)) {
-        list = instancePool;
-    } else if (Array.isArray(instancePool.instances)) {
-        list = instancePool.instances;
+        return instancePool.map(item => normalizeInstance(item));
     }
-    return list.map(item => normalizeInstance(item));
+    if (typeof instancePool === 'object') {
+        if (Array.isArray(instancePool.instances)) {
+            return instancePool.instances.map(item => normalizeInstance(item));
+        }
+        if (
+            instancePool.Name
+            || instancePool.Addr
+            || instancePool.hostname
+            || instancePool.ip
+            || instancePool.Hostname
+        ) {
+            return [normalizeInstance(instancePool)];
+        }
+    }
+    return [];
+}
+
+function extractRawInstanceList(instancePool) {
+    if (!instancePool) {
+        return [];
+    }
+    if (Array.isArray(instancePool)) {
+        return instancePool;
+    }
+    if (typeof instancePool === 'object') {
+        if (Array.isArray(instancePool.instances)) {
+            return instancePool.instances;
+        }
+        if (
+            instancePool.Name
+            || instancePool.Addr
+            || instancePool.hostname
+            || instancePool.ip
+            || instancePool.Hostname
+        ) {
+            return [instancePool];
+        }
+    }
+    return [];
+}
+
+export function getClusterInstancePool(cluster) {
+    if (!cluster || typeof cluster !== 'object') {
+        return [];
+    }
+    if (cluster.instance_pool != null) {
+        return cluster.instance_pool;
+    }
+    const subClusters = cluster.sub_clusters;
+    if (Array.isArray(subClusters) && subClusters.length === 1 && subClusters[0].instance_pool != null) {
+        return subClusters[0].instance_pool;
+    }
+    return [];
 }
 
 export function detectInstanceMode(instances) {
-    const list = (instances || []).map(item => normalizeInstance(item));
-    if (list.length === 1) {
-        const item = list[0];
-        const ip = String(item.ip || '').trim();
-        const hostname = String(item.hostname || '').trim();
-        if (isDomainAddress(ip) || isDomainAddress(hostname)) {
-            return {
-                mode: 'domain',
-                domain: isDomainAddress(hostname) ? hostname : ip
-            };
-        }
+    const list = instances || [];
+    if (list.length !== 1) {
+        return {
+            mode: 'ip',
+            domain: ''
+        };
     }
+
+    const domain = getInstanceAddressCandidates(list[0]).find(isDomainAddress);
+    if (domain) {
+        return {
+            mode: 'domain',
+            domain
+        };
+    }
+
     return {
         mode: 'ip',
         domain: ''
@@ -250,14 +308,35 @@ export function normalizeInstance(instance) {
     return item;
 }
 
+export function applyHostnameFromIp(instance) {
+    const item = normalizeInstance(instance);
+    const ip = String(item.ip || '').trim();
+    item.hostname = ip;
+    return item;
+}
+
 export function formatInstanceForApi(instance) {
     const item = normalizeInstance(instance);
+    const addressCandidates = getInstanceAddressCandidates(item);
+    const domain = addressCandidates.find(isDomainAddress);
+    const ip = String(item.ip || item.Addr || '').trim();
+    const hostname = domain || ip;
+    const port = parseInt(item.ports.Default, 10);
+    const weight = item.weight != null ? parseInt(item.weight, 10) : 1;
+
     return {
-        hostname: String(item.hostname || '').trim(),
-        ip: String(item.ip || '').trim(),
-        weight: item.weight != null ? parseInt(item.weight, 10) : 1,
+        Name: hostname,
+        Addr: ip,
+        hostname,
+        ip,
+        Port: port,
+        weight: weight,
+        Weight: weight,
         ports: {
-            Default: parseInt(item.ports.Default, 10)
+            Default: port
+        },
+        Ports: {
+            Default: port
         },
         tags: item.tags || { key: 'value' }
     };
@@ -270,8 +349,11 @@ export function formatInstancePoolForApi(instances) {
 function buildDomainInstance(domain) {
     const value = String(domain || '').trim();
     return normalizeInstance({
+        Name: value,
+        Addr: value,
         hostname: value,
         ip: value,
+        Port: DOMAIN_PORT,
         ports: { Default: DOMAIN_PORT },
         tags: { key: 'value' },
         weight: 1
@@ -283,7 +365,7 @@ export default {
 
     props: {
         instancePoolData: {
-            type: Array,
+            type: [Array, Object],
             default() {
                 return [];
             }
@@ -306,10 +388,20 @@ export default {
                 this.handleSubmit();
             }
         },
-        'formData.instanceMode'() {
-            this.$nextTick(() => {
-                this.clearFormValidation();
-            });
+        'formData.instanceMode'(newVal, oldVal) {
+            if (this.isApplyingPoolData || newVal === oldVal) {
+                return;
+            }
+            if (newVal === 'domain') {
+                this.formData.instances = [];
+                this.deleteAble = false;
+                return;
+            }
+            this.formData.domainName = '';
+            if (!this.formData.instances || this.formData.instances.length === 0) {
+                this.formData.instances = [createEmptyInstance()];
+            }
+            this.deleteAble = this.formData.instances.length > 1;
         }
     },
 
@@ -361,6 +453,7 @@ export default {
     data() {
         return {
             deleteAble: false,
+            isApplyingPoolData: false,
             formData: {
                 instanceMode: 'ip',
                 domainName: '',
@@ -371,35 +464,30 @@ export default {
 
     methods: {
         applyInstancePoolData(data) {
+            this.isApplyingPoolData = true;
+            const rawInstances = extractRawInstanceList(data);
             const instances = parseInstancePool(data);
-            const { mode, domain } = detectInstanceMode(instances);
-            this.formData.instanceMode = mode;
+            const { mode, domain } = detectInstanceMode(
+                rawInstances.length ? rawInstances : instances
+            );
             if (mode === 'domain') {
+                this.formData.instanceMode = 'domain';
                 this.formData.domainName = domain;
                 this.formData.instances = [];
                 this.deleteAble = false;
-                return;
-            }
-            this.formData.domainName = '';
-            if (instances.length > 0) {
-                this.formData.instances = instances.map(item => normalizeInstance(item));
             } else {
-                this.formData.instances = [createEmptyInstance()];
-            }
-            this.deleteAble = this.formData.instances.length > 1;
-        },
-        handleInstanceModeChange(mode) {
-            if (mode === 'domain') {
+                this.formData.instanceMode = 'ip';
                 this.formData.domainName = '';
-                this.formData.instances = [];
-                this.deleteAble = false;
-                return;
+                if (instances.length > 0) {
+                    this.formData.instances = instances.map(item => applyHostnameFromIp(item));
+                } else {
+                    this.formData.instances = [createEmptyInstance()];
+                }
+                this.deleteAble = this.formData.instances.length > 1;
             }
-            this.formData.domainName = '';
-            if (!this.formData.instances || this.formData.instances.length === 0) {
-                this.formData.instances = [createEmptyInstance()];
-            }
-            this.deleteAble = this.formData.instances.length > 1;
+            this.$nextTick(() => {
+                this.isApplyingPoolData = false;
+            });
         },
         handleRemove(index) {
             if (this.formData.instances.length === 2) {
@@ -413,17 +501,15 @@ export default {
             this.formData.instances.push(createEmptyInstance());
             this.validateInstancesField();
         },
+        syncInstanceHostname(item) {
+            applyHostnameFromIp(item);
+        },
         handleNumber(item, key) {
             this.$nextTick(() => {
                 if (item[key] !== null) {
                     this.$set(item, key, parseInt(item[key], 10));
                 }
             });
-        },
-        clearFormValidation() {
-            if (this.$refs.formData) {
-                this.$refs.formData.clearValidate();
-            }
         },
         validateDomainField() {
             if (this.$refs.formData) {
@@ -446,12 +532,6 @@ export default {
             for (const ele of instances) {
                 const normalized = normalizeInstance(ele);
 
-                if (!normalized.hostname) {
-                    callback(new Error(this.$t('com.tipEnterX', {
-                        obj: this.$t('instancePool.machineName')
-                    })));
-                    return;
-                }
                 if (!normalized.ip) {
                     callback(new Error(this.$t('com.tipEnterX', {
                         obj: this.$t('instancePool.ipAddress')
@@ -499,7 +579,9 @@ export default {
                     this.emitSubmitData([buildDomainInstance(domain)]);
                     return;
                 }
-                this.emitSubmitData(cloneDeep(this.formData.instances));
+                this.emitSubmitData(
+                    cloneDeep(this.formData.instances).map(item => applyHostnameFromIp(item))
+                );
             });
         }
     }

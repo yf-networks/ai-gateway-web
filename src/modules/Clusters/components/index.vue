@@ -55,6 +55,7 @@
         />
         <InstancePool
             v-show="currentStepIndex === 3"
+            :key="instancePoolRenderKey"
             :instancePoolData="instancePoolData"
             :reportFlag="instancePoolFlag"
             @submitData="acceptDataHandler"
@@ -62,6 +63,8 @@
         <GatewayConfig
             v-show="currentStepIndex === 4"
             :llmConfigData="llmConfigData"
+            :originalLlmConfigKey="originalLlmConfigKey"
+            :originalLlmConfigHeaders="originalLlmConfigHeaders"
             :isAdd="isAdd"
             :stepsCurrentState="currentStepIndex"
             :instancePoolData="instancePoolData"
@@ -75,6 +78,8 @@
             :instancePoolData="instancePoolData"
             :passiveHealthData="passiveHealthData"
             :llmConfigData="llmConfigData"
+            :originalLlmConfigKey="originalLlmConfigKey"
+            :originalLlmConfigHeaders="originalLlmConfigHeaders"
             :isAdd="isAdd"
             :reportFlag="reviewSubmitFlag"
             v-on="$listeners"
@@ -119,7 +124,7 @@
 import BaseConfig from './BaseConfig';
 import Timeout from './Timeout';
 import InstancePool, {
-    parseInstancePool,
+    getClusterInstancePool,
     formatInstancePoolForApi
 } from './InstancePool';
 import PassiveHealthCheck from './PassiveHealthCheck';
@@ -179,6 +184,8 @@ export default {
             currentStepIndex: 0,
             baseConfigData: {},
             llmConfigData: {},
+            originalLlmConfigKey: '',
+            originalLlmConfigHeaders: {},
             passiveHealthData: {},
             baseSubmitFlag: false,
             timeoutSubmitFlag: false,
@@ -207,6 +214,12 @@ export default {
         },
         reviewStepIndex() {
             return this.visibleSteps.length - 1;
+        },
+        instancePoolRenderKey() {
+            if (this.isAdd) {
+                return 'cluster-instance-pool-new';
+            }
+            return `cluster-instance-pool-${this.baseConfigData.name || 'edit'}`;
         }
     },
 
@@ -240,7 +253,14 @@ export default {
             }
         },
         acceptDataHandler(data) {
-            this[data.topic] = data.data;
+            if (data.topic === 'llmConfigData' && data.keepExistingKey && this.llmConfigData.key) {
+                this.llmConfigData = {
+                    ...data.data,
+                    key: this.llmConfigData.key
+                };
+            } else {
+                this[data.topic] = data.data;
+            }
             this.submitName = this.baseConfigData.name;
 
             if (this.currentStepIndex < this.reviewStepIndex) {
@@ -319,7 +339,14 @@ export default {
             };
             this.passiveHealthData = tmpData.passive_health_check;
             this.llmConfigData = tmpData.llm_config || {};
-            this.instancePoolData = parseInstancePool(tmpData.instance_pool);
+            this.originalLlmConfigKey = (tmpData.llm_config && tmpData.llm_config.key) || '';
+            this.originalLlmConfigHeaders = cloneDeep(
+                (tmpData.llm_config &&
+                    tmpData.llm_config.model_endpoint &&
+                    tmpData.llm_config.model_endpoint.headers) ||
+                    {}
+            );
+            this.instancePoolData = getClusterInstancePool(tmpData);
         },
         back() {
             if (this.currentStepIndex > 0) {

@@ -461,8 +461,14 @@ export default {
     maxRequests: 'Max Requests',
     addRule: 'Add Rule',
     maxConcurrency: 'Max Concurrency',
-    maxConcurrencyTip: '-1 means no limit',
+    maxConcurrencyUnlimited: 'No limit',
+    maxConcurrencyBanned: 'Banned',
+    maxConcurrencyLimited: 'Limit concurrency',
+    maxConcurrencyTip: '0: banned, -1: no limit, >0: concurrency limit',
     maxConcurrencyMinError: 'Max concurrency minimum value is -1',
+    maxConcurrencyBannedError: 'Max concurrency must be 0 when banned',
+    maxConcurrencyLimitedRequired: 'Please enter concurrency limit',
+    maxConcurrencyLimitedInvalid: 'Concurrency limit must be greater than 0',
     maxConcurrencyMaxError: 'Max concurrency exceeds the allowed range',
     maxRulesTip: 'Max 3 rules',
     selectModels: 'Please select models',
@@ -488,7 +494,7 @@ export default {
       'Step minutes at index {index} must be between 1-360 minutes',
     stepMinutesRequired: 'Please enter step minutes for rule #{index}',
     rateLimitRuleRequired:
-      'When rate limit is enabled, at least one rule (TPM/RPM/Max Concurrency) must be configured',
+      'Configure at least one effective rate limit rule: add a TPM/RPM rule, or set max concurrency to Banned or a specific limit. No limit does not count as an effective rule',
     keyId: 'Key ID',
     keyValue: 'Key Value',
     status: 'Status',
@@ -703,6 +709,8 @@ export default {
       'The "Original Request Model Name" in line {line} cannot be empty',
     modelMappingValueRequired:
       'The "Forwarded Backend Model Name" in line {line} cannot be empty',
+    serviceAuthKeyPlaceholder: 'Please enter service auth key',
+    serviceAuthKeyEditTip: 'A key is already configured. Enter a new key to replace it; leave blank to keep unchanged',
   },
   aiRouteRules: {
     rulesList: 'Rules List',

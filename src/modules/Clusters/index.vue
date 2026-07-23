@@ -61,6 +61,8 @@
                 :instancePoolData="instancePoolData"
                 :passiveHealthData="passiveHealthData"
                 :llmConfigData="llmConfigData"
+                :originalLlmConfigKey="originalLlmConfigKey"
+                :originalLlmConfigHeaders="originalLlmConfigHeaders"
             />
         </Drawer>
     </div>
@@ -69,7 +71,7 @@
 import pageTable from '@/components/table/pageTable';
 import Upsert from './components';
 import Review from './components/Review';
-import { parseInstancePool } from './components/InstancePool';
+import { getClusterInstancePool, parseInstancePool } from './components/InstancePool';
 import { cloneDeep } from 'lodash';
 export default {
     name: 'Clusters',
@@ -173,7 +175,9 @@ export default {
             baseConfigData: {},
             passiveHealthData: {},
             instancePoolData: [],
-            llmConfigData: {}
+            llmConfigData: {},
+            originalLlmConfigKey: '',
+            originalLlmConfigHeaders: {}
         };
     },
 
@@ -241,7 +245,14 @@ export default {
                 tmpData.basic.connection.cancel_on_client_close + '';
             this.passiveHealthData = tmpData.passive_health_check;
             this.llmConfigData = tmpData.llm_config;
-            this.instancePoolData = parseInstancePool(tmpData.instance_pool);
+            this.originalLlmConfigKey = (tmpData.llm_config && tmpData.llm_config.key) || '';
+            this.originalLlmConfigHeaders = cloneDeep(
+                (tmpData.llm_config &&
+                    tmpData.llm_config.model_endpoint &&
+                    tmpData.llm_config.model_endpoint.headers) ||
+                    {}
+            );
+            this.instancePoolData = getClusterInstancePool(tmpData);
             this.infoVisible = true;
         },
         onDel(params) {

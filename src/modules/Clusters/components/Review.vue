@@ -187,7 +187,7 @@
                                 {{ llmConfigData.model_endpoint.schema }}://{{ ipStr
                                 }}{{ llmConfigData.model_endpoint.uri }}
                             </p>
-                            <p>header: {{ llmConfigData.model_endpoint.headers }}</p>
+                            <p>header: {{ displayEndpointHeaders }}</p>
                         </li>
                     </ul>
                     <ul class="clearFloat detail-row">
@@ -228,7 +228,7 @@
                     </ul>
                     <ul class="clearFloat">
                         <li class="title">{{ $t('llmConfig.serviceAuthKey') }}:</li>
-                        <li class="value">{{ llmConfigData.key }}</li>
+                        <li class="value">{{ maskedServiceAuthKey }}</li>
                     </ul>
             </div>
         </div>
@@ -237,6 +237,7 @@
 <script>
 import pageTable from '@/components/table/pageTable';
 import { parseInstancePool, detectInstanceMode } from './InstancePool';
+import { maskSecretKey } from '@/utils/const';
 export default {
     name: 'Review',
 
@@ -258,6 +259,16 @@ export default {
         llmConfigData: {
             type: Object
         },
+        originalLlmConfigKey: {
+            type: String,
+            default: ''
+        },
+        originalLlmConfigHeaders: {
+            type: Object,
+            default() {
+                return {};
+            }
+        },
         showFooter: {
             type: Boolean,
             default: true
@@ -273,8 +284,11 @@ export default {
     watch: {
         instancePoolData: {
             handler(v) {
-                this.instancePoolUsed = parseInstancePool(v);
-                const { mode, domain } = detectInstanceMode(this.instancePoolUsed);
+                const pool = Array.isArray(v) ? v : parseInstancePool(v);
+                this.instancePoolUsed = parseInstancePool(pool);
+                const { mode, domain } = detectInstanceMode(
+                    this.instancePoolUsed.length ? this.instancePoolUsed : pool
+                );
                 this.instanceMode = mode;
                 this.providerDomain = domain;
                 this.ipStr = this.instancePoolUsed
@@ -317,10 +331,6 @@ export default {
         ipColumns() {
             return [
                 {
-                    title: this.$t('instancePool.machineName'),
-                    key: 'hostname'
-                },
-                {
                     title: this.$t('instancePool.ipAddress'),
                     key: 'ip'
                 },
@@ -354,6 +364,36 @@ export default {
                 return [];
             }
             return mappings.filter(item => item && (item.key || item.value));
+        },
+        maskedServiceAuthKey() {
+            const key = this.llmConfigData && this.llmConfigData.key;
+            if (!key) {
+                return '-';
+            }
+            if (this.originalLlmConfigKey && key === this.originalLlmConfigKey) {
+                return maskSecretKey(key);
+            }
+            return key;
+        },
+        displayEndpointHeaders() {
+            const headers =
+                this.llmConfigData &&
+                this.llmConfigData.model_endpoint &&
+                this.llmConfigData.model_endpoint.headers;
+            if (!headers || typeof headers !== 'object' || !Object.keys(headers).length) {
+                return '-';
+            }
+            const originalHeaders = this.originalLlmConfigHeaders || {};
+            return Object.keys(headers)
+                .map(key => {
+                    const value = headers[key];
+                    const displayValue =
+                        originalHeaders[key] != null && value === originalHeaders[key]
+                            ? maskSecretKey(value)
+                            : value;
+                    return `${key}: ${displayValue}`;
+                })
+                .join('; ');
         }
     },
     methods: {

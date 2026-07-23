@@ -190,8 +190,6 @@
           <Col span="12">
             <FormItem
               :label="$t('apiKey.enableRateLimit')"
-              prop="rate_limit_policy.enabled"
-              :show-message="false"
             >
               <Select
                 v-model="formData.rate_limit_policy.enabled"
@@ -401,22 +399,34 @@
           <!-- 最大并发 -->
           <Row :gutter="24">
             <Col span="12">
-              <FormItem
-                :label="$t('apiKey.maxConcurrency')"
-                prop="rate_limit_policy.rules.max_concurrency"
-                :rules="[{ validator: validateMaxConcurrency, trigger: 'change' }]"
-              >
-                <InputNumber
-                  v-model="formData.rate_limit_policy.rules.max_concurrency"
-                  :min="-1"
-                  :max="INT64_MAX"
-                  :precision="0"
-                  :formatter="formatNumberInput"
-                  :parser="parseNumberInput"
+              <FormItem :label="$t('apiKey.maxConcurrency')">
+                <Select
+                  v-model="maxConcurrencyMode"
                   style="width: 100%"
-                  @on-change="validateMaxConcurrencyField"
-                ></InputNumber>
-                <p class="form-tip">{{ $t('apiKey.maxConcurrencyTip') }}</p>
+                  @on-change="onMaxConcurrencyModeChange"
+                >
+                  <Option value="unlimited">{{ $t('apiKey.maxConcurrencyUnlimited') }}</Option>
+                  <Option value="banned">{{ $t('apiKey.maxConcurrencyBanned') }}</Option>
+                  <Option value="limited">{{ $t('apiKey.maxConcurrencyLimited') }}</Option>
+                </Select>
+                <FormItem
+                  v-if="maxConcurrencyMode === 'limited'"
+                  prop="rate_limit_policy.rules.max_concurrency"
+                  :rules="maxConcurrencyCustomRules"
+                  class="max-concurrency-custom-input"
+                >
+                  <InputNumber
+                    v-model="formData.rate_limit_policy.rules.max_concurrency"
+                    :min="1"
+                    :max="INT64_MAX"
+                    :precision="0"
+                    :formatter="formatNumberInput"
+                    :parser="parseNumberInput"
+                    style="width: 100%;"
+                    @on-change="onMaxConcurrencyValueChange"
+                    @on-blur="validateMaxConcurrencyField"
+                  ></InputNumber>
+                </FormItem>
               </FormItem>
             </Col>
           </Row>
@@ -557,9 +567,14 @@ export default {
         const maxConcurrency = that.formData.rate_limit_policy.rules.max_concurrency;
         const hasTpmRules = tpm.length > 0;
         const hasRpmRules = rpm.length > 0;
-        const hasMaxConcurrency =
-          Number.isFinite(maxConcurrency) && maxConcurrency >= 0;
-        if (!hasTpmRules && !hasRpmRules && !hasMaxConcurrency) {
+        const hasEffectiveMaxConcurrency =
+          that.maxConcurrencyMode === 'banned'
+          || (
+            that.maxConcurrencyMode === 'limited'
+            && Number.isInteger(maxConcurrency)
+            && maxConcurrency > 0
+          );
+        if (!hasTpmRules && !hasRpmRules && !hasEffectiveMaxConcurrency) {
           callback(new Error(this.$t('apiKey.rateLimitRuleRequired')));
           return;
         }
@@ -574,6 +589,7 @@ export default {
       subnetInput: '*',
       formRenderKey: 0,
       unlimitedQuotaTop: 'true',
+      maxConcurrencyMode: 'unlimited',
       formData: {
         description: '',
         enabled: 'true',
@@ -642,6 +658,18 @@ export default {
     },
     descriptionLength() {
       return (this.formData.description || '').length;
+    },
+    maxConcurrencyCustomRules() {
+      return [
+        {
+          validator: this.validateMaxConcurrency,
+          trigger: 'change'
+        },
+        {
+          validator: this.validateMaxConcurrency,
+          trigger: 'blur'
+        }
+      ];
     }
   },
   watch: {
@@ -779,6 +807,8 @@ export default {
         };
       }
 
+      this.syncMaxConcurrencyMode();
+
       // Ensure models and subnet exist
       if (!this.formData.models || this.formData.models.length === 0) {
         this.formData.models = ['*'];
@@ -881,13 +911,6 @@ export default {
       this.validateRateLimitEnabledField();
     },
 
-    validateRateLimitEnabledField() {
-      this.$nextTick(() => {
-        if (!this.$refs.formData) return;
-        this.$refs.formData.validateField('rate_limit_policy.enabled');
-      });
-    },
-
     validateMaxConcurrencyField() {
       this.$nextTick(() => {
         if (!this.$refs.formData) return;
@@ -896,27 +919,95 @@ export default {
       });
     },
 
+    validateRateLimitEnabledField() {
+      this.$nextTick(() => {
+        if (!this.$refs.formData) return;
+        this.$refs.formData.validateField('rate_limit_policy.enabled');
+      });
+    },
+
+    syncMaxConcurrencyMode() {
+      const maxConcurrency = this.formData.rate_limit_policy.rules.max_concurrency;
+      if (maxConcurrency === 0) {
+        this.maxConcurrencyMode = 'banned';
+        return;
+      }
+      if (Number.isFinite(maxConcurrency) && maxConcurrency > 0) {
+        this.maxConcurrencyMode = 'limited';
+        return;
+      }
+      this.maxConcurrencyMode = 'unlimited';
+      this.formData.rate_limit_policy.rules.max_concurrency = -1;
+    },
+
+    onMaxConcurrencyModeChange(mode) {
+      if (mode === 'banned') {
+        this.formData.rate_limit_policy.rules.max_concurrency = 0;
+      } else if (mode === 'limited') {
+        const current = this.formData.rate_limit_policy.rules.max_concurrency;
+        if (!Number.isFinite(current) || current <= 0) {
+          this.formData.rate_limit_policy.rules.max_concurrency = 1;
+        }
+      } else {
+        this.formData.rate_limit_policy.rules.max_concurrency = -1;
+      }
+      if (mode === 'limited') {
+        this.validateMaxConcurrencyField();
+      } else {
+        this.validateRateLimitEnabledField();
+      }
+    },
+
+    onMaxConcurrencyValueChange(value) {
+      if (this.maxConcurrencyMode !== 'limited') {
+        return;
+      }
+      if (value === null || value === undefined || value === '') {
+        this.formData.rate_limit_policy.rules.max_concurrency = null;
+      }
+      this.validateMaxConcurrencyField();
+    },
+
     validateMaxConcurrency(rule, value, callback) {
       if (this.formData.rate_limit_policy.enabled === 'false') {
         callback();
         return;
       }
-      if (value === null || value === undefined || value === '') {
+      if (this.maxConcurrencyMode === 'unlimited') {
         callback();
         return;
       }
-      if (!Number.isInteger(value)) {
-        callback(new Error(this.$t('apiKey.quotaMustBeNonNegative')));
+      if (this.maxConcurrencyMode === 'banned') {
+        if (this.formData.rate_limit_policy.rules.max_concurrency !== 0) {
+          callback(new Error(this.$t('apiKey.maxConcurrencyBannedError')));
+          return;
+        }
+        callback();
         return;
       }
-      if (value < -1) {
-        callback(new Error(this.$t('apiKey.maxConcurrencyMinError')));
+
+      if (this.maxConcurrencyMode === 'limited') {
+        const currentValue = this.formData.rate_limit_policy.rules.max_concurrency;
+        if (currentValue === null || currentValue === undefined || currentValue === '') {
+          callback(new Error(this.$t('apiKey.maxConcurrencyLimitedRequired')));
+          return;
+        }
+        if (!Number.isInteger(currentValue)) {
+          callback(new Error(this.$t('apiKey.maxConcurrencyLimitedInvalid')));
+          return;
+        }
+        if (currentValue <= 0) {
+          callback(new Error(this.$t('apiKey.maxConcurrencyLimitedInvalid')));
+          return;
+        }
+        if (currentValue > INT64_MAX) {
+          callback(new Error(this.$t('apiKey.maxConcurrencyMaxError')));
+          return;
+        }
+        callback();
         return;
       }
-      if (value > INT64_MAX) {
-        callback(new Error(this.$t('apiKey.maxConcurrencyMaxError')));
-        return;
-      }
+
       callback();
     },
 
@@ -1181,6 +1272,15 @@ export default {
   /deep/ .ivu-form-item-content {
     min-height: 0;
     line-height: 1;
+  }
+}
+
+.max-concurrency-custom-input {
+  margin-top: 8px;
+  margin-bottom: 0;
+
+  /deep/ .ivu-form-item-content {
+    margin-left: 0 !important;
   }
 }
 

@@ -412,3 +412,14 @@ export function isIpv6Cidr(value) {
   }
   return expandIpv6(ip) !== null;
 }
+
+export function maskSecretKey(keyValue) {
+  const key = String(keyValue || '').trim();
+  if (!key) {
+    return '';
+  }
+  if (key.length <= 12) {
+    return '****';
+  }
+  return `${key.substring(0, 8)}****${key.substring(key.length - 4)}`;
+}

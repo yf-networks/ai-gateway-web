@@ -74,12 +74,16 @@
                 class="header-input"
                 v-model="header.key"
                 placeholder="Header Key"
+                @on-change="onHeaderKeyChange(header)"
               />
               <span class="header-separator">:</span>
               <Input
                 class="header-input"
                 v-model="header.value"
                 placeholder="Header Value"
+                autocomplete="new-password"
+                @on-focus="onHeaderValueFocus(header)"
+                @on-change="onHeaderValueChange(header)"
               />
               <Button type="error" @click="removeHeader(index)" size="small"
                 >-</Button
@@ -171,8 +175,15 @@
             }}</Button
           >
         </FormItem>
-        <FormItem :label="$t('gatewayConfig.serviceAuthKey')" prop="key">
-          <Input v-model="formData.key" />
+        <FormItem :label="$t('gatewayConfig.serviceAuthKey')" prop="keyInput">
+          <Input
+            v-model="formData.keyInput"
+            :placeholder="$t('gatewayConfig.serviceAuthKeyPlaceholder')"
+            autocomplete="new-password"
+            @on-focus="onKeyInputFocus"
+            @on-change="onKeyInputChange"
+          />
+          <p v-if="hasExistingKey" class="form-tip">{{ $t('gatewayConfig.serviceAuthKeyEditTip') }}</p>
         </FormItem>
       </div>
     </Form>
@@ -181,7 +192,7 @@
 
 <script>
 import { cloneDeep, isEmpty } from 'lodash';
-import { CommonNameCheck } from '@/utils/const';
+import { CommonNameCheck, maskSecretKey } from '@/utils/const';
 import { parseInstancePool } from './InstancePool';
 export default {
     components: {},
@@ -197,6 +208,16 @@ export default {
             default: false
         },
         llmConfigData: {
+            type: Object,
+            default() {
+                return {};
+            }
+        },
+        originalLlmConfigKey: {
+            type: String,
+            default: ''
+        },
+        originalLlmConfigHeaders: {
             type: Object,
             default() {
                 return {};
@@ -261,7 +282,12 @@ export default {
         };
 
         const validKey = (rule, value, callback) => {
-            if (value && (value.length < 20 || value.length > 200)) {
+            const keyValue = String(this.formData.keyInput || '').trim();
+            if (this.isServiceAuthKeyUnchanged()) {
+                callback();
+                return;
+            }
+            if (keyValue.length < 20 || keyValue.length > 200) {
                 callback(new Error(this.$t('gatewayConfig.formatInvalid')));
                 return;
             }
@@ -335,15 +361,19 @@ export default {
                         message: this.$t('gatewayConfig.modelsRequired')
                     }
                 ],
-                key: [
+                keyInput: [
                     {
                         required: false,
-                        validator: validKey
+                        validator: validKey,
+                        trigger: 'change'
                     }
                 ]
             },
             selectData: [],
             ipStr: '',
+            hasExistingKey: false,
+            maskedExistingKey: '',
+            keyModifiedInSession: false,
             formData: {
                 service_name: '',
                 group: 'default',
@@ -360,7 +390,7 @@ export default {
                         value: ''
                     }
                 ],
-                key: ''
+                keyInput: ''
             },
             headerList: [],
             modelsList: [],
@@ -393,48 +423,11 @@ export default {
             handler(data) {
                 if (!this.isAdd) {
                     if (!data || Object.keys(data).length === 0) {
-                        this.formData = {
-                            service_name: '',
-                            group: 'default',
-                            model_endpoint: {
-                                schema: '',
-                                uri: '/v1/models',
-                                headers: {}
-                            },
-                            models: [],
-                            model_mappings: [
-                                {
-                                    key: '',
-                                    value: ''
-                                }
-                            ],
-                            key: ''
-                        };
+                        this.resetLlmForm();
+                        return;
                     }
                     if (data && !isEmpty(data)) {
-                        this.formData = cloneDeep(data);
-                        this.initHeaders();
-                        if (!this.formData.model_endpoint) {
-                            this.$set(this.formData, 'model_endpoint', {
-                                schema: 'http',
-                                uri: '/v1/models',
-                                headers: {}
-                            });
-                        }
-
-                        if (!this.formData.models) {
-                            this.$set(this.formData, 'models', []);
-                        }
-
-                        if (!this.formData.model_mappings) {
-                            this.$set(this.formData, 'model_mappings', [
-                                {
-                                    key: '',
-                                    value: ''
-                                }
-                            ]);
-                        }
-                        this.mergeSelectedModelsIntoList();
+                        this.applyLlmConfigData(data);
                     }
                 }
             },
@@ -457,21 +450,197 @@ export default {
         }
     },
     methods: {
-        initHeaders() {
-            if (this.formData.model_endpoint && this.formData.model_endpoint.headers) {
-                this.headerList = Object.keys(this.formData.model_endpoint.headers).map(key => ({
-                    key: key,
-                    value: this.formData.model_endpoint.headers[key]
-                }));
+        resetLlmForm() {
+            this.formData = {
+                service_name: '',
+                group: 'default',
+                model_endpoint: {
+                    schema: '',
+                    uri: '/v1/models',
+                    headers: {}
+                },
+                models: [],
+                model_mappings: [
+                    {
+                        key: '',
+                        value: ''
+                    }
+                ],
+                keyInput: ''
+            };
+            this.hasExistingKey = false;
+            this.maskedExistingKey = '';
+            this.keyModifiedInSession = false;
+            this.headerList = [];
+        },
+        isServiceAuthKeyUnchanged() {
+            if (!this.hasExistingKey) {
+                return !String(this.formData.keyInput || '').trim();
+            }
+            if (!this.keyModifiedInSession) {
+                return true;
+            }
+            const trimmed = String(this.formData.keyInput || '').trim();
+            if (!trimmed) {
+                return true;
+            }
+            return trimmed === this.originalLlmConfigKey;
+        },
+        onKeyInputFocus() {
+            if (
+                this.hasExistingKey &&
+                !this.keyModifiedInSession &&
+                this.formData.keyInput === this.maskedExistingKey
+            ) {
+                this.formData.keyInput = '';
+                this.keyModifiedInSession = true;
+            }
+        },
+        onKeyInputChange() {
+            if (this.hasExistingKey && !this.keyModifiedInSession) {
+                const current = String(this.formData.keyInput || '');
+                if (current !== this.maskedExistingKey) {
+                    this.keyModifiedInSession = true;
+                }
+            } else if (!this.hasExistingKey && String(this.formData.keyInput || '').trim()) {
+                this.keyModifiedInSession = true;
+            }
+            this.$nextTick(() => {
+                if (this.$refs.formData) {
+                    this.$refs.formData.validateField('keyInput');
+                }
+            });
+        },
+        applyKeyInputFromData(data) {
+            const apiKey = this.originalLlmConfigKey || '';
+            if (!data.key) {
+                this.hasExistingKey = false;
+                this.maskedExistingKey = '';
+                this.formData.keyInput = '';
+                this.keyModifiedInSession = false;
+                return;
+            }
+            this.hasExistingKey = !!apiKey;
+            this.maskedExistingKey = apiKey ? maskSecretKey(apiKey) : '';
+            const isUnchangedFromApi = apiKey && data.key === apiKey;
+            if (isUnchangedFromApi) {
+                this.keyModifiedInSession = false;
+                this.formData.keyInput = this.maskedExistingKey;
             } else {
-                this.headerList = [];
+                this.keyModifiedInSession = true;
+                this.formData.keyInput = data.key;
+            }
+        },
+        applyLlmConfigData(data) {
+            this.formData = cloneDeep(data);
+            delete this.formData.key;
+            this.initHeaders();
+            if (!this.formData.model_endpoint) {
+                this.$set(this.formData, 'model_endpoint', {
+                    schema: 'http',
+                    uri: '/v1/models',
+                    headers: {}
+                });
+            }
+
+            if (!this.formData.models) {
+                this.$set(this.formData, 'models', []);
+            }
+
+            if (!this.formData.model_mappings) {
+                this.$set(this.formData, 'model_mappings', [
+                    {
+                        key: '',
+                        value: ''
+                    }
+                ]);
+            }
+            this.mergeSelectedModelsIntoList();
+            this.applyKeyInputFromData(data);
+        },
+        initHeaders() {
+            const headers =
+                (this.formData.model_endpoint && this.formData.model_endpoint.headers) || {};
+            const originalHeaders = this.originalLlmConfigHeaders || {};
+
+            this.headerList = Object.keys(headers).map(key => {
+                const originalValue =
+                    originalHeaders[key] != null ? String(originalHeaders[key]) : '';
+                const currentValue = headers[key] != null ? String(headers[key]) : '';
+                const hasOriginal = !!originalValue;
+                const isUnchangedFromApi = hasOriginal && currentValue === originalValue;
+
+                return {
+                    key,
+                    originalKey: hasOriginal ? key : '',
+                    value: isUnchangedFromApi ? maskSecretKey(originalValue) : currentValue,
+                    originalValue: hasOriginal ? originalValue : '',
+                    valueModifiedInSession: hasOriginal ? !isUnchangedFromApi : !!currentValue
+                };
+            });
+        },
+        createEmptyHeaderRow() {
+            return {
+                key: '',
+                originalKey: '',
+                value: '',
+                originalValue: '',
+                valueModifiedInSession: false
+            };
+        },
+        getHeaderMaskedValue(header) {
+            return header.originalValue ? maskSecretKey(header.originalValue) : '';
+        },
+        isHeaderValueUnchanged(header) {
+            if (!header.originalValue) {
+                return !String(header.value || '').trim();
+            }
+            if (!header.valueModifiedInSession) {
+                return true;
+            }
+            const trimmed = String(header.value || '').trim();
+            if (!trimmed) {
+                return true;
+            }
+            return trimmed === header.originalValue;
+        },
+        resolveHeaderValueForSubmit(header) {
+            if (!header.originalValue) {
+                return header.value;
+            }
+            if (this.isHeaderValueUnchanged(header)) {
+                return header.originalValue;
+            }
+            return header.value;
+        },
+        onHeaderKeyChange(header) {
+            if (header.originalKey && header.key !== header.originalKey) {
+                header.originalKey = '';
+                header.originalValue = '';
+                header.valueModifiedInSession = true;
+            }
+        },
+        onHeaderValueFocus(header) {
+            if (header.originalValue && !header.valueModifiedInSession) {
+                const masked = this.getHeaderMaskedValue(header);
+                if (header.value === masked) {
+                    header.value = '';
+                    header.valueModifiedInSession = true;
+                }
+            }
+        },
+        onHeaderValueChange(header) {
+            if (header.originalValue && !header.valueModifiedInSession) {
+                const masked = this.getHeaderMaskedValue(header);
+                if (header.value !== masked) {
+                    header.valueModifiedInSession = true;
+                }
+            } else if (!header.originalValue && String(header.value || '').trim()) {
+                header.valueModifiedInSession = true;
             }
         },
         addHeader() {
-            this.headerList.push({
-                key: '',
-                value: ''
-            });
+            this.headerList.push(this.createEmptyHeaderRow());
         },
         removeHeader(index) {
             this.headerList.splice(index, 1);
@@ -480,7 +649,7 @@ export default {
             const headers = {};
             this.headerList.forEach(header => {
                 if (header.key && header.key.trim() !== '') {
-                    headers[header.key] = header.value;
+                    headers[header.key] = this.resolveHeaderValueForSubmit(header);
                 }
             });
             return headers;
@@ -601,9 +770,19 @@ export default {
                     );
                 }
 
+                const trimmedKey = String(this.formData.keyInput || '').trim();
+                const unchanged = this.isServiceAuthKeyUnchanged();
+                if (!unchanged && trimmedKey) {
+                    tmpData.key = trimmedKey;
+                } else {
+                    delete tmpData.key;
+                }
+                delete tmpData.keyInput;
+
                 this.$emit('submitData', {
                     topic: 'llmConfigData',
-                    data: tmpData
+                    data: tmpData,
+                    keepExistingKey: this.hasExistingKey && unchanged
                 });
             });
         }
@@ -681,5 +860,11 @@ table {
         width: 400px;
         padding: 0px;
     }
+}
+
+.form-tip {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
 }
 </style>

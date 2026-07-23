@@ -152,8 +152,7 @@
         <span class="info-label">{{ $t('apiKey.maxConcurrency') }}</span>
         <span
           class="info-value"
-          >{{ rateLimitMaxConcurrency === -1 ? $t('apiKey.unlimitedTip') : rateLimitMaxConcurrency }}</span
-        >
+        >{{ formatMaxConcurrency(rateLimitMaxConcurrency) }}</span>
       </div>
 
       <div
@@ -393,6 +392,15 @@ export default {
         }
     },
     methods: {
+        formatMaxConcurrency(value) {
+            if (value === -1) {
+                return this.$t('apiKey.maxConcurrencyUnlimited');
+            }
+            if (value === 0) {
+                return this.$t('apiKey.maxConcurrencyBanned');
+            }
+            return value;
+        },
         copyKey() {
             if (!this.displayData.key) return;
             this.$copyText(this.displayData.key).then(() => {
