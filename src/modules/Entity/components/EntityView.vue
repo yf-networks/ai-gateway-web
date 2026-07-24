@@ -128,8 +128,7 @@
         <span class="info-label">{{ $t('entity.maxConcurrency') }}</span>
         <span
           class="info-value"
-          >{{ rateLimitMaxConcurrency === -1 ? $t('entity.maxConcurrencyTip').replace('-1', '') : rateLimitMaxConcurrency }}</span
-        >
+        >{{ formatMaxConcurrency(rateLimitMaxConcurrency) }}</span>
       </div>
 
       <div
@@ -383,6 +382,15 @@ export default {
         }
     },
     methods: {
+        formatMaxConcurrency(value) {
+            if (value === -1) {
+                return this.$t('entity.maxConcurrencyUnlimited');
+            }
+            if (value === 0) {
+                return this.$t('entity.maxConcurrencyBanned');
+            }
+            return value;
+        },
         fetchDetail() {
             if (!this.currentData || !this.currentData.id) return;
             this.loading = true;

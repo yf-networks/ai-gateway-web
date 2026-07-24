@@ -214,9 +214,21 @@ export default {
                 if (!data) {
                     data = [];
                 }
+                // Clear search conditions when external data is refreshed (e.g. after add/edit submit)
+                this.columns.forEach(item => {
+                    if (item.searchable) {
+                        item.searchValue = null;
+                    }
+                });
+                this.searchMessage = {};
+                this.filterMessage = {};
                 this.showTableData = cloneDeep(data);
                 this.cloneShowData = cloneDeep(data);
-                this.handlePageData(this.showTableData, this.page);
+                if (this.page.currentPage !== 1) {
+                    this.page.currentPage = 1;
+                } else {
+                    this.handlePageData(this.showTableData, this.page);
+                }
             },
             deep: true,
             immediate: true
@@ -456,6 +468,7 @@ export default {
             const startIndex = (page.currentPage - 1) * page.pageSize;
             const endIndex = startIndex + page.pageSize;
             this.pageData = data.slice(startIndex, endIndex);
+            this.showCurrentPage = page.currentPage;
         },
         onDragDrop(a, b) {
             const pageStartIndex = (this.page.currentPage - 1) * this.page.pageSize;

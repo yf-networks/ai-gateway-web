@@ -40,8 +40,8 @@
       </div>
       <div class="info-row">
         <span class="info-label">{{ $t('apiKey.status') }}</span>
-        <Tag :color="displayData.enable ? 'success' : 'default'">
-          {{ displayData.enable ? $t('apiKey.enabled') : $t('apiKey.notEnabled') }}
+        <Tag :color="isTrue(displayData.enabled) ? 'success' : 'default'">
+          {{ isTrue(displayData.enabled) ? $t('apiKey.enabled') : $t('apiKey.notEnabled') }}
         </Tag>
       </div>
       <div class="info-row">
@@ -49,9 +49,9 @@
         <span class="info-value">{{ expiredTimeText }}</span>
       </div>
       <div class="info-row">
-        <span class="info-label">{{ $t('apiKey.unlimitedQuota') }}</span>
-        <Tag :color="displayData.unlimited_quota ? 'success' : 'default'">
-          {{ displayData.unlimited_quota ? $t('apiKey.yes') : $t('apiKey.no') }}
+        <span class="info-label">{{ $t('apiKey.quotaCheck') }}</span>
+        <Tag :color="isTrue(displayData.unlimited_quota) ? 'default' : 'success'">
+          {{ isTrue(displayData.unlimited_quota) ? $t('apiKey.no') : $t('apiKey.yes') }}
         </Tag>
       </div>
       <div class="info-row">
@@ -77,7 +77,7 @@
         <span class="info-label">{{ $t('apiKey.updateTime') }}</span>
         <span
           class="info-value"
-          >{{ formatTime(displayData.updated_time) }}</span
+          >{{ formatTime(displayData.update_time) }}</span
         >
       </div>
     </Card>
@@ -345,8 +345,10 @@ export default {
         },
         quotaPlanUnlimited() {
             const quotaPlan = this.displayData.quota_plan;
-            if (!quotaPlan) return this.displayData.unlimited_quota;
-            return quotaPlan.unlimited || this.displayData.unlimited_quota;
+            if (quotaPlan && quotaPlan.unlimited !== undefined && quotaPlan.unlimited !== null) {
+                return this.isTrue(quotaPlan.unlimited);
+            }
+            return this.isTrue(this.displayData.unlimited_quota);
         },
         quotaPlanQuota() {
             return this.displayData.quota_plan ? this.displayData.quota_plan.quota || 0 : 0;
@@ -370,7 +372,8 @@ export default {
             return Math.round(this.quotaPlanUsed / this.quotaPlanQuota * 10000) / 100;
         },
         rateLimitPolicyEnabled() {
-            return this.displayData.rate_limit_policy && this.displayData.rate_limit_policy.enabled;
+            if (!this.displayData.rate_limit_policy) return false;
+            return this.isTrue(this.displayData.rate_limit_policy.enabled);
         },
         rateLimitRules() {
             return this.displayData.rate_limit_policy && this.displayData.rate_limit_policy.rules || { tpm: [], rpm: [], max_concurrency: -1 };
@@ -425,6 +428,9 @@ export default {
             }).finally(() => {
                 this.loading = false;
             });
+        },
+        isTrue(value) {
+            return value === true || value === 'true';
         },
         formatTime(timestamp) {
             if (!timestamp) return '-';

@@ -41,6 +41,7 @@
               :disabled="!isAdd"
               filterable
               size="small"
+              @change="onTypeChange"
             >
               <el-option
                 v-for="item in entityTypeList"
@@ -203,11 +204,16 @@
     <Card :title="$t('entity.rateLimitConfig')" class="form-card">
       <Row :gutter="24">
         <Col span="12">
-          <FormItem
-            :label="$t('entity.enableRateLimit')"
-            prop="rate_limit_policy.enabled"
-            :show-message="false"
-          >
+          <FormItem>
+            <span slot="label" class="rate-limit-label">
+              {{ $t('entity.enableRateLimit') }}
+              <Tooltip placement="top" transfer max-width="320">
+                <div slot="content" class="rate-limit-tip-content">
+                  {{ $t('entity.enableRateLimitTip') }}
+                </div>
+                <Icon type="ios-help-circle-outline" class="rate-limit-help-icon" />
+              </Tooltip>
+            </span>
             <Select
               v-model="formData.rate_limit_policy.enabled"
               style="width: 100%;"
@@ -437,22 +443,34 @@
 
         <Row :gutter="24">
           <Col span="12">
-            <FormItem
-              :label="$t('entity.maxConcurrency')"
-              prop="rate_limit_policy.rules.max_concurrency"
-              :rules="[{ validator: validateMaxConcurrency, trigger: 'change' }]"
-            >
-              <InputNumber
-                v-model="formData.rate_limit_policy.rules.max_concurrency"
-                :min="-1"
-                :max="INT64_MAX"
-                :precision="0"
-                :formatter="formatNumberInput"
-                :parser="parseNumberInput"
+            <FormItem :label="$t('entity.maxConcurrency')">
+              <Select
+                v-model="maxConcurrencyMode"
                 style="width: 100%;"
-                @on-change="validateMaxConcurrencyField"
-              ></InputNumber>
-              <p class="form-tip">{{ $t('entity.maxConcurrencyTip') }}</p>
+                @on-change="onMaxConcurrencyModeChange"
+              >
+                <Option value="unlimited">{{ $t('entity.maxConcurrencyUnlimited') }}</Option>
+                <Option value="banned">{{ $t('entity.maxConcurrencyBanned') }}</Option>
+                <Option value="limited">{{ $t('entity.maxConcurrencyLimited') }}</Option>
+              </Select>
+              <FormItem
+                v-if="maxConcurrencyMode === 'limited'"
+                prop="rate_limit_policy.rules.max_concurrency"
+                :rules="maxConcurrencyCustomRules"
+                class="max-concurrency-custom-input"
+              >
+                <InputNumber
+                  v-model="formData.rate_limit_policy.rules.max_concurrency"
+                  :min="1"
+                  :max="INT_MAX"
+                  :precision="0"
+                  :formatter="formatNumberInput"
+                  :parser="parseNumberInput"
+                  style="width: 100%;"
+                  @on-change="onMaxConcurrencyValueChange"
+                  @on-blur="validateMaxConcurrencyField"
+                ></InputNumber>
+              </FormItem>
             </FormItem>
           </Col>
         </Row>
@@ -480,6 +498,7 @@ import { cloneDeep } from 'lodash';
 import { getModelGroupsFromServices } from '@/utils/model';
 
 const INT64_MAX = 9223372036854775807;
+const INT_MAX = 2147483647;
 
 export default {
     props: {
@@ -550,9 +569,14 @@ export default {
                 const maxConcurrency = that.formData.rate_limit_policy.rules.max_concurrency;
                 const hasTpmRules = tpm.length > 0;
                 const hasRpmRules = rpm.length > 0;
-                const hasMaxConcurrency =
-                    Number.isFinite(maxConcurrency) && maxConcurrency >= 0;
-                if (!hasTpmRules && !hasRpmRules && !hasMaxConcurrency) {
+                const hasEffectiveMaxConcurrency =
+                    that.maxConcurrencyMode === 'banned'
+                    || (
+                        that.maxConcurrencyMode === 'limited'
+                        && Number.isInteger(maxConcurrency)
+                        && maxConcurrency > 0
+                    );
+                if (!hasTpmRules && !hasRpmRules && !hasEffectiveMaxConcurrency) {
                     callback(new Error(this.$t('entity.rateLimitRuleRequired')));
                     return;
                 }
@@ -562,6 +586,8 @@ export default {
 
         return {
             INT64_MAX,
+            INT_MAX,
+            maxConcurrencyMode: 'limited',
             entityTypeList: [],
             modelServices: [],
             formData: {
@@ -582,7 +608,7 @@ export default {
                     rules: {
                         tpm: [],
                         rpm: [],
-                        max_concurrency: -1
+                        max_concurrency: 1
                     }
                 }
             },
@@ -634,6 +660,18 @@ export default {
         },
         modelGroups() {
             return getModelGroupsFromServices(this.modelServices);
+        },
+        maxConcurrencyCustomRules() {
+            return [
+                {
+                    validator: this.validateMaxConcurrency,
+                    trigger: 'change'
+                },
+                {
+                    validator: this.validateMaxConcurrency,
+                    trigger: 'blur'
+                }
+            ];
         }
     },
     watch: {
@@ -731,6 +769,8 @@ export default {
             if (!this.formData.block_models || (this.formData.block_models.length === 1 && this.formData.block_models[0] === '*')) {
                 this.formData.block_models = [];
             }
+
+            this.syncMaxConcurrencyMode();
         },
 
         fetchEntityTypeList() {
@@ -834,27 +874,95 @@ export default {
             });
         },
 
+        onTypeChange() {
+            this.$nextTick(() => {
+                if (!this.$refs.formData) return;
+                this.$refs.formData.validateField('type');
+            });
+        },
+
+        syncMaxConcurrencyMode() {
+            const maxConcurrency = this.formData.rate_limit_policy.rules.max_concurrency;
+            if (maxConcurrency === 0) {
+                this.maxConcurrencyMode = 'banned';
+                return;
+            }
+            if (Number.isFinite(maxConcurrency) && maxConcurrency > 0) {
+                this.maxConcurrencyMode = 'limited';
+                return;
+            }
+            this.maxConcurrencyMode = 'unlimited';
+            this.formData.rate_limit_policy.rules.max_concurrency = -1;
+        },
+
+        onMaxConcurrencyModeChange(mode) {
+            if (mode === 'banned') {
+                this.formData.rate_limit_policy.rules.max_concurrency = 0;
+            } else if (mode === 'limited') {
+                const current = this.formData.rate_limit_policy.rules.max_concurrency;
+                if (!Number.isFinite(current) || current <= 0) {
+                    this.formData.rate_limit_policy.rules.max_concurrency = 1;
+                }
+            } else {
+                this.formData.rate_limit_policy.rules.max_concurrency = -1;
+            }
+            if (mode === 'limited') {
+                this.validateMaxConcurrencyField();
+            } else {
+                this.validateRateLimitEnabledField();
+            }
+        },
+
+        onMaxConcurrencyValueChange(value) {
+            if (this.maxConcurrencyMode !== 'limited') {
+                return;
+            }
+            if (value === null || value === undefined || value === '') {
+                this.formData.rate_limit_policy.rules.max_concurrency = null;
+            }
+            this.validateMaxConcurrencyField();
+        },
+
         validateMaxConcurrency(rule, value, callback) {
             if (this.formData.rate_limit_policy.enabled === 'false') {
                 callback();
                 return;
             }
-            if (value === null || value === undefined || value === '') {
+            if (this.maxConcurrencyMode === 'unlimited') {
                 callback();
                 return;
             }
-            if (!Number.isInteger(value)) {
-                callback(new Error(this.$t('entity.quotaMustBeNonNegative')));
+            if (this.maxConcurrencyMode === 'banned') {
+                if (this.formData.rate_limit_policy.rules.max_concurrency !== 0) {
+                    callback(new Error(this.$t('entity.maxConcurrencyBannedError')));
+                    return;
+                }
+                callback();
                 return;
             }
-            if (value < -1) {
-                callback(new Error(this.$t('entity.maxConcurrencyMinError')));
+
+            if (this.maxConcurrencyMode === 'limited') {
+                const currentValue = this.formData.rate_limit_policy.rules.max_concurrency;
+                if (currentValue === null || currentValue === undefined || currentValue === '') {
+                    callback(new Error(this.$t('entity.maxConcurrencyLimitedRequired')));
+                    return;
+                }
+                if (!Number.isInteger(currentValue)) {
+                    callback(new Error(this.$t('entity.maxConcurrencyLimitedInvalid')));
+                    return;
+                }
+                if (currentValue <= 0) {
+                    callback(new Error(this.$t('entity.maxConcurrencyLimitedInvalid')));
+                    return;
+                }
+                if (currentValue > INT_MAX) {
+                    callback(new Error(this.$t('entity.maxConcurrencyMaxError')));
+                    return;
+                }
+                callback();
                 return;
             }
-            if (value > INT64_MAX) {
-                callback(new Error(this.$t('entity.maxConcurrencyMaxError')));
-                return;
-            }
+
             callback();
         },
 
@@ -1092,6 +1200,34 @@ export default {
     /deep/ .ivu-form-item-content {
         min-height: 0;
         line-height: 1;
+    }
+}
+
+.rate-limit-label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.rate-limit-help-icon {
+    margin-left: 4px;
+    font-size: 16px;
+    color: #2d8cf0;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.rate-limit-tip-content {
+    max-width: 320px;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.max-concurrency-custom-input {
+    margin-top: 8px;
+    margin-bottom: 0;
+
+    /deep/ .ivu-form-item-content {
+        margin-left: 0 !important;
     }
 }
 

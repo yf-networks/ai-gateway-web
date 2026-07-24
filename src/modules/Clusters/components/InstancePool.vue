@@ -63,7 +63,6 @@
             <FormItem
                 v-else
                 :label="$t('instancePool.list')"
-                prop="instances"
                 style="width: 100%;"
             >
                 <div class="formBox">
@@ -75,14 +74,22 @@
                         </tr>
                         <tr v-for="(item, ind) in formData.instances" :key="ind">
                             <td>
-                                <Input
-                                    v-model="item.ip"
-                                    type="text"
-                                    :placeholder="
-                                        $t('com.tipEnterX', { obj: $t('instancePool.ipAddress') })
-                                    "
-                                    @on-change="syncInstanceHostname(item)"
-                                />
+                                <FormItem
+                                    :prop="'instances.' + ind + '.ip'"
+                                    :rules="instanceIpRules"
+                                    :show-message="false"
+                                    class="table-cell-form-item"
+                                >
+                                    <Input
+                                        v-model="item.ip"
+                                        type="text"
+                                        :placeholder="
+                                            $t('com.tipEnterX', { obj: $t('instancePool.ipAddress') })
+                                        "
+                                        @on-change="onInstanceIpChange(item, ind)"
+                                        @on-blur="validateInstanceRow(ind)"
+                                    />
+                                </FormItem>
                             </td>
                             <td>
                                 <div v-for="(info, index) in item.ports" :key="index">
@@ -94,15 +101,23 @@
                                         style="width: 80px;"
                                         disabled
                                     />：
-                                    <InputNumber
-                                        v-model="item.ports.Default"
-                                        :max="65535"
-                                        :min="1"
-                                        class="poolInput"
-                                        :placeholder="$t('instancePool.portValue')"
-                                        style="width: 80px;"
-                                        @on-change="handleNumber(item.ports, 'Default')"
-                                    ></InputNumber>
+                                    <FormItem
+                                        :prop="'instances.' + ind + '.ports.Default'"
+                                        :rules="instancePortRules"
+                                        :show-message="false"
+                                        class="table-cell-form-item table-cell-form-item-port"
+                                    >
+                                        <InputNumber
+                                            v-model="item.ports.Default"
+                                            :max="65535"
+                                            :min="1"
+                                            class="poolInput"
+                                            :placeholder="$t('instancePool.portValue')"
+                                            style="width: 80px;"
+                                            @on-change="onInstancePortChange(item.ports, 'Default', ind)"
+                                            @on-blur="validateInstanceRow(ind)"
+                                        ></InputNumber>
+                                    </FormItem>
                                 </div>
                             </td>
                             <td>
@@ -115,6 +130,9 @@
                             </td>
                         </tr>
                     </table>
+                </div>
+                <div v-if="instanceErrorMessage" class="instance-error-tip">
+                    {{ instanceErrorMessage }}
                 </div>
                 <Button plain size="small" type="primary" @click="handleAdd">
                     + {{ $t('com.create') }}
@@ -435,18 +453,40 @@ export default {
                         trigger: 'blur'
                     }
                 ];
-            } else {
-                rules.instances = [
-                    {
-                        required: true,
-                        validator: (rule, value, callback) => {
-                            this.validateInstancesRule(value, callback);
-                        },
-                        trigger: 'change'
-                    }
-                ];
             }
             return rules;
+        },
+        instanceIpRules() {
+            return [
+                {
+                    validator: (rule, value, callback) => {
+                        this.validateInstanceIp(rule, value, callback);
+                    },
+                    trigger: 'blur'
+                },
+                {
+                    validator: (rule, value, callback) => {
+                        this.validateInstanceIp(rule, value, callback);
+                    },
+                    trigger: 'change'
+                }
+            ];
+        },
+        instancePortRules() {
+            return [
+                {
+                    validator: (rule, value, callback) => {
+                        this.validateInstancePort(rule, value, callback);
+                    },
+                    trigger: 'change'
+                },
+                {
+                    validator: (rule, value, callback) => {
+                        this.validateInstancePort(rule, value, callback);
+                    },
+                    trigger: 'blur'
+                }
+            ];
         }
     },
 
@@ -454,6 +494,7 @@ export default {
         return {
             deleteAble: false,
             isApplyingPoolData: false,
+            instanceErrorMessage: '',
             formData: {
                 instanceMode: 'ip',
                 domainName: '',
@@ -487,6 +528,7 @@ export default {
             }
             this.$nextTick(() => {
                 this.isApplyingPoolData = false;
+                this.instanceErrorMessage = '';
             });
         },
         handleRemove(index) {
@@ -501,14 +543,23 @@ export default {
             this.formData.instances.push(createEmptyInstance());
             this.validateInstancesField();
         },
+        getInstanceFieldIndex(fieldPath) {
+            const match = String(fieldPath || '').match(/^instances\.(\d+)\./);
+            return match ? parseInt(match[1], 10) : -1;
+        },
         syncInstanceHostname(item) {
             applyHostnameFromIp(item);
         },
-        handleNumber(item, key) {
+        onInstanceIpChange(item, index) {
+            this.syncInstanceHostname(item);
+            this.validateInstanceRow(index);
+        },
+        onInstancePortChange(item, key, index) {
             this.$nextTick(() => {
                 if (item[key] !== null) {
                     this.$set(item, key, parseInt(item[key], 10));
                 }
+                this.validateInstanceRow(index);
             });
         },
         validateDomainField() {
@@ -517,48 +568,127 @@ export default {
             }
         },
         validateInstancesField() {
-            if (this.$refs.formData && this.formData.instanceMode === 'ip') {
-                this.$refs.formData.validateField('instances');
+            if (!this.$refs.formData || this.formData.instanceMode !== 'ip') {
+                return;
             }
-        },
-        validateInstancesRule(value, callback) {
-            const instances = value || [];
-            if (!instances.length) {
-                callback(new Error(this.$t('cluster.tipAtLeastoneInstance')));
+            if (!this.formData.instances.length) {
+                this.instanceErrorMessage = this.$t('cluster.tipAtLeastoneInstance');
                 return;
             }
 
-            const ipPortSet = new Set();
-            for (const ele of instances) {
-                const normalized = normalizeInstance(ele);
+            const props = [];
+            this.formData.instances.forEach((_, index) => {
+                props.push(`instances.${index}.ip`, `instances.${index}.ports.Default`);
+            });
 
-                if (!normalized.ip) {
-                    callback(new Error(this.$t('com.tipEnterX', {
-                        obj: this.$t('instancePool.ipAddress')
-                    })));
-                    return;
-                }
-                if (!isIP(normalized.ip, 4) && !isIP(normalized.ip, 6)) {
-                    callback(new Error(this.$t('com.tipEnterX', {
-                        obj: this.$t('instancePool.ipAddress')
-                    })));
+            let pending = props.length;
+            props.forEach(prop => {
+                this.$refs.formData.validateField(prop, () => {
+                    pending -= 1;
+                    if (pending === 0) {
+                        this.updateInstanceErrorMessage();
+                    }
+                });
+            });
+        },
+        validateInstanceRow() {
+            this.validateInstancesField();
+        },
+        updateInstanceErrorMessage() {
+            if (!this.$refs.formData || this.formData.instanceMode !== 'ip') {
+                this.instanceErrorMessage = '';
+                return;
+            }
+            if (!this.formData.instances.length) {
+                this.instanceErrorMessage = this.$t('cluster.tipAtLeastoneInstance');
+                return;
+            }
+
+            this.$nextTick(() => {
+                const form = this.$refs.formData;
+                if (!form || !form.fields) {
+                    this.instanceErrorMessage = '';
                     return;
                 }
 
-                const port = normalized.ports && normalized.ports.Default;
-                if (port == null || port === '' || port < 1 || port > 65535) {
-                    callback(new Error(this.$t('instancePool.tipPortRang')));
-                    return;
-                }
+                let firstError = '';
+                form.fields.some(field => {
+                    if (
+                        field.validateState === 'error'
+                        && field.validateMessage
+                        && /^instances\.\d+\.(ip|ports\.Default)$/.test(field.prop)
+                    ) {
+                        firstError = field.validateMessage;
+                        return true;
+                    }
+                    return false;
+                });
+                this.instanceErrorMessage = firstError;
+            });
+        },
+        validateInstanceIp(rule, value, callback) {
+            const index = this.getInstanceFieldIndex(rule.field);
+            const ip = String(value || '').trim();
 
-                const ipPort = `${String(normalized.ip).trim()}:${port}`;
-                if (ipPortSet.has(ipPort)) {
-                    callback(new Error(this.$t('instancePool.tipDuplicateIpPort', { ipPort })));
-                    return;
-                }
-                ipPortSet.add(ipPort);
+            if (!ip) {
+                callback(new Error(this.$t('com.tipEnterX', {
+                    obj: this.$t('instancePool.ipAddress')
+                })));
+                return;
+            }
+            if (!isIP(ip, 4) && !isIP(ip, 6)) {
+                callback(new Error(this.$t('com.tipEnterX', {
+                    obj: this.$t('instancePool.ipAddress')
+                })));
+                return;
+            }
+
+            const duplicateError = this.getDuplicateIpPortError(index);
+            if (duplicateError) {
+                callback(new Error(duplicateError));
+                return;
             }
             callback();
+        },
+        validateInstancePort(rule, value, callback) {
+            const index = this.getInstanceFieldIndex(rule.field);
+            if (value == null || value === '' || value < 1 || value > 65535) {
+                callback(new Error(this.$t('instancePool.tipPortRang')));
+                return;
+            }
+
+            const duplicateError = this.getDuplicateIpPortError(index);
+            if (duplicateError) {
+                callback(new Error(duplicateError));
+                return;
+            }
+            callback();
+        },
+        getDuplicateIpPortError(index) {
+            if (index < 0) {
+                return '';
+            }
+            const current = normalizeInstance(this.formData.instances[index]);
+            const ip = String(current.ip || '').trim();
+            const port = current.ports && current.ports.Default;
+            if (!ip || port == null || port === '') {
+                return '';
+            }
+
+            const ipPort = `${ip}:${port}`;
+            const hasDuplicate = this.formData.instances.some((item, itemIndex) => {
+                if (itemIndex === index) {
+                    return false;
+                }
+                const other = normalizeInstance(item);
+                const otherIp = String(other.ip || '').trim();
+                const otherPort = other.ports && other.ports.Default;
+                return otherIp && otherPort != null && `${otherIp}:${otherPort}` === ipPort;
+            });
+            if (!hasDuplicate) {
+                return '';
+            }
+            return this.$t('instancePool.tipDuplicateIpPort', { ipPort });
         },
         emitSubmitData(instances) {
             this.$emit('submitData', {
@@ -571,6 +701,7 @@ export default {
                 return;
             }
             this.$refs.formData.validate(valid => {
+                this.updateInstanceErrorMessage();
                 if (!valid) {
                     return;
                 }
@@ -614,5 +745,26 @@ export default {
     .InputNumber {
         width: 100px;
     }
+}
+
+.table-cell-form-item {
+    margin-bottom: 0;
+
+    /deep/ .ivu-form-item-content {
+        margin-left: 0 !important;
+        line-height: normal;
+    }
+}
+
+.table-cell-form-item-port {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.instance-error-tip {
+    color: #ed4014;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 4px 0 8px;
 }
 </style>

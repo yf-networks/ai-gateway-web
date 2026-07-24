@@ -98,6 +98,7 @@
             multiple
             clearable
             filterable
+            @change="onModelsChange"
           >
             <el-option
               v-for="item in modelsList"
@@ -672,6 +673,14 @@ export default {
             });
             this.modelsList = list;
         },
+
+        onModelsChange() {
+            this.$nextTick(() => {
+                if (!this.$refs.formData) return;
+                this.$refs.formData.validateField('models');
+            });
+        },
+
         addModelRedirect() {
             this.formData.model_mappings.push({
                 key: '',

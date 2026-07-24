@@ -188,9 +188,16 @@
       <Card :title="$t('apiKey.rateLimitConfig')" class="form-card">
         <Row :gutter="24">
           <Col span="12">
-            <FormItem
-              :label="$t('apiKey.enableRateLimit')"
-            >
+            <FormItem>
+              <span slot="label" class="rate-limit-label">
+                {{ $t('apiKey.enableRateLimit') }}
+                <Tooltip placement="top" transfer max-width="320">
+                  <div slot="content" class="rate-limit-tip-content">
+                    {{ $t('apiKey.enableRateLimitTip') }}
+                  </div>
+                  <Icon type="ios-help-circle-outline" class="rate-limit-help-icon" />
+                </Tooltip>
+              </span>
               <Select
                 v-model="formData.rate_limit_policy.enabled"
                 style="width: 100%"
@@ -418,7 +425,7 @@
                   <InputNumber
                     v-model="formData.rate_limit_policy.rules.max_concurrency"
                     :min="1"
-                    :max="INT64_MAX"
+                    :max="INT_MAX"
                     :precision="0"
                     :formatter="formatNumberInput"
                     :parser="parseNumberInput"
@@ -453,6 +460,7 @@ import { isCidr, isCidrEqual, isCidrContained } from '@/utils/const';
 import { getModelGroupsFromServices } from '@/utils/model';
 
 const INT64_MAX = 9223372036854775807;
+const INT_MAX = 2147483647;
 const DESCRIPTION_MAX_LENGTH = 512;
 
 export default {
@@ -584,12 +592,13 @@ export default {
 
     return {
       INT64_MAX,
+      INT_MAX,
       DESCRIPTION_MAX_LENGTH,
       neverExpire: true,
       subnetInput: '*',
       formRenderKey: 0,
       unlimitedQuotaTop: 'true',
-      maxConcurrencyMode: 'unlimited',
+      maxConcurrencyMode: 'limited',
       formData: {
         description: '',
         enabled: 'true',
@@ -610,7 +619,7 @@ export default {
           rules: {
             tpm: [],
             rpm: [],
-            max_concurrency: -1
+            max_concurrency: 1
           }
         }
       },
@@ -1000,7 +1009,7 @@ export default {
           callback(new Error(this.$t('apiKey.maxConcurrencyLimitedInvalid')));
           return;
         }
-        if (currentValue > INT64_MAX) {
+        if (currentValue > INT_MAX) {
           callback(new Error(this.$t('apiKey.maxConcurrencyMaxError')));
           return;
         }
@@ -1273,6 +1282,25 @@ export default {
     min-height: 0;
     line-height: 1;
   }
+}
+
+.rate-limit-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.rate-limit-help-icon {
+  margin-left: 4px;
+  font-size: 16px;
+  color: #2d8cf0;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.rate-limit-tip-content {
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.5;
 }
 
 .max-concurrency-custom-input {

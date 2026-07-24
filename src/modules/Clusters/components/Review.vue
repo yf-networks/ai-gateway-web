@@ -114,10 +114,6 @@
                     <li class="title">{{ $t('cluster.maxRetryInSubcluster') }} :</li>
                     <li class="value">{{ baseConfigData.retries.max_retry_in_subcluster }}</li>
                 </ul>
-                <ul class="clearFloat">
-                    <li class="title">{{ $t('cluster.maxRetryCrossSubcluster') }}:</li>
-                    <li class="value">{{ baseConfigData.retries.max_retry_cross_subcluster }}</li>
-                </ul>
             </div>
         </div>
         <div class="panel">
@@ -178,7 +174,7 @@
                     </ul>
                     <ul class="clearFloat">
                         <li class="title">{{ $t('gatewayConfig.modelServiceProvider') }}:</li>
-                        <li class="value">{{ llmConfigData.provider_type }}</li>
+                        <li class="value">{{ providerTypeText }}</li>
                     </ul>
                     <ul class="clearFloat">
                         <li class="title">{{ $t('gatewayConfig.modelListEndpoint') }}:</li>
@@ -281,6 +277,9 @@ export default {
             type: Boolean
         }
     },
+    mounted() {
+        this.getProviders();
+    },
     watch: {
         instancePoolData: {
             handler(v) {
@@ -316,10 +315,19 @@ export default {
             providerDomain: '',
             spinShow: false,
             productName: '',
-            ipStr: ''
+            ipStr: '',
+            providers: []
         };
     },
     computed: {
+        providerTypeText() {
+            const providerType = this.llmConfigData && this.llmConfigData.provider_type;
+            if (!providerType) {
+                return '-';
+            }
+            const provider = this.providers.find(item => item.id === providerType);
+            return provider ? provider.name : providerType;
+        },
         isDomainMode() {
             return this.instanceMode === 'domain';
         },
@@ -397,6 +405,17 @@ export default {
         }
     },
     methods: {
+        getProviders() {
+            this.$request({
+                url: 'model-providers',
+                method: 'get',
+                openapi: true
+            }).then(data => {
+                if (data.status === 200) {
+                    this.providers = data.data.Data || [];
+                }
+            });
+        },
         handleSubmit() {
             this.$emit('submitData');
         }
