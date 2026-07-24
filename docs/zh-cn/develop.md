@@ -19,19 +19,14 @@
     ├── router              // 路由设置
     │   └── router.js
     ├── modules             // 业务模块
-    │   ├── AIRouteRules    // 路由规则
-    │   ├── APIKey          // API Key管理
-    │   ├── AIClusters     // AI网关集群
     │   ├── AIInstancePool // AI网关实例池
-    │   ├── Cert            // 证书管理
+    │   ├── AIRouteRules    // AI路由规则
+    │   ├── APIKey          // API Key管理
+    │   // ├── Cert            // 证书管理（暂未提供）
     │   ├── Clusters        // AI业务集群
-    │   ├── Domains         // 域名管理
     │   ├── Entity          // Entity管理
-    │   ├── GslbConfigs     // 子集群负载
-    │   ├── InstancePool    // AI业务实例池
     │   ├── Login           // 登录模块
-    │   ├── Routes          // 默认转发规则
-    │   ├── SubClusters     // 子集群管理
+    │   ├── Routes          // 转发规则
     │   └── User            // 用户管理
     ├── layout              // 布局逻辑
     │   ├── 404.vue
