@@ -62,11 +62,6 @@ export default {
                 'certs.list': 'iconfont icon-cert',
                 'user.list': 'iconfont icon-user',
 
-                'AIPool.list': 'iconfont icon-instancePool',
-                'Domain.list': 'iconfont icon-common',
-                'gslb.list': 'iconfont icon-gslb',
-                'SubCluster.list': 'iconfont icon-cluster',
-
                 'APIKey.list': 'ivu-icon-ios-key',
                 'QuotaControl.list': 'ivu-icon-md-apps',
                 'ai_route.list.admin': 'iconfont icon-zhuanfa',
@@ -75,10 +70,9 @@ export default {
                 'consumer.admin.list': 'ivu-icon-md-people',
                 'route.admin.list': 'ivu-icon-ios-cube',
                 'resource.admin.list': 'ivu-icon-md-appstore',
-                'AIGatewayCluster.list': 'iconfont icon-jiqun',
                 'AICluster.list': 'iconfont icon-jiqun',
-                'DefaultRouteRule.list': 'iconfont icon-zhuanfa',
-                'AdvanceRouteRule.list': 'iconfont icon-zhuanfa'
+                'AdvanceRouteRule.list': 'iconfont icon-zhuanfa',
+                'DefaultRouteRule.list': 'iconfont icon-zhuanfa'
             }
         };
     },

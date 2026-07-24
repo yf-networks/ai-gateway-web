@@ -46,22 +46,12 @@ export default [
         () => r(require('../layout/BaseView.vue')),
         'products',
       ),
-    path: '/products/:name',
+    path: '/',
     name: 'base-view',
     redirect: {
-      name: 'gslb.list',
+      name: 'product.home',
     },
     children: [
-      {
-        component: (r) =>
-          require.ensure(
-            [],
-            () => r(require('../modules/GslbConfigs')),
-            'gslb',
-          ),
-        path: 'gslb',
-        name: 'gslb.list',
-      },
       {
         component: (r) =>
           require.ensure([], () => r(require('../modules/Login/Home')), 'home'),
@@ -72,27 +62,11 @@ export default [
         component: (r) =>
           require.ensure(
             [],
-            () => r(require('../modules/InstancePool')),
-            'ai-pool',
-          ),
-        path: 'ai-pool',
-        name: 'AIPool.list',
-      },
-      {
-        component: (r) =>
-          require.ensure(
-            [],
             () => r(require('../modules/AIInstancePool')),
             'instance-pool-ai',
           ),
         path: 'instance-pool-ai',
         name: 'AIGatewayInstancePool.list',
-      },
-      {
-        component: (r) =>
-          require.ensure([], () => r(require('../modules/Domains')), 'domain'),
-        path: 'domain',
-        name: 'Domain.list',
       },
       {
         component: (r) =>
@@ -124,17 +98,7 @@ export default [
         component: (r) =>
           require.ensure(
             [],
-            () => r(require('../modules/AIClusters/index')),
-            'ai-clusters',
-          ),
-        path: 'ai-clusters',
-        name: 'AIGatewayCluster.list',
-      },
-      {
-        component: (r) =>
-          require.ensure(
-            [],
-            () => r(require('../modules/AIRouteRules')),
+            () => r(require('../modules/Routes')),
             'ai-rule',
           ),
         path: 'ai-rule',
@@ -155,22 +119,12 @@ export default [
           ),
         path: 'Entity',
         name: 'Entity.list',
-      },
-      {
-        component: (r) =>
-          require.ensure(
-            [],
-            () => r(require('../modules/SubClusters')),
-            'SubCluster.list',
-          ),
-        path: 'subcluster',
-        name: 'SubCluster.list',
-      },
-      {
-        component: r => require.ensure([], () => r(require('../modules/Cert')), 'certs.list'),
-        path: 'cert',
-        name: 'certs.list'
       }
+      // {
+      //   component: r => require.ensure([], () => r(require('../modules/Cert')), 'certs.list'),
+      //   path: 'cert',
+      //   name: 'certs.list'
+      // }
     ],
   },
   {

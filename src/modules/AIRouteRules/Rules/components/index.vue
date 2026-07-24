@@ -308,7 +308,7 @@ export default {
         },
         getClusters() {
             this.$request({
-                url: this.$urlFormat('products/{product_name}/clusters'),
+                url: 'clusters',
                 method: 'get',
                 openapi: true
             }).then(data => {

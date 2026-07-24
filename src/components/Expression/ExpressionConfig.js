@@ -267,6 +267,18 @@ export const controller = conditionVars => [
         ]
     },
     {
+        name: 'body',
+        buttons: [
+            {
+                name: 'req_body_json_in',
+                description: 'req_body_json_in(jsonpath, patterns, foldCase)',
+                expression: 'req_body_json_in("","",false)',
+                example:
+                    '<p>req_body_json_in("level1.level2.level3", "pat1|pat2|pat3", false)</p>'
+            }
+        ]
+    },
+    {
         name: 'condition vars',
         buttons: conditionVars
     }

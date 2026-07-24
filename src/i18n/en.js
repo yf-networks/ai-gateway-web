@@ -166,7 +166,8 @@ export default {
   },
   instancePool: {
     name: 'Instance Pool',
-    list: 'Instance List',
+    list: 'Instance IP List',
+    config: 'Instance Configuration',
     machineName: 'Instance Name',
     machineOrDomain: 'Host/Domain',
     ipOrDomain: 'IP/Domain',
@@ -179,6 +180,13 @@ export default {
     eppIpList: 'EPP IP List',
     portName: 'Port Name',
     protValue: 'Port Number',
+    instanceMode: 'Instance Type',
+    modeIp: 'IP',
+    modeDomain: 'Provider Domain',
+    domain: 'Provider Domain',
+    domainRequired: 'Please enter the provider domain',
+    domainPlaceholder: 'Enter provider domain, e.g. example.com',
+    invalidDomain: 'Please enter a valid provider domain, e.g. example.com',
 
     tipWeightRang: 'Wrong weight, should be between 1 and 100',
     tipPortRang: 'Wrong port, shoudl be between 1 and 65535',
@@ -271,6 +279,11 @@ export default {
     selectActionRequired: 'Please select an action',
     selectClusterRequired: 'Please select',
     invalidDomain: 'Please enter a valid domain!',
+    pathMatchModeConsistent:
+      'Path match mode and path must both be filled or both be empty',
+    headerFillAllOrNone:
+      'Line {line}: all Header match fields must be filled or all left empty',
+    enterJsonPath: 'Please enter JSON path',
     atLeastOneCondition:
       'At least one matching condition must be configured: traffic tag, domain, path match, method, header match, model match',
     tipSubmitting: 'Submitting',
@@ -300,6 +313,19 @@ export default {
     exactMatch: 'Exact Match',
     prefixMatch: 'Prefix Match',
     suffixMatch: 'Suffix Match',
+    expression: 'Expression',
+    rule: 'Rule',
+    config: 'Configuration',
+    tipExplain: 'Forward rules are matched in order; matched requests are forwarded to the target cluster.',
+    tipAdvanceExplain: 'Advanced rules match requests by expression. Drag rows to change execution order.',
+    tipDel: 'Confirm delete this rule?',
+    tipUnsavedLeave:
+      'Rule changes have not been submitted and applied. Leaving this page will discard your changes. Continue?',
+    hostName: 'Host Name',
+    path: 'Path',
+    tipAdvanceMate: 'Match Advanced Rules',
+    logicalConnector: 'Logical Connector',
+    tipExpression: 'Example:',
   },
   cluster: {
     name: 'Cluster',
@@ -354,6 +380,8 @@ export default {
     tipBfeClusterNotExist:
       'AI Gateway Cluster not exist, please config AI Gateway cluster first',
     tipAtLeastoneInstance: 'Please add at least one instance',
+    tipDomainOnlyOne: 'When using a domain, only one instance is allowed; otherwise use multiple IP addresses',
+    tipDomainIpMixed: 'Domain and IP cannot be mixed; use a single domain or multiple IP addresses',
     tipSubClusterCapacityTotalRule:
       'Sum weight of all sub-cluster should be 100 for each AI Gateway Cluster',
     tipValueNonnegativeInteger: 'Value should be >=0',
@@ -423,6 +451,8 @@ export default {
     resetMonthly: 'Monthly',
     rateLimitConfig: 'Rate Limit Config',
     enableRateLimit: 'Enable Rate Limit',
+    enableRateLimitTip:
+      'When rate limiting is enabled, configure at least one effective rule: add TPM/RPM rules, or set max concurrency to Banned / Limit concurrency. No limit only removes the concurrency cap and cannot take effect alone; TPM/RPM rules are also required.',
     tpmRules: 'TPM Rules',
     rpmRules: 'RPM Rules',
     ruleName: 'Rule Name',
@@ -433,13 +463,20 @@ export default {
     maxRequests: 'Max Requests',
     addRule: 'Add Rule',
     maxConcurrency: 'Max Concurrency',
-    maxConcurrencyTip: '-1 means no limit',
+    maxConcurrencyUnlimited: 'No limit',
+    maxConcurrencyBanned: 'Banned',
+    maxConcurrencyLimited: 'Limit concurrency',
+    maxConcurrencyTip: '0: banned, -1: no limit, >0: concurrency limit',
+    maxConcurrencyMinError: 'Max concurrency minimum value is -1',
+    maxConcurrencyBannedError: 'Max concurrency must be 0 when banned',
+    maxConcurrencyLimitedRequired: 'Please enter concurrency limit',
+    maxConcurrencyLimitedInvalid: 'Concurrency limit must be greater than 0',
     maxConcurrencyMaxError: 'Max concurrency exceeds the allowed range',
     maxRulesTip: 'Max 3 rules',
     selectModels: 'Please select models',
     subnetTip:
       'Multiple subnets separated by newlines, default is * for no restriction',
-    descriptionLengthError: 'Description cannot exceed 1024 characters',
+    descriptionLengthError: 'Description cannot exceed 512 characters',
     quotaRequired: 'Please fill in quota total',
     quotaRangeError: 'Quota cannot be negative',
     quotaMaxError: 'Quota total exceeds the allowed range',
@@ -457,8 +494,9 @@ export default {
       'Step minutes at index {index} cannot exceed time window',
     stepMinutesRange:
       'Step minutes at index {index} must be between 1-360 minutes',
+    stepMinutesRequired: 'Please enter step minutes for rule #{index}',
     rateLimitRuleRequired:
-      'When rate limit is enabled, at least one rule (TPM/RPM/Max Concurrency) must be configured',
+      'Add a TPM/RPM rule, or set max concurrency to Banned / Limit concurrency',
     keyId: 'Key ID',
     keyValue: 'Key Value',
     status: 'Status',
@@ -487,7 +525,7 @@ export default {
     subnetRequired: 'Please enter allowed subnets',
     subnetCidrConflict:
       'When "*" is filled to indicate no restriction, other CIDRs cannot be filled',
-    subnetFormatError: 'Line {index} "{cidr}" is not a valid IPv4 CIDR format',
+    subnetFormatError: 'Line {index} "{cidr}" is not a valid IPv4/IPv6 CIDR format',
     subnetDuplicate: 'CIDR "{cidr}" is duplicated',
     subnetContained: 'CIDR "{cidr}" is contained in "{parent}"',
     subnetContains: 'CIDR "{cidr}" contains "{child}"',
@@ -514,6 +552,8 @@ export default {
     resetMonthly: 'Monthly',
     rateLimitConfig: 'Rate Limit Config',
     enableRateLimit: 'Enable Rate Limit',
+    enableRateLimitTip:
+      'When rate limiting is enabled, configure at least one effective rule: add TPM/RPM rules, or set max concurrency to Banned / Limit concurrency. No limit only removes the concurrency cap and cannot take effect alone; TPM/RPM rules are also required.',
     tpmRules: 'TPM Rules',
     rpmRules: 'RPM Rules',
     ruleName: 'Rule Name',
@@ -524,7 +564,14 @@ export default {
     maxRequests: 'Max Requests',
     addRule: 'Add Rule',
     maxConcurrency: 'Max Concurrency',
-    maxConcurrencyTip: '-1 means no limit',
+    maxConcurrencyUnlimited: 'No limit',
+    maxConcurrencyBanned: 'Banned',
+    maxConcurrencyLimited: 'Limit concurrency',
+    maxConcurrencyTip: '0: banned, -1: no limit, >0: concurrency limit',
+    maxConcurrencyMinError: 'Max concurrency minimum value is -1',
+    maxConcurrencyBannedError: 'Max concurrency must be 0 when banned',
+    maxConcurrencyLimitedRequired: 'Please enter concurrency limit',
+    maxConcurrencyLimitedInvalid: 'Concurrency limit must be greater than 0',
     maxConcurrencyMaxError: 'Max concurrency exceeds the allowed range',
     maxRulesTip: 'Max 3 rules',
     quota: 'Quota',
@@ -584,6 +631,7 @@ export default {
       'Step minutes cannot exceed time window for TPM rule #{index}',
     tpmStepMinutesRange:
       'Step minutes for TPM rule #{index} must be between 1-360 minutes',
+    tpmStepMinutesRequired: 'Please enter step minutes for TPM rule #{index}',
     rpmRuleNameRequired: 'Please enter rule name for RPM rule #{index}',
     rpmRuleNameDuplicate: 'RPM rule name {name} is duplicated',
     rpmWindowMinutesInvalid:
@@ -599,7 +647,7 @@ export default {
     ruleNameRequired: 'Please enter rule name',
     ruleNameDuplicate: 'Rule name {name} is duplicated',
     rateLimitRuleRequired:
-      'When rate limit is enabled, at least one rule (TPM/RPM/Max Concurrency) must be configured',
+      'Add a TPM/RPM rule, or set max concurrency to Banned / Limit concurrency',
     formValidateError: 'Form validation failed, please check inputs',
     typeManagement: 'Entity Type Management',
     orgManagement: 'Entity Organization Management',
@@ -671,6 +719,8 @@ export default {
       'The "Original Request Model Name" in line {line} cannot be empty',
     modelMappingValueRequired:
       'The "Forwarded Backend Model Name" in line {line} cannot be empty',
+    serviceAuthKeyPlaceholder: 'Please enter service auth key',
+    serviceAuthKeyEditTip: 'A key is already configured. Enter a new key to replace it; leave blank to keep unchanged',
   },
   aiRouteRules: {
     rulesList: 'Rules List',

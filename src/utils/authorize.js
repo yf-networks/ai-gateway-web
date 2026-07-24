@@ -30,20 +30,12 @@
 */
 // eslint-disable
 import Vue from 'vue';
-import { roleUndefined, roleProduct, roleAdmin, systemProduct } from './const';
 import store from './store';
 
 let excludeRoute = {
   'product.home': true,
 };
 
-function handleRole(userData, role) {
-  if (role === Vue.prototype.$AdminRole && userData.is_admin) {
-    return roleAdmin;
-  }
-
-  return roleUndefined;
-}
 export default async (to) => {
   let meta = store.getMeta();
   if (!meta) {
@@ -66,8 +58,7 @@ export default async (to) => {
   if (!userData) {
     return loginRoute;
   }
-  const curRole = handleRole(userData, to.query.role);
-  if (curRole === roleUndefined) {
+  if (!userData.is_admin) {
     return 'illegalAccess';
   }
 

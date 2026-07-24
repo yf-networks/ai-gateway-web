@@ -225,7 +225,7 @@ export default {
                 },
                 {
                     title: that.$t('apiKey.quotaType'),
-                    key: 'unlimited_quota',
+                    key: 'quota_plan.unlimited',
                     minWidth: 120,
                     sortable: 'custom',
                     searchable: true,
@@ -235,11 +235,13 @@ export default {
                         { label: that.$t('apiKey.limited'), value: 'false' }
                     ],
                     render(h, params) {
+                        const quotaPlan = params.row.quota_plan || {};
+                        const isUnlimited = quotaPlan.unlimited === true || quotaPlan.unlimited === 'true';
                         return h('Tag', {
                             props: {
-                                color: params.row.unlimited_quota ? 'default' : 'primary'
+                                color: isUnlimited ? 'default' : 'primary'
                             }
-                        }, params.row.unlimited_quota ? that.$t('apiKey.unlimited') : that.$t('apiKey.limited'));
+                        }, isUnlimited ? that.$t('apiKey.unlimited') : that.$t('apiKey.limited'));
                     }
                 },
                 {
@@ -250,7 +252,8 @@ export default {
                     searchable: true,
                     render(h, params) {
                         const quotaPlan = params.row.quota_plan || {};
-                        if (params.row.unlimited_quota || quotaPlan.unlimited) {
+                        const isUnlimited = quotaPlan.unlimited === true || quotaPlan.unlimited === 'true';
+                        if (isUnlimited) {
                             return h('span', '-');
                         }
                         const used = quotaPlan.balance && quotaPlan.balance.used || 0;
@@ -414,7 +417,7 @@ export default {
             // Remove read-only fields
             delete tmpData.id;
             delete tmpData.create_time;
-            delete tmpData.updated_time;
+            delete tmpData.update_time;
 
             if (this.isAdd) {
                 this.addReq(tmpData);

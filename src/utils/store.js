@@ -29,14 +29,13 @@
 * limitations under the License.
 */
 import Vue from 'vue';
-import { i18n } from '@/utils/i18n';
-import { role2name, roleAdmin } from '@/utils/const';
+
+const ADMIN_NAV_KEY = 'admin';
 
 export default {
     state: Vue.observable({
         user: null,
-        meta: null,
-        curRole: roleAdmin
+        meta: null
     }),
     getUser() {
         if (this.state.user) {
@@ -48,21 +47,8 @@ export default {
         }
         return null;
     },
-    getUserRoles() {
-        let user = this.getUser();
-        if (!user) {
-            return [];
-        }
-
-        roles.push({ id: roleAdmin, role: i18n.t('com.sysAdminView') });
-
-        return roles;
-    },
     getLoginRoute() {
         return 'LoginPassword';
-    },
-    getCurRole() {
-        return this.state.curRole;
     },
     getMeta() {
         return this.state.meta;
@@ -70,23 +56,12 @@ export default {
     getNav() {
         return this.state.meta ? this.state.meta.nav : null;
     },
-    isProductManager() {
-        return this.state.curRole === 0;
+    getNavRoot() {
+        const nav = this.getNav();
+        return nav ? nav[ADMIN_NAV_KEY] : null;
     },
     findNav(routeName) {
-        if (!this.state.meta || !this.state.meta.nav) {
-            return null;
-        }
-
-        let role2nav = this.state.meta.nav[role2name[this.state.curRole]];
-        if (!role2nav) {
-            return null;
-        }
-
-        return findNav(role2nav, routeName);
-    },
-    setCurRole(newVal) {
-        this.state.curRole = newVal;
+        return findNav(this.getNavRoot(), routeName);
     },
     setMeta(newVal) {
         this.state.meta = newVal;
@@ -98,7 +73,6 @@ export default {
             is_admin: newVal.is_admin
         };
         localStorage.setItem('user', JSON.stringify(this.state.user));
-        this.state.curRole = roleAdmin;
     },
     removeUserData() {
         this.state.user = null;

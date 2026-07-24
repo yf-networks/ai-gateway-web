@@ -60,27 +60,18 @@ import { setLang, langSet, getLang } from '@/utils/i18n';
 export default {
     name: 'headerBar',
     computed: {
-        role() {
-            return this.$store.getCurRole();
-        },
-        roles() {
-            return this.$store.getUserRoles();
-        },
         user() {
             return this.$store.getUser();
         }
     },
     mounted() {
-        this.curRole = this.role;
         this.lang = getLang();
     },
     data() {
         return {
-            curRole: -1,
             ishandleTitleWidth: false,
             langSet,
-            lang: 'zh',
-            view: null
+            lang: 'zh'
         };
     },
     methods: {
@@ -131,26 +122,6 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.role_select {
-    width: 120px;
-    background: none !important;
-    color: black;
-}
-/deep/ .ivu-select-selection .ivu-icon-ios-arrow-down:before {
-    content: '\F110';
-    left: 5px;
-}
-/deep/ .ivu-select-single .ivu-select-selection .ivu-select-selected-value,
-.ivu-select-multiple .ivu-select-selection .ivu-select-selected-value {
-    padding-left: 35px;
-}
-/deep/ .ivu-select-arrow {
-    left: 10px;
-}
-/deep/ .ivu-select-single .ivu-select-selection .ivu-select-arrow,
-.ivu-select-multiple .ivu-select-selection .ivu-select-arrow {
-    right: unset;
-}
 .bfe-header {
     left: 240px;
     transition: margin-left 0.35s ease-in-out, left 0.35s ease-in-out,
