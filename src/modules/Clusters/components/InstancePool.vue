@@ -295,9 +295,10 @@ export function normalizeInstance(instance) {
     if (item.Hostname && !item.hostname) {
         item.hostname = item.Hostname;
     }
-    if (item.Ports && typeof item.Ports === 'object') {
+    const portSource = (item.ports && typeof item.ports === 'object') ? item.ports : item.Ports;
+    if (portSource && typeof portSource === 'object') {
         item.ports = {
-            Default: item.Ports.Default != null ? item.Ports.Default : item.Ports.default
+            Default: portSource.Default != null ? portSource.Default : portSource.default
         };
     }
     if (item.Port != null && (!item.ports || item.ports.Default == null)) {
