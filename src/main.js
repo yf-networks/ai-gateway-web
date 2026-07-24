@@ -49,8 +49,6 @@ Vue.use(requestPlugin);
 
 Vue.prototype.$urlFormat = urlFormat;
 Vue.prototype.$BFEProductLineId = 1;
-Vue.prototype.$AdminRole = 'admin';
-Vue.prototype.$ProductRole = 'product';
 Vue.prototype.$store = store;
 Vue.prototype.Version = '_VERSION_';
 

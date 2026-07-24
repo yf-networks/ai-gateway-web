@@ -114,10 +114,6 @@
                     <li class="title">{{ $t('cluster.maxRetryInSubcluster') }} :</li>
                     <li class="value">{{ baseConfigData.retries.max_retry_in_subcluster }}</li>
                 </ul>
-                <ul class="clearFloat">
-                    <li class="title">{{ $t('cluster.maxRetryCrossSubcluster') }}:</li>
-                    <li class="value">{{ baseConfigData.retries.max_retry_cross_subcluster }}</li>
-                </ul>
             </div>
         </div>
         <div class="panel">
@@ -146,17 +142,29 @@
             </div>
         </div>
         <div class="panel">
-            <div class="panel-header">{{ $t('subCluster.name') }}</div>
+            <div class="panel-header">{{ $t('instancePool.config') }}</div>
             <div class="panel-body">
-                <pageTable :columns="columns" :tableData="subClustersUsed" />
+                <ul class="clearFloat">
+                    <li class="title">{{ $t('instancePool.instanceMode') }}:</li>
+                    <li class="value">{{ instanceModeText }}</li>
+                </ul>
+                <ul v-if="isDomainMode" class="clearFloat">
+                    <li class="title">{{ $t('instancePool.domain') }}:</li>
+                    <li class="value">{{ providerDomain || '-' }}</li>
+                </ul>
+                <ul v-else class="clearFloat detail-row detail-row-block instance-ip-list-row">
+                    <li class="title">{{ $t('instancePool.list') }}:</li>
+                    <li class="value">
+                        <pageTable :columns="ipColumns" :tableData="instancePoolUsed" />
+                    </li>
+                </ul>
             </div>
         </div>
         <!-- 大模型 -->
         <div class="panel">
             <div class="panel-header">{{ $t('llmConfig.title') }}</div>
-            <div class="panel-body" v-if="llmConfigData">
-                <div v-if="llmConfigData.enable">
-                    <ul class="clearFloat">
+            <div class="panel-body" v-if="llmConfigData && llmConfigData.model_endpoint">
+                <ul class="clearFloat">
                         <li class="title">{{ $t('llmConfig.serviceName') }}:</li>
                         <li class="value">{{ llmConfigData.service_name }}</li>
                     </ul>
@@ -166,7 +174,7 @@
                     </ul>
                     <ul class="clearFloat">
                         <li class="title">{{ $t('gatewayConfig.modelServiceProvider') }}:</li>
-                        <li class="value">{{ llmConfigData.provider_type }}</li>
+                        <li class="value">{{ providerTypeText }}</li>
                     </ul>
                     <ul class="clearFloat">
                         <li class="title">{{ $t('gatewayConfig.modelListEndpoint') }}:</li>
@@ -175,10 +183,10 @@
                                 {{ llmConfigData.model_endpoint.schema }}://{{ ipStr
                                 }}{{ llmConfigData.model_endpoint.uri }}
                             </p>
-                            <p>header: {{ llmConfigData.model_endpoint.headers }}</p>
+                            <p>header: {{ displayEndpointHeaders }}</p>
                         </li>
                     </ul>
-                    <ul class="clearFloat">
+                    <ul class="clearFloat detail-row">
                         <li class="title">{{ $t('llmConfig.models') }}:</li>
                         <li class="value">
                             <template v-if="displayModels.length">
@@ -188,13 +196,13 @@
                                     class="model-tag"
                                 >{{ model }}</span>
                             </template>
-                            <span v-else>-</span>
+                            <span v-else class="empty-text">-</span>
                         </li>
                     </ul>
-                    <ul class="clearFloat">
+                    <ul class="clearFloat detail-row detail-row-block">
                         <li class="title">{{ $t('llmConfig.modelRedirect') }}:</li>
                         <li class="value">
-                            <table>
+                            <table v-if="displayModelMappings.length" class="mapping-table">
                                 <thead>
                                     <tr>
                                         <th>{{ $t('llmConfig.originalModelName') }}</th>
@@ -203,76 +211,29 @@
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, index) in llmConfigData.model_mappings"
+                                        v-for="(item, index) in displayModelMappings"
                                         :key="index"
                                     >
-                                        <td>
-                                            {{ item.key }}
-                                        </td>
-                                        <td>
-                                            {{ item.value }}
-                                        </td>
+                                        <td>{{ item.key }}</td>
+                                        <td>{{ item.value }}</td>
                                     </tr>
                                 </tbody>
                             </table>
+                            <span v-else class="empty-text">-</span>
                         </li>
                     </ul>
                     <ul class="clearFloat">
                         <li class="title">{{ $t('llmConfig.serviceAuthKey') }}:</li>
-                        <li class="value">{{ llmConfigData.key }}</li>
+                        <li class="value">{{ maskedServiceAuthKey }}</li>
                     </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-header">{{ $t('cluster.schedulerConfig') }}</div>
-            <div class="panel-body">
-                <table>
-                    <tr>
-                        <th>BFE{{ $t('cluster.name') }}</th>
-                        <th>{{ $t('com.nameX', { obj: $t('subCluster.name') }) }}</th>
-                        <th>{{ $t('cluster.proportion') }}</th>
-                        <th>Total</th>
-                    </tr>
-
-                    <template v-for="(subClusters, bfeCluster) in scheduler">
-                        <tr
-                            v-for="(subCluster, index) in Object.keys(subClusters)"
-                            :key="index"
-                            :class="[
-                                queryTotalRate(subClusters) !== 100 ? 'errorColor' : '',
-                                'td-padding'
-                            ]"
-                        >
-                            <td
-                                class="td-padding"
-                                v-if="index == 0"
-                                :rowspan="Object.keys(subClusters).length"
-                            >
-                                {{ bfeCluster }}
-                            </td>
-                            <td class="td-padding">{{ subCluster }}</td>
-                            <td class="td-padding">
-                                {{ subClusters[subCluster] }}
-                            </td>
-                            <td
-                                class="td-padding"
-                                :rowspan="Object.keys(subClusters).length"
-                                v-if="index == 0"
-                            >
-                                {{ queryTotalRate(subClusters) }}
-                            </td>
-                        </tr>
-                    </template>
-                </table>
             </div>
         </div>
     </div>
 </template>
 <script>
 import pageTable from '@/components/table/pageTable';
-import { cloneDeep } from 'lodash';
+import { parseInstancePool, detectInstanceMode } from './InstancePool';
+import { maskSecretKey } from '@/utils/const';
 export default {
     name: 'Review',
 
@@ -287,14 +248,18 @@ export default {
             type: Object,
             required: true
         },
-        subClustersData: {
+        instancePoolData: {
             type: Array,
             required: true
         },
         llmConfigData: {
             type: Object
         },
-        scheduler: {
+        originalLlmConfigKey: {
+            type: String,
+            default: ''
+        },
+        originalLlmConfigHeaders: {
             type: Object,
             default() {
                 return {};
@@ -308,47 +273,31 @@ export default {
             type: Boolean,
             default: true
         },
-        subClusterProductList: {
-            type: Array,
-            default() {
-                return [];
-            }
-        },
         reportFlag: {
             type: Boolean
         }
     },
+    mounted() {
+        this.getProviders();
+    },
     watch: {
-        subClustersData: {
+        instancePoolData: {
             handler(v) {
-                this.subClustersUsed = [];
-                if (v) {
-                    this.subClustersUsed = cloneDeep(v);
-                    if (this.subClusterProductList && this.subClusterProductList.length > 0) {
-                        this.subClustersUsed = this.subClusterProductList.filter(
-                            item => this.subClustersUsed.indexOf(item.name) !== -1
-                        );
-                    }
-
-                    this.ipStr = '';
-
-                    const filteredClusters = this.subClusterProductList.filter(cluster =>
-                        v.includes(cluster.name)
-                    );
-
-                    const ipPortList = [];
-                    filteredClusters.forEach(cluster => {
-                        if (cluster.instances && Array.isArray(cluster.instances)) {
-                            cluster.instances.forEach(instance => {
-                                ipPortList.push(`${instance.Addr}:${instance.Port}`);
-                            });
-                        }
-                    });
-
-                    const uniqueIpPortList = [...new Set(ipPortList)];
-
-                    this.ipStr = uniqueIpPortList.join('\n');
-                }
+                const pool = Array.isArray(v) ? v : parseInstancePool(v);
+                this.instancePoolUsed = parseInstancePool(pool);
+                const { mode, domain } = detectInstanceMode(
+                    this.instancePoolUsed.length ? this.instancePoolUsed : pool
+                );
+                this.instanceMode = mode;
+                this.providerDomain = domain;
+                this.ipStr = this.instancePoolUsed
+                    .map(instance => {
+                        const port = instance.ports && instance.ports.Default != null
+                            ? instance.ports.Default
+                            : 80;
+                        return `${instance.ip}:${port}`;
+                    })
+                    .join('\n');
             },
             immediate: true,
             deep: true
@@ -361,23 +310,48 @@ export default {
     },
     data() {
         return {
-            subClustersUsed: [],
+            instancePoolUsed: [],
+            instanceMode: 'ip',
+            providerDomain: '',
             spinShow: false,
             productName: '',
             ipStr: '',
-            columns: [
-                {
-                    title: this.$t('subCluster.name'),
-                    key: 'name'
-                },
-                {
-                    title: this.$t('instancePool.name'),
-                    key: 'instance_pool'
-                }
-            ]
+            providers: []
         };
     },
     computed: {
+        providerTypeText() {
+            const providerType = this.llmConfigData && this.llmConfigData.provider_type;
+            if (!providerType) {
+                return '-';
+            }
+            const provider = this.providers.find(item => item.id === providerType);
+            return provider ? provider.name : providerType;
+        },
+        isDomainMode() {
+            return this.instanceMode === 'domain';
+        },
+        instanceModeText() {
+            return this.isDomainMode
+                ? this.$t('instancePool.modeDomain')
+                : this.$t('instancePool.modeIp');
+        },
+        ipColumns() {
+            return [
+                {
+                    title: this.$t('instancePool.ipAddress'),
+                    key: 'ip'
+                },
+                {
+                    title: this.$t('instancePool.port'),
+                    key: 'port',
+                    render(h, params) {
+                        const ports = params.row.ports || {};
+                        return h('span', ports.Default != null ? String(ports.Default) : '-');
+                    }
+                }
+            ];
+        },
         displayModels() {
             const models = this.llmConfigData && this.llmConfigData.models;
             if (!Array.isArray(models)) {
@@ -391,20 +365,59 @@ export default {
                     return model;
                 })
                 .filter(model => model !== '' && model !== null && model !== undefined);
+        },
+        displayModelMappings() {
+            const mappings = this.llmConfigData && this.llmConfigData.model_mappings;
+            if (!Array.isArray(mappings)) {
+                return [];
+            }
+            return mappings.filter(item => item && (item.key || item.value));
+        },
+        maskedServiceAuthKey() {
+            const key = this.llmConfigData && this.llmConfigData.key;
+            if (!key) {
+                return '-';
+            }
+            if (this.originalLlmConfigKey && key === this.originalLlmConfigKey) {
+                return maskSecretKey(key);
+            }
+            return key;
+        },
+        displayEndpointHeaders() {
+            const headers =
+                this.llmConfigData &&
+                this.llmConfigData.model_endpoint &&
+                this.llmConfigData.model_endpoint.headers;
+            if (!headers || typeof headers !== 'object' || !Object.keys(headers).length) {
+                return '-';
+            }
+            const originalHeaders = this.originalLlmConfigHeaders || {};
+            return Object.keys(headers)
+                .map(key => {
+                    const value = headers[key];
+                    const displayValue =
+                        originalHeaders[key] != null && value === originalHeaders[key]
+                            ? maskSecretKey(value)
+                            : value;
+                    return `${key}: ${displayValue}`;
+                })
+                .join('; ');
         }
     },
     methods: {
+        getProviders() {
+            this.$request({
+                url: 'model-providers',
+                method: 'get',
+                openapi: true
+            }).then(data => {
+                if (data.status === 200) {
+                    this.providers = data.data.Data || [];
+                }
+            });
+        },
         handleSubmit() {
             this.$emit('submitData');
-        },
-        queryTotalRate(subCluster2rate) {
-            let rate = 0;
-            for (let subCluster in subCluster2rate) {
-                if (subCluster2rate.hasOwnProperty(subCluster)) {
-                    rate += subCluster2rate[subCluster];
-                }
-            }
-            return rate;
         }
     }
 };
@@ -413,83 +426,104 @@ export default {
 .com-btn-box {
     margin-top: 15px;
 }
-.panel .panel-body ul .title {
-    width: 400px;
+
+.Review {
+    .panel-body ul.clearFloat {
+        display: flex;
+        align-items: center;
+        line-height: 22px;
+        padding: 6px 0;
+        min-height: 30px;
+
+        &::after {
+            display: none;
+        }
+
+        .title {
+            float: none;
+            width: 200px;
+            flex-shrink: 0;
+            text-align: right;
+            white-space: normal;
+            overflow: visible;
+        }
+
+        .value {
+            float: none;
+            flex: 1;
+            padding-left: 16px;
+            min-width: 0;
+            word-break: break-word;
+        }
+    }
+
+    .panel-body ul.clearFloat.detail-row-block,
+    .panel-body ul.clearFloat.instance-ip-list-row {
+        align-items: flex-start;
+    }
+
+    .detail-row-block {
+        .title {
+            padding-top: 8px;
+        }
+    }
+
+    .instance-ip-list-row {
+        .value {
+            /deep/ .page-table {
+                margin-top: 0;
+            }
+
+            /deep/ .page-table .page {
+                margin-top: 12px;
+            }
+        }
+    }
 }
+
 .model-tag {
     display: inline-block;
     margin: 0 8px 8px 0;
-    padding: 2px 8px;
-    background: #f0f0f0;
+    padding: 2px 10px;
+    background: #ecf5ff;
+    border: 1px solid #d9ecff;
     border-radius: 3px;
+    color: #409eff;
     font-size: 12px;
     line-height: 20px;
 }
-table {
-    @tableBorder: 1px solid #f4f4f4;
-    width: 100%;
-    border-top: @tableBorder;
-    border-left: @tableBorder;
+
+.empty-text {
+    color: #999;
+}
+
+.mapping-table {
+    width: auto;
+    min-width: 420px;
+    max-width: 100%;
     border-collapse: collapse;
-    margin-bottom: 30px;
-    .t {
-        border-right: @tableBorder;
-        border-bottom: @tableBorder;
-        text-align: left;
-        font-size: 14px;
-    }
-    .td-padding {
-        padding: 0 8px;
-        line-height: 40px;
-        height: 40px;
-    }
-    .chlid {
-        border-bottom: @tableBorder;
-        padding: 0 8px;
-        .td-padding();
-        &:last-child {
-            border-bottom: 0px;
-        }
-        .warningMessage {
-            font-size: 12px;
-            text-align: left;
-            color: black;
-            height: 12px;
-            line-height: 12px;
-        }
-    }
+    border: 1px solid #e7e9f0;
+    margin: 0;
 
-    .errorColor {
-        line-height: 45px;
-        height: 60px;
-    }
+    th,
     td {
-        .t();
+        padding: 8px 16px;
+        text-align: left;
+        border: 1px solid #e7e9f0;
+        font-size: 13px;
+        line-height: 20px;
+        word-break: break-all;
     }
-    th {
-        .t();
-        .td-padding();
-    }
-    .background {
-        background: #eee;
-    }
-}
-.formShow {
-    ul {
-        display: flex;
-        font-weight: 600;
-        font-size: 14px;
-        margin: 3px 0;
-    }
-    margin-bottom: 10px;
-}
 
-.model-tag {
-    display: inline-block;
-    margin: 0 8px 8px 0;
-    padding: 2px 8px;
-    background: #f0f0f0;
-    border-radius: 3px;
-    font-weight: normal;
+    th {
+        background: #f8f8f9;
+        color: #515a6e;
+        font-weight: 500;
+    }
+
+    td {
+        color: #333;
+        background: #fff;
+    }
 }
 </style>

@@ -41,9 +41,6 @@ export default {
         user() {
             return this.$store.getUser();
         },
-        role() {
-            return this.$store.getCurRole();
-        },
         nav() {
             return this.$store.findNav(this.$route.name);
         }

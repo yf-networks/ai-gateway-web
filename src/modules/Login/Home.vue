@@ -40,14 +40,6 @@ export default {
     computed: {
         user() {
             return this.$store.getUser();
-        },
-        role() {
-            return this.$store.getCurRole();
-        }
-    },
-    methods: {
-        lookManaual() {
-            window.open('/v1/files/manaual.html');
         }
     }
 };

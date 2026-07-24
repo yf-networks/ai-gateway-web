@@ -104,9 +104,7 @@ export default {
         goLogin(data) {
             this.$store.setUserData(data);
             this.$router.push({
-                name: 'product.home',
-                params: { name: 'AI_product' },
-                query: { role: this.$AdminRole }
+                name: 'product.home'
             });
         },
         handleSubmit(name) {

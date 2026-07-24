@@ -75,16 +75,6 @@
                 style="width: 100%;"
             ></InputNumber>
         </FormItem>
-        <FormItem
-            v-if="formData.retries"
-            :label="$t('cluster.maxRetryCrossSubcluster')"
-            prop="retries.max_retry_cross_subcluster"
-        >
-            <InputNumber
-                v-model="formData.retries['max_retry_cross_subcluster']"
-                style="width: 100%;"
-            ></InputNumber>
-        </FormItem>
     </Form>
 </template>
 <script>
@@ -179,13 +169,6 @@ export default {
                     }
                 ],
                 'retries.max_retry_in_subcluster': [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: timeoutValidate
-                    }
-                ],
-                'retries.max_retry_cross_subcluster': [
                     {
                         required: true,
                         trigger: 'change',
